@@ -12,9 +12,13 @@ import './App.css';
 
 const Home = () => <span></span>;
 
-const FirstVisit = () => <h2 className="text-info">病患資料登錄</h2>;
+const AddPatient = () => <h2 className="text-info">病患資料登錄</h2>;
 
-const FollowUp = () => <h2>病患資料查詢</h2>;
+const QueryPatient = () => <h2>病患資料查詢</h2>;
+
+const Organization = () => <h2>醫事單位管理</h2>;
+
+const ImmunizationObservation = () => <h2>疫苗曁篩檢資料管理</h2>;
 
 const App = () => {
 
@@ -78,15 +82,20 @@ const App = () => {
       'Z': 33,
     };
     let digits = '0123456789';
+    let errorMessage = '身份證字號格式錯誤！';
     if (!Object.keys(mappedAlphabetsNumbers).includes(idNumber[0])) {
-      return '身份證字號格式錯誤！';
+      return errorMessage;
     }
     if (idNumber[1] !== '1' && idNumber[1] !== '2') {
-      return '身份證字號格式錯誤！';
+      return errorMessage;
     }
     if (!digits.includes(idNumber[2])) {
-      return '身份證字號格式錯誤！';
+      return errorMessage;
     }
+    let alphabetNumStr = String(mappedAlphabetsNumbers[idNumber[0]]);
+    let checkNumber = 1 * alphabetNumStr[0] + 9 * alphabetNumStr[1] + 8 * idNumber[0] + 7 * idNumber[1] + 6 * idNumber[2] + 5 * idNumber[3] + 4 * idNumber[4] + 3 * idNumber[5] + 2 * idNumber[6] + 1 * idNumber[7] + 1 * idNumber[8];
+
+    return (checkNumber % 10 === 0) ? '' : errorMessage;
   };
 
   const findFormErrors = () => {
@@ -127,6 +136,11 @@ const App = () => {
     if (!patientSex || patientSex === '') {
       newErrors.patientSex = '請選擇病患性別！';
     }
+    if (!!patientSex) {
+      if (patientSex !== 'male' && patientSex !== 'female') {
+        newErrors.patientSex = '請選擇病患男性或女性！';
+      }
+    }
     if (!patientBirthDate || patientBirthDate === '') {
       newErrors.patientBirthDate = '請選擇病患出生日期！';
     }
@@ -150,14 +164,17 @@ const App = () => {
             <LinkContainer to="/">
               <Button>首頁</Button>
             </LinkContainer>
-            <LinkContainer to="/first_visit">
+            <LinkContainer to="/add_patient">
               <Button>病患資料登錄</Button>
             </LinkContainer>
-            <LinkContainer to="/follow_up">
+            <LinkContainer to="/query_patient">
               <Button>病患資料查詢</Button>
             </LinkContainer>
             <LinkContainer to="/organization">
               <Button variant="secondary">醫事單位管理</Button>
+            </LinkContainer>
+            <LinkContainer to="/immunization_observation">
+              <Button variant="info">疫苗曁篩檢資料管理</Button>
             </LinkContainer>
           </ButtonToolbar>
       </Jumbotron>
@@ -165,8 +182,8 @@ const App = () => {
     <Container className="p-3">
       <h2>{' '}</h2>
           <Switch>
-            <Route path="/first_visit">
-            <FirstVisit />
+            <Route path="/add_patient">
+            <AddPatient />
             <Form>
               <Form.Group className="mb-3">
                 <Form.Label>請輸入病患身份證字號<Form.Label className="text-danger">*</Form.Label></Form.Label>
@@ -231,8 +248,14 @@ const App = () => {
               </Button>
             </Form>
             </Route>
-            <Route path="/follow_up">
-              <FollowUp />
+            <Route path="/query_patient">
+              <QueryPatient />
+            </Route>
+            <Route path="/organization">
+              <Organization />
+            </Route>
+            <Route path="/immunization_observation">
+              <ImmunizationObservation />
             </Route>
             <Route path="/">
               <Home />
