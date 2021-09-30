@@ -4,6 +4,8 @@ import { MemoryRouter, Switch, Route } from 'react-router-dom';
 import Jumbotron from 'react-bootstrap/Jumbotron';
 import Container from 'react-bootstrap/Container';
 import Button from 'react-bootstrap/Button';
+import Dropdown from 'react-bootstrap/Dropdown';
+import DropdownButton from 'react-bootstrap/DropdownButton';
 import Form from 'react-bootstrap/Form';
 import ButtonToolbar from 'react-bootstrap/ButtonToolbar';
 import { LinkContainer } from 'react-router-bootstrap';
@@ -16,14 +18,28 @@ const AddPatient = () => <h2 className="text-info">病患資料登錄</h2>;
 
 const QueryPatient = () => <h2>病患資料查詢</h2>;
 
-const Organization = () => <h2>醫事單位管理</h2>;
+const QueryOrganization = () => <h2>查詢醫事單位</h2>;
 
-const ImmunizationObservation = () => <h2>疫苗曁篩檢資料管理</h2>;
+const AddOrganization = () => <h2>新增醫事單位</h2>;
+
+const AddImmunization = () => <h2>新增疫苗接種資料</h2>;
+
+const QueryImmunization = () => <h2>查詢疫苗接種資料</h2>;
+
+const AddObservation = () => <h2>新增篩檢資料</h2>;
+
+const QueryObservation = () => <h2>查詢篩檢資料</h2>;
+
+const FHIRServerSetting = () => <h2>FHIRServer設定</h2>;
 
 const App = () => {
 
   const [form, setForm] = useState({});
   const [errors, setErrors] = useState({});
+  const [labelText, setLabelText] = useState('請輸入病患id');
+  const [buttonText, setSearchButtonText] = useState('進階搜尋');
+  const [createdDate, setCreatedDateText] = useState('');
+  const [dateVisibleText, setDateVisibleText] = useState('invisible');
 
   const setField = (field, value) => {
     setForm({
@@ -47,6 +63,22 @@ const App = () => {
     }
 
     console.log('Done for filling form!');
+  };
+
+  const renderSearchTemplate = e => {
+    e.preventDefault();
+    if (e.currentTarget.textContent === '基本搜尋') {
+      setLabelText('請輸入病患id(Patient Resource id)');
+      setSearchButtonText('進階搜尋');
+      setCreatedDateText('');
+      setDateVisibleText('invisible');
+    }
+    if (e.currentTarget.textContent === '進階搜尋') {
+      setLabelText('請輸入病患中文姓名');
+      setSearchButtonText('基本搜尋');
+      setCreatedDateText('請選擇建立資料之日期');
+      setDateVisibleText('visible');
+    }
   };
 
   const checkIdNumber = (idNumber) => {
@@ -84,16 +116,27 @@ const App = () => {
     let digits = '0123456789';
     let errorMessage = '身份證字號格式錯誤！';
     if (!Object.keys(mappedAlphabetsNumbers).includes(idNumber[0])) {
-      return errorMessage;
+      return '身份證字號第一碼應為英文大寫數字！';
     }
     if (idNumber[1] !== '1' && idNumber[1] !== '2') {
-      return errorMessage;
+      return '身份證字號第二碼應為1或2！';
     }
-    if (!digits.includes(idNumber[2])) {
+    if (!idNumber.substring(1).includes(digits)) {
       return errorMessage;
     }
     let alphabetNumStr = String(mappedAlphabetsNumbers[idNumber[0]]);
-    let checkNumber = 1 * alphabetNumStr[0] + 9 * alphabetNumStr[1] + 8 * idNumber[0] + 7 * idNumber[1] + 6 * idNumber[2] + 5 * idNumber[3] + 4 * idNumber[4] + 3 * idNumber[5] + 2 * idNumber[6] + 1 * idNumber[7] + 1 * idNumber[8];
+    let checkNumber = 1 * Number(alphabetNumStr[0]) +
+        9 * Number(alphabetNumStr[1]) +
+        8 * Number(idNumber[1]) +
+        7 * Number(idNumber[2]) +
+        6 * Number(idNumber[3]) +
+        5 * Number(idNumber[4]) +
+        4 * Number(idNumber[5]) +
+        3 * Number(idNumber[6]) +
+        2 * Number(idNumber[7]) +
+        1 * Number(idNumber[8]) +
+        1 * Number(idNumber[9]);
+    console.log(checkNumber);
 
     return (checkNumber % 10 === 0) ? '' : errorMessage;
   };
@@ -170,11 +213,30 @@ const App = () => {
             <LinkContainer to="/query_patient">
               <Button>病患資料查詢</Button>
             </LinkContainer>
-            <LinkContainer to="/organization">
-              <Button variant="secondary">醫事單位管理</Button>
-            </LinkContainer>
-            <LinkContainer to="/immunization_observation">
-              <Button variant="info">疫苗曁篩檢資料管理</Button>
+            <DropdownButton className="custom-btn-toolbar" as="ButtonGroup" title="醫事單位管理" variant="secondary">
+                <LinkContainer to="/add_organization">
+                  <Dropdown.Item eventKey="1">新增醫事單位</Dropdown.Item>
+                </LinkContainer>
+                <LinkContainer to="/query_organization">
+                  <Dropdown.Item eventKey="2">查詢醫事單位</Dropdown.Item>
+                </LinkContainer>
+            </DropdownButton>
+            <DropdownButton className="custom-btn-toolbar" as="ButtonGroup" title="疫苗曁篩檢資料管理" variant="info">
+              <LinkContainer to="/add_immunization">
+                <Dropdown.Item eventKey="1">新增疫苗接種資料</Dropdown.Item>
+              </LinkContainer>
+              <LinkContainer to="/query_immunization">
+                <Dropdown.Item eventKey="2">查詢疫苗接種資料</Dropdown.Item>
+              </LinkContainer>
+              <LinkContainer to="/add_observation">
+                <Dropdown.Item eventKey="2">新增篩檢資料</Dropdown.Item>
+              </LinkContainer>
+              <LinkContainer to="/query_observation">
+                <Dropdown.Item eventkey="3">查詢篩檢資料</Dropdown.Item>
+              </LinkContainer>
+            </DropdownButton>
+            <LinkContainer to="/fhir_server_setting">
+              <Button variant="info">FHIRServer設定</Button>
             </LinkContainer>
           </ButtonToolbar>
       </Jumbotron>
@@ -189,7 +251,7 @@ const App = () => {
                 <Form.Label>請輸入病患身份證字號<Form.Label className="text-danger">*</Form.Label></Form.Label>
                 <Form.Control onChange={ e => setField('idNumber', e.target.value) } type="text" placeholder="輸入身份證字號" isInvalid={ !!errors.idNumber }/>
                 <Form.Control.Feedback type='invalid'>{ errors.idNumber }</Form.Control.Feedback>
-                <Form.Text className="text-warning">
+                <Form.Text className="text-info">
                  此為醫事人員專用系統， 請勿任意分享身份證字號給他人
                 </Form.Text>
               </Form.Group>
@@ -198,7 +260,7 @@ const App = () => {
                 <Form.Label>請輸入病患護照號碼</Form.Label>
                 <Form.Control onChange={ e => setField('passportNumber', e.target.value) } type="text" placeholder="輸入護照號碼" isInvalid={ !!errors.passportNumber }/>
                 <Form.Control.Feedback type='invalid'>{ errors.passportNumber }</Form.Control.Feedback>
-                <Form.Text className="text-warning">
+                <Form.Text className="text-info">
                  此為醫事人員專用系統， 請勿任意分享護照號碼給他人
                 </Form.Text>
               </Form.Group>
@@ -250,12 +312,91 @@ const App = () => {
             </Route>
             <Route path="/query_patient">
               <QueryPatient />
+              <Form>
+                <Form.Group className="mb-3">
+                  <Button variant="info" type="button" onClick={ renderSearchTemplate }>
+                    {buttonText}
+                  </Button>
+                </Form.Group>
+                <Form.Group className="mb-3">
+                  <Form.Label>{labelText}<Form.Label className="text-danger">*</Form.Label></Form.Label>
+                  <Form.Control type="text" placeholder={labelText}/>
+                </Form.Group>
+                <Form.Group className="mb-3">
+                  <Form.Label>{createdDate}</Form.Label>
+                  <Form.Control type="date" className={dateVisibleText} placeholder={labelText}/>
+                </Form.Group>
+
+                <Button variant="primary" type="submit" onClick={ handleSubmit }>
+                  送出
+                </Button>
+              </Form>
             </Route>
-            <Route path="/organization">
-              <Organization />
+            <Route path="/query_organization">
+              <QueryOrganization />
+              <Form>
+                <Form.Group className="mb-3">
+                  <Form.Label>請輸入Organization id<Form.Label className="text-danger">*</Form.Label></Form.Label>
+                  <Form.Control type="text" placeholder="請輸入Organization id"/>
+                </Form.Group>
+              </Form>
+
+              <Button variant="primary" type="submit" onClick={ handleSubmit }>
+                  送出
+              </Button>
             </Route>
-            <Route path="/immunization_observation">
-              <ImmunizationObservation />
+            <Route path="/add_organization">
+              <AddOrganization />
+              <Form>
+                <Form.Group className="mb-3">
+                  <Form.Label>請輸入醫事代碼<Form.Label className="text-danger">*</Form.Label></Form.Label>
+                  <Form.Control type="text" placeholder="請輸入醫事代碼"/>
+                </Form.Group>
+                <Form.Group className="mb-3">
+                  <Form.Label>請輸入醫事單位名稱<Form.Label className="text-danger">*</Form.Label></Form.Label>
+                  <Form.Control type="text" placeholder="請輸入醫事單位名稱"/>
+                </Form.Group>
+              </Form>
+
+              <Button variant="primary" type="submit" onClick={ handleSubmit }>
+                  送出
+              </Button>
+            </Route>
+            <Route path="/add_immunization">
+              <AddImmunization />
+              <Form>
+                <Form.Group className="mb-3">
+                  <Form.Label>請輸入醫事代碼<Form.Label className="text-danger">*</Form.Label></Form.Label>
+                  <Form.Control type="text" placeholder="請輸入醫事代碼"/>
+                </Form.Group>
+                <Form.Group className="mb-3">
+                  <Form.Label>請輸入醫事單位名稱<Form.Label className="text-danger">*</Form.Label></Form.Label>
+                  <Form.Control type="text" placeholder="請輸入醫事單位名稱"/>
+                </Form.Group>
+              </Form>
+
+              <Button variant="primary" type="submit" onClick={ handleSubmit }>
+                  送出
+              </Button>
+            </Route>
+            <Route path="/query_immunization">
+              <QueryImmunization />
+            </Route>
+            <Route path="/add_observation">
+              <AddObservation />
+            </Route>
+            <Route path="/query_observation">
+              <QueryObservation />
+            </Route>
+            <Route path="/fhir_server_setting">
+              <FHIRServerSetting />
+              <Form.Group className="mb-3">
+                <Form.Label>請輸入FIHR Server API Endpoint<Form.Label className="text-danger">*</Form.Label></Form.Label>
+                <Form.Control type="text" placeholder="請輸入FIHR Server API Endpoint"/>
+              </Form.Group>
+              <Button variant="primary" type="submit" onClick={ handleSubmit }>
+                  送出
+              </Button>
             </Route>
             <Route path="/">
               <Home />
