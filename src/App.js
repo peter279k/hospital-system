@@ -6,6 +6,7 @@ import Container from 'react-bootstrap/Container';
 import Button from 'react-bootstrap/Button';
 import Dropdown from 'react-bootstrap/Dropdown';
 import DropdownButton from 'react-bootstrap/DropdownButton';
+import DatePicker from "react-datepicker";
 import Form from 'react-bootstrap/Form';
 import ButtonToolbar from 'react-bootstrap/ButtonToolbar';
 import { LinkContainer } from 'react-router-bootstrap';
@@ -21,6 +22,10 @@ const QueryPatient = () => <h2>病患資料查詢</h2>;
 const QueryOrganization = () => <h2>查詢醫事單位</h2>;
 
 const AddOrganization = () => <h2>新增醫事單位</h2>;
+
+const QueryPractitioner = () => <h2>查詢醫事人員</h2>;
+
+const AddPractitioner = () => <h2>新增醫事人員</h2>;
 
 const AddImmunization = () => <h2>新增疫苗接種資料</h2>;
 
@@ -40,6 +45,7 @@ const App = () => {
   const [buttonText, setSearchButtonText] = useState('進階搜尋');
   const [createdDate, setCreatedDateText] = useState('');
   const [dateVisibleText, setDateVisibleText] = useState('invisible');
+  const [startDate, setStartDate] = useState(new Date());
 
   const setField = (field, value) => {
     setForm({
@@ -63,6 +69,28 @@ const App = () => {
     }
 
     console.log('Done for filling form!');
+  };
+
+  const handleQueryPatientSubmit = e => {
+    e.preventDefault();
+    const newErrors = findQueryPatientErrors();
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return false;
+    }
+
+    console.log('Done for filling query patient form');
+  };
+
+  const handleFHIRServerSubmit = e => {
+    e.preventDefault();
+    const newErrors = findFHIRServerError();
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return false;
+    }
+
+    console.log('Done for filling FHIR server form');
   };
 
   const renderSearchTemplate = e => {
@@ -141,6 +169,36 @@ const App = () => {
     return (checkNumber % 10 === 0) ? '' : errorMessage;
   };
 
+  const findQueryPatientErrors = () => {
+    const {
+      patientIdOrName,
+      createdDateField,
+    } = form;
+    const newErrors = {};
+
+    if (!patientIdOrName || patientIdOrName === '') {
+      newErrors.patientIdOrName = 'Patient id請勿空白！';
+    }
+    if (!createdDateField || createdDateField === '') {
+      newErrors.createdDateField = '請選擇資料建立日期';
+    }
+
+    return newErrors;
+  };
+
+  const findFHIRServerError = () => {
+    const {
+      apiEndpoint,
+    } = form;
+    const newErrors = {};
+
+    if (!apiEndpoint || apiEndpoint === '') {
+      newErrors.apiEndpoint = 'FHIR Server 請勿空白！';
+    }
+
+    return newErrors;
+  };
+
   const findFormErrors = () => {
     const {
       idNumber,
@@ -156,7 +214,10 @@ const App = () => {
     if (!idNumber || idNumber === '') {
       newErrors.idNumber = '身份證字號請勿空白！';
     }
-    let validateIdNumberRes = checkIdNumber(idNumber);
+    let validateIdNumberRes = '';
+    if (!!idNumber) {
+      validateIdNumberRes = checkIdNumber(idNumber);
+    }
     if (validateIdNumberRes !== '') {
       newErrors.idNumber = validateIdNumberRes;
     }
@@ -201,7 +262,7 @@ const App = () => {
   <MemoryRouter>
     <Container className="p-3">
       <Jumbotron>
-        <h1 className="header">歡迎來到醫院院內系統</h1>
+        <h1 className="header">歡迎來到醫院院內管理系統</h1>
         <h2>{' '}</h2>
           <ButtonToolbar className="custom-btn-toolbar">
             <LinkContainer to="/">
@@ -213,15 +274,21 @@ const App = () => {
             <LinkContainer to="/query_patient">
               <Button>病患資料查詢</Button>
             </LinkContainer>
-            <DropdownButton className="custom-btn-toolbar" as="ButtonGroup" title="醫事單位管理" variant="secondary">
+            <DropdownButton className="custom-btn-toolbar" title="醫事單位管理" variant="secondary">
                 <LinkContainer to="/add_organization">
                   <Dropdown.Item eventKey="1">新增醫事單位</Dropdown.Item>
                 </LinkContainer>
                 <LinkContainer to="/query_organization">
                   <Dropdown.Item eventKey="2">查詢醫事單位</Dropdown.Item>
                 </LinkContainer>
+                <LinkContainer to="/add_practitioner">
+                  <Dropdown.Item eventKey="1">新增醫事人員</Dropdown.Item>
+                </LinkContainer>
+                <LinkContainer to="/query_practitioner">
+                  <Dropdown.Item eventKey="2">查詢醫事人員</Dropdown.Item>
+                </LinkContainer>
             </DropdownButton>
-            <DropdownButton className="custom-btn-toolbar" as="ButtonGroup" title="疫苗曁篩檢資料管理" variant="info">
+            <DropdownButton className="custom-btn-toolbar" title="疫苗曁篩檢資料管理" variant="info">
               <LinkContainer to="/add_immunization">
                 <Dropdown.Item eventKey="1">新增疫苗接種資料</Dropdown.Item>
               </LinkContainer>
@@ -289,7 +356,12 @@ const App = () => {
 
               <Form.Group className="mb-3">
                 <Form.Label>請選擇病患出生日期<Form.Label className="text-danger">*</Form.Label></Form.Label>
-                <Form.Control onChange={ e => setField('patientBirthDate', e.target.value) } type="date" placeholder="請選擇病患出生日期" isInvalid={ !!errors.patientBirthDate }/>
+                <DatePicker
+                  className="form-control"
+                  dateFormat="yyyy/MM/dd"
+                  selected={startDate}
+                  onChange={(date) => setStartDate(date)}
+                />
                 <Form.Control.Feedback type='invalid'>{ errors.patientBirthDate }</Form.Control.Feedback>
               </Form.Group>
 
@@ -320,14 +392,21 @@ const App = () => {
                 </Form.Group>
                 <Form.Group className="mb-3">
                   <Form.Label>{labelText}<Form.Label className="text-danger">*</Form.Label></Form.Label>
-                  <Form.Control type="text" placeholder={labelText}/>
+                  <Form.Control onChange={ e => setField('patientIdOrName', e.target.value) } type="text" placeholder={labelText}/>
+                  <Form.Control.Feedback type='invalid'>{ errors.patientIdOrName }</Form.Control.Feedback>
                 </Form.Group>
-                <Form.Group className="mb-3">
+                <Form.Group className={'mb-3 ' + dateVisibleText}>
                   <Form.Label>{createdDate}</Form.Label>
-                  <Form.Control type="date" className={dateVisibleText} placeholder={labelText}/>
+                  <DatePicker
+                    className="form-control"
+                    dateFormat="yyyy/MM/dd"
+                    selected={startDate}
+                    onChange={ e => setField('createdDateField', e.target.value) }
+                  />
+                  <Form.Control.Feedback type='invalid'>{ errors.createdDateField }</Form.Control.Feedback>
                 </Form.Group>
 
-                <Button variant="primary" type="submit" onClick={ handleSubmit }>
+                <Button variant="primary" type="submit" onClick={ handleQueryPatientSubmit }>
                   送出
                 </Button>
               </Form>
@@ -362,16 +441,108 @@ const App = () => {
                   送出
               </Button>
             </Route>
+            <Route path="/query_practitioner">
+              <QueryPractitioner />
+              <Form>
+                <Form.Group className="mb-3">
+                  <Form.Label>請輸入Practitioner id<Form.Label className="text-danger">*</Form.Label></Form.Label>
+                  <Form.Control type="text" placeholder="請輸入Practitioner id"/>
+                </Form.Group>
+              </Form>
+
+              <Button variant="primary" type="submit" onClick={ handleSubmit }>
+                  送出
+              </Button>
+            </Route>
+            <Route path="/add_practitioner">
+              <AddPractitioner />
+              <Form>
+                <Form.Group className="mb-3">
+                  <Form.Label>請輸入身份證字號<Form.Label className="text-danger">*</Form.Label></Form.Label>
+                  <Form.Control type="text" placeholder="請輸入身份證字號"/>
+                </Form.Group>
+                <Form.Group className="mb-3">
+                  <Form.Label>請輸入中文姓氏<Form.Label className="text-danger">*</Form.Label></Form.Label>
+                  <Form.Control type="text" placeholder="請輸入中文姓氏, e.g. 李"/>
+                </Form.Group>
+                <Form.Group className="mb-3">
+                  <Form.Label>請輸入中文名字<Form.Label className="text-danger">*</Form.Label></Form.Label>
+                  <Form.Control type="text" placeholder="請輸入中文名字, e.g. 大明"/>
+                </Form.Group>
+                <Form.Group className="mb-3">
+                  <Form.Label>請輸入醫事頭銜<Form.Label className="text-danger">*</Form.Label></Form.Label>
+                  <Form.Control type="text" placeholder="請輸入醫事頭銜, e.g. Dr"/>
+                </Form.Group>
+              </Form>
+
+              <Button variant="primary" type="submit" onClick={ handleSubmit }>
+                  送出
+              </Button>
+            </Route>
             <Route path="/add_immunization">
               <AddImmunization />
               <Form>
                 <Form.Group className="mb-3">
-                  <Form.Label>請輸入醫事代碼<Form.Label className="text-danger">*</Form.Label></Form.Label>
-                  <Form.Control type="text" placeholder="請輸入醫事代碼"/>
+                  <Form.Label>請選擇疫苗代碼<Form.Label className="text-danger">*</Form.Label></Form.Label>
+                  <Form.Control onChange={ e => setField('patientSex', e.target.value) } as="select" custom isInvalid={ !!errors.patientSex }>
+                    <option>請選擇疫苗代碼</option>
+                    <option value="AZ">AZ</option>
+                    <option value="Cov">Cov</option>
+                  </Form.Control>
                 </Form.Group>
                 <Form.Group className="mb-3">
-                  <Form.Label>請輸入醫事單位名稱<Form.Label className="text-danger">*</Form.Label></Form.Label>
-                  <Form.Control type="text" placeholder="請輸入醫事單位名稱"/>
+                  <Form.Label>請選擇疫苗名稱代號<Form.Label className="text-danger">*</Form.Label></Form.Label>
+                  <Form.Control onChange={ e => setField('patientSex', e.target.value) } as="select" custom isInvalid={ !!errors.patientSex }>
+                    <option>請選擇疫苗名稱代號</option>
+                    <option value="AZD1222">AZD1222</option>
+                    <option value="BNT162b2">BNT162b2</option>
+                    <option value="mRNA-1273">mRNA-1273</option>
+                    <option value="MVC-COV1901">MVC-COV1901</option>
+                  </Form.Control>
+                </Form.Group>
+                <Form.Group className="mb-3">
+                  <Form.Label>請選擇疫苗廠商<Form.Label className="text-danger">*</Form.Label></Form.Label>
+                  <Form.Control onChange={ e => setField('patientSex', e.target.value) } as="select" custom isInvalid={ !!errors.patientSex }>
+                    <option>請選擇疫苗廠商</option>
+                    <option value="AstraZeneca">AstraZeneca</option>
+                    <option value="Pfizer BioNTech">Pfizer BioNTech</option>
+                    <option value="Moderna Biotech">Moderna Biotech</option>
+                    <option value="Medigen">Medigen</option>
+                  </Form.Control>
+                </Form.Group>
+                <Form.Group className="mb-3">
+                  <Form.Label>請輸入Patient id<Form.Label className="text-danger">*</Form.Label></Form.Label>
+                  <Form.Control type="text" placeholder="請輸入Patient id"/>
+                </Form.Group>
+                <Form.Group className="mb-3">
+                  <Form.Label>請輸入劑別<Form.Label className="text-danger">*</Form.Label></Form.Label>
+                  <Form.Control type="text" placeholder="請輸入劑別"/>
+                </Form.Group>
+                <Form.Group className="mb-3">
+                  <Form.Label>請輸入完整劑數<Form.Label className="text-danger">*</Form.Label></Form.Label>
+                  <Form.Control type="text" placeholder="請輸入完整劑數"/>
+                </Form.Group>
+                <Form.Group className="mb-3">
+                  <Form.Label>請輸入批號<Form.Label className="text-danger">*</Form.Label></Form.Label>
+                  <Form.Control type="text" placeholder="請輸入批號"/>
+                </Form.Group>
+                <Form.Group className="mb-3">
+                  <Form.Label>請選擇疫苗接種日期<Form.Label className="text-danger">*</Form.Label></Form.Label>
+                  <DatePicker
+                    className="form-control"
+                    dateFormat="yyyy/MM/dd"
+                    selected={startDate}
+                    onChange={(date) => setStartDate(date)}
+                  />
+                  <Form.Control.Feedback type='invalid'>{ errors.patientBirthDate }</Form.Control.Feedback>
+                </Form.Group>
+                <Form.Group className="mb-3">
+                  <Form.Label>請輸入Organization id<Form.Label className="text-danger">*</Form.Label></Form.Label>
+                  <Form.Control type="text" placeholder="請輸入Organization id"/>
+                </Form.Group>
+                <Form.Group className="mb-3">
+                  <Form.Label>請輸入Practitioner id<Form.Label className="text-danger">*</Form.Label></Form.Label>
+                  <Form.Control type="text" placeholder="請輸入Practitioner id"/>
                 </Form.Group>
               </Form>
 
@@ -381,20 +552,90 @@ const App = () => {
             </Route>
             <Route path="/query_immunization">
               <QueryImmunization />
+              <Form>
+                <Form.Group className="mb-3">
+                  <Form.Label>請輸入Immunization id<Form.Label className="text-danger">*</Form.Label></Form.Label>
+                  <Form.Control type="text" placeholder="請輸入Immunization id"/>
+                </Form.Group>
+              </Form>
+
+              <Button variant="primary" type="submit" onClick={ handleSubmit }>
+                  送出
+              </Button>
             </Route>
             <Route path="/add_observation">
               <AddObservation />
+              <Form>
+                <Form.Group className="mb-3">
+                  <Form.Label>請選擇採檢日<Form.Label className="text-danger">*</Form.Label></Form.Label>
+                  <DatePicker
+                    className="form-control"
+                    dateFormat="yyyy/MM/dd"
+                    selected={startDate}
+                    onChange={(date) => setStartDate(date)}
+                  />
+                </Form.Group>
+                <Form.Group className="mb-3">
+                  <Form.Label>請選擇報告日<Form.Label className="text-danger">*</Form.Label></Form.Label>
+                  <DatePicker
+                    className="form-control"
+                    dateFormat="yyyy/MM/dd"
+                    selected={startDate}
+                    onChange={(date) => setStartDate(date)}
+                  />
+                </Form.Group>
+                <Form.Group className="mb-3">
+                  <Form.Control onChange={ e => setField('patientSex', e.target.value) } as="select" custom isInvalid={ !!errors.patientSex }>
+                    <option>請選擇篩檢方法</option>
+                    <option value="AstraZeneca">AstraZeneca</option>
+                    <option value="Pfizer BioNTech">Pfizer BioNTech</option>
+                    <option value="Moderna Biotech">Moderna Biotech</option>
+                    <option value="Medigen">Medigen</option>
+                  </Form.Control>
+                </Form.Group>
+                <Form.Group className="mb-3">
+                  <Form.Control onChange={ e => setField('patientSex', e.target.value) } as="select" custom isInvalid={ !!errors.patientSex }>
+                    <option>請選擇篩檢結果</option>
+                    <option value="Positive">Positive(陽性)</option>
+                    <option value="Negative">Negative(陰性)</option>
+                  </Form.Control>
+                </Form.Group>
+                <Form.Group className="mb-3">
+                  <Form.Label>請輸入Organization id<Form.Label className="text-danger">*</Form.Label></Form.Label>
+                  <Form.Control type="text" placeholder="請輸入Organization id"/>
+                </Form.Group>
+                <Form.Group className="mb-3">
+                  <Form.Label>請輸入Practitioner id<Form.Label className="text-danger">*</Form.Label></Form.Label>
+                  <Form.Control type="text" placeholder="請輸入Practitioner id"/>
+                </Form.Group>
+              </Form>
+
+              <Button variant="primary" type="submit" onClick={ handleSubmit }>
+                  送出
+              </Button>
             </Route>
             <Route path="/query_observation">
               <QueryObservation />
+              <Form>
+                <Form.Group className="mb-3">
+                  <Form.Label>請輸入Observation id<Form.Label className="text-danger">*</Form.Label></Form.Label>
+                  <Form.Control type="text" placeholder="請輸入Observation id"/>
+                </Form.Group>
+              </Form>
+
+              <Button variant="primary" type="submit" onClick={ handleSubmit }>
+                  送出
+              </Button>
             </Route>
             <Route path="/fhir_server_setting">
               <FHIRServerSetting />
               <Form.Group className="mb-3">
                 <Form.Label>請輸入FIHR Server API Endpoint<Form.Label className="text-danger">*</Form.Label></Form.Label>
-                <Form.Control type="text" placeholder="請輸入FIHR Server API Endpoint"/>
+                <Form.Control onChange={ e => setField('apiEndpoint', e.target.value) } type="text" placeholder="請輸入FIHR Server API Endpoint" isInvalid={ !!errors.apiEndpoint }/>
+                <Form.Control.Feedback type='invalid'>{ errors.apiEndpoint }</Form.Control.Feedback>
               </Form.Group>
-              <Button variant="primary" type="submit" onClick={ handleSubmit }>
+
+              <Button variant="primary" type="submit" onClick={ handleFHIRServerSubmit }>
                   送出
               </Button>
             </Route>
