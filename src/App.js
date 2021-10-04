@@ -93,6 +93,17 @@ const App = () => {
     console.log('Done for filling FHIR server form');
   };
 
+  const handleAddingOrgSubmit = e => {
+    e.preventDefault();
+    const newErrors = findHandleAddingOrgError();
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return false;
+    }
+
+    console.log('Done for filling organization adding form');
+  };
+
   const renderSearchTemplate = e => {
     e.preventDefault();
     if (e.currentTarget.textContent === '基本搜尋') {
@@ -172,15 +183,11 @@ const App = () => {
   const findQueryPatientErrors = () => {
     const {
       patientIdOrName,
-      createdDateField,
     } = form;
     const newErrors = {};
 
     if (!patientIdOrName || patientIdOrName === '') {
-      newErrors.patientIdOrName = 'Patient id請勿空白！';
-    }
-    if (!createdDateField || createdDateField === '') {
-      newErrors.createdDateField = '請選擇資料建立日期';
+      newErrors.patientIdOrName = 'Patient id或是姓名請勿空白！';
     }
 
     return newErrors;
@@ -194,6 +201,24 @@ const App = () => {
 
     if (!apiEndpoint || apiEndpoint === '') {
       newErrors.apiEndpoint = 'FHIR Server 請勿空白！';
+    }
+
+    return newErrors;
+  };
+
+  const findHandleAddingOrgError = () => {
+    const {
+      medId,
+      medName,
+    } = form;
+    const newErrors = {};
+
+    if (!medId || medId === '') {
+      newErrors.medId = '醫事代碼請勿空白！';
+    }
+
+    if (!medName || medName === '') {
+      newErrors.medName = '醫事單位名稱請勿空白！';
     }
 
     return newErrors;
@@ -281,12 +306,6 @@ const App = () => {
                 <LinkContainer to="/query_organization">
                   <Dropdown.Item eventKey="2">查詢醫事單位</Dropdown.Item>
                 </LinkContainer>
-                <LinkContainer to="/add_practitioner">
-                  <Dropdown.Item eventKey="1">新增醫事人員</Dropdown.Item>
-                </LinkContainer>
-                <LinkContainer to="/query_practitioner">
-                  <Dropdown.Item eventKey="2">查詢醫事人員</Dropdown.Item>
-                </LinkContainer>
             </DropdownButton>
             <DropdownButton className="custom-btn-toolbar" title="疫苗曁篩檢資料管理" variant="info">
               <LinkContainer to="/add_immunization">
@@ -373,7 +392,7 @@ const App = () => {
 
               <Form.Group className="mb-3">
                 <Form.Label>請輸入病患聯絡手機<Form.Label className="text-danger">*</Form.Label></Form.Label>
-                <Form.Control onChange={ e => setField('patientPhoneNumber', e.target.value) } type="text" placeholder="請輸入病患聯絡手機" isInvalid= { !!errors.patientPhoneNumber }/>
+                <Form.Control onChange={ e => setField('patientPhoneNumber', e.target.value) } type="text" placeholder="請輸入病患聯絡手機" isInvalid={ !!errors.patientPhoneNumber }/>
                 <Form.Control.Feedback type='invalid'>{ errors.patientPhoneNumber }</Form.Control.Feedback>
               </Form.Group>
 
@@ -392,7 +411,7 @@ const App = () => {
                 </Form.Group>
                 <Form.Group className="mb-3">
                   <Form.Label>{labelText}<Form.Label className="text-danger">*</Form.Label></Form.Label>
-                  <Form.Control onChange={ e => setField('patientIdOrName', e.target.value) } type="text" placeholder={labelText}/>
+                  <Form.Control onChange={ e => setField('patientIdOrName', e.target.value) } type="text" placeholder={labelText} isInvalid={ !!errors.patientIdOrName }/>
                   <Form.Control.Feedback type='invalid'>{ errors.patientIdOrName }</Form.Control.Feedback>
                 </Form.Group>
                 <Form.Group className={'mb-3 ' + dateVisibleText}>
@@ -403,7 +422,6 @@ const App = () => {
                     selected={startDate}
                     onChange={ e => setField('createdDateField', e.target.value) }
                   />
-                  <Form.Control.Feedback type='invalid'>{ errors.createdDateField }</Form.Control.Feedback>
                 </Form.Group>
 
                 <Button variant="primary" type="submit" onClick={ handleQueryPatientSubmit }>
@@ -429,53 +447,17 @@ const App = () => {
               <Form>
                 <Form.Group className="mb-3">
                   <Form.Label>請輸入醫事代碼<Form.Label className="text-danger">*</Form.Label></Form.Label>
-                  <Form.Control type="text" placeholder="請輸入醫事代碼"/>
+                  <Form.Control onChange={ e => setField('medId', e.target.value) } type="text" placeholder="請輸入醫事代碼" isInvalid={ !!errors.medId }/>
+                  <Form.Control.Feedback type='invalid'>{ errors.medId }</Form.Control.Feedback>
                 </Form.Group>
                 <Form.Group className="mb-3">
                   <Form.Label>請輸入醫事單位名稱<Form.Label className="text-danger">*</Form.Label></Form.Label>
-                  <Form.Control type="text" placeholder="請輸入醫事單位名稱"/>
+                  <Form.Control onChange= { e => setField('medName', e.target.value) } type="text" placeholder="請輸入醫事單位名稱" isInvalid={ !!errors.medName }/>
+                  <Form.Control.Feedback type='invalid'>{ errors.medName }</Form.Control.Feedback>
                 </Form.Group>
               </Form>
 
-              <Button variant="primary" type="submit" onClick={ handleSubmit }>
-                  送出
-              </Button>
-            </Route>
-            <Route path="/query_practitioner">
-              <QueryPractitioner />
-              <Form>
-                <Form.Group className="mb-3">
-                  <Form.Label>請輸入Practitioner id<Form.Label className="text-danger">*</Form.Label></Form.Label>
-                  <Form.Control type="text" placeholder="請輸入Practitioner id"/>
-                </Form.Group>
-              </Form>
-
-              <Button variant="primary" type="submit" onClick={ handleSubmit }>
-                  送出
-              </Button>
-            </Route>
-            <Route path="/add_practitioner">
-              <AddPractitioner />
-              <Form>
-                <Form.Group className="mb-3">
-                  <Form.Label>請輸入身份證字號<Form.Label className="text-danger">*</Form.Label></Form.Label>
-                  <Form.Control type="text" placeholder="請輸入身份證字號"/>
-                </Form.Group>
-                <Form.Group className="mb-3">
-                  <Form.Label>請輸入中文姓氏<Form.Label className="text-danger">*</Form.Label></Form.Label>
-                  <Form.Control type="text" placeholder="請輸入中文姓氏, e.g. 李"/>
-                </Form.Group>
-                <Form.Group className="mb-3">
-                  <Form.Label>請輸入中文名字<Form.Label className="text-danger">*</Form.Label></Form.Label>
-                  <Form.Control type="text" placeholder="請輸入中文名字, e.g. 大明"/>
-                </Form.Group>
-                <Form.Group className="mb-3">
-                  <Form.Label>請輸入醫事頭銜<Form.Label className="text-danger">*</Form.Label></Form.Label>
-                  <Form.Control type="text" placeholder="請輸入醫事頭銜, e.g. Dr"/>
-                </Form.Group>
-              </Form>
-
-              <Button variant="primary" type="submit" onClick={ handleSubmit }>
+              <Button variant="primary" type="submit" onClick={ handleAddingOrgSubmit }>
                   送出
               </Button>
             </Route>
@@ -484,15 +466,16 @@ const App = () => {
               <Form>
                 <Form.Group className="mb-3">
                   <Form.Label>請選擇疫苗代碼<Form.Label className="text-danger">*</Form.Label></Form.Label>
-                  <Form.Control onChange={ e => setField('patientSex', e.target.value) } as="select" custom isInvalid={ !!errors.patientSex }>
+                  <Form.Control onChange={ e => setField('vaccineId', e.target.value) } as="select" custom isInvalid={ !!errors.vaccineId }>
+                  <Form.Control.Feedback type='invalid'>{ errors.vaccineId }</Form.Control.Feedback>
                     <option>請選擇疫苗代碼</option>
-                    <option value="AZ">AZ</option>
-                    <option value="Cov">Cov</option>
+                    <option value="AZ">COV_AZ</option>
                   </Form.Control>
                 </Form.Group>
                 <Form.Group className="mb-3">
                   <Form.Label>請選擇疫苗名稱代號<Form.Label className="text-danger">*</Form.Label></Form.Label>
-                  <Form.Control onChange={ e => setField('patientSex', e.target.value) } as="select" custom isInvalid={ !!errors.patientSex }>
+                  <Form.Control onChange={ e => setField('vaccineCode', e.target.value) } as="select" custom isInvalid={ !!errors.vaccineCode }>
+                  <Form.Control.Feedback type='invalid'>{ errors.vaccineCode }</Form.Control.Feedback>
                     <option>請選擇疫苗名稱代號</option>
                     <option value="AZD1222">AZD1222</option>
                     <option value="BNT162b2">BNT162b2</option>
@@ -502,7 +485,8 @@ const App = () => {
                 </Form.Group>
                 <Form.Group className="mb-3">
                   <Form.Label>請選擇疫苗廠商<Form.Label className="text-danger">*</Form.Label></Form.Label>
-                  <Form.Control onChange={ e => setField('patientSex', e.target.value) } as="select" custom isInvalid={ !!errors.patientSex }>
+                  <Form.Control onChange={ e => setField('manufacturer', e.target.value) } as="select" custom isInvalid={ !!errors.manufacturer }>
+                  <Form.Control.Feedback type='invalid'>{ errors.manufacturer }</Form.Control.Feedback>
                     <option>請選擇疫苗廠商</option>
                     <option value="AstraZeneca">AstraZeneca</option>
                     <option value="Pfizer BioNTech">Pfizer BioNTech</option>
@@ -512,11 +496,13 @@ const App = () => {
                 </Form.Group>
                 <Form.Group className="mb-3">
                   <Form.Label>請輸入Patient id<Form.Label className="text-danger">*</Form.Label></Form.Label>
-                  <Form.Control type="text" placeholder="請輸入Patient id"/>
+                  <Form.Control onChange={ e => setField('patientId', e.target.value) } type="text" placeholder="請輸入Patient id" isInvalid={ !!errors.patientId }/>
+                  <Form.Control.Feedback type='invalid'>{ errors.patientId }</Form.Control.Feedback>
                 </Form.Group>
                 <Form.Group className="mb-3">
                   <Form.Label>請輸入劑別<Form.Label className="text-danger">*</Form.Label></Form.Label>
-                  <Form.Control type="text" placeholder="請輸入劑別"/>
+                  <Form.Control onChange={ e => setField('doseNumberPositiveInt', e.target.value) } type="text" placeholder="請輸入劑別" isInvalid={ !!errors.doseNumberPositiveInt }/>
+                  <Form.Control.Feedback type='invalid'>{ errors.doseNumberPositiveInt }</Form.Control.Feedback>
                 </Form.Group>
                 <Form.Group className="mb-3">
                   <Form.Label>請輸入完整劑數<Form.Label className="text-danger">*</Form.Label></Form.Label>
@@ -540,13 +526,9 @@ const App = () => {
                   <Form.Label>請輸入Organization id<Form.Label className="text-danger">*</Form.Label></Form.Label>
                   <Form.Control type="text" placeholder="請輸入Organization id"/>
                 </Form.Group>
-                <Form.Group className="mb-3">
-                  <Form.Label>請輸入Practitioner id<Form.Label className="text-danger">*</Form.Label></Form.Label>
-                  <Form.Control type="text" placeholder="請輸入Practitioner id"/>
-                </Form.Group>
               </Form>
 
-              <Button variant="primary" type="submit" onClick={ handleSubmit }>
+              <Button variant="primary" type="submit" onClick={ handleAddImmunizationSubmit }>
                   送出
               </Button>
             </Route>
@@ -559,7 +541,7 @@ const App = () => {
                 </Form.Group>
               </Form>
 
-              <Button variant="primary" type="submit" onClick={ handleSubmit }>
+              <Button variant="primary" type="submit" onClick={ handleQueryImmunizationSubmit }>
                   送出
               </Button>
             </Route>
