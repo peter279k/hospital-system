@@ -528,7 +528,7 @@ const App = () => {
                 </Form.Group>
               </Form>
 
-              <Button variant="primary" type="submit" onClick={ handleAddImmunizationSubmit }>
+              <Button variant="primary" type="submit" onClick={ handleSubmit }>
                   送出
               </Button>
             </Route>
@@ -541,7 +541,7 @@ const App = () => {
                 </Form.Group>
               </Form>
 
-              <Button variant="primary" type="submit" onClick={ handleQueryImmunizationSubmit }>
+              <Button variant="primary" type="submit" onClick={ handleSubmit }>
                   送出
               </Button>
             </Route>
