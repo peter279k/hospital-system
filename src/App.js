@@ -11,6 +11,7 @@ import Form from 'react-bootstrap/Form';
 import ButtonToolbar from 'react-bootstrap/ButtonToolbar';
 import { LinkContainer } from 'react-router-bootstrap';
 
+import HttpRequest from './HttpRequest.js';
 import './App.css';
 
 const Home = () => <span></span>;
@@ -22,10 +23,6 @@ const QueryPatient = () => <h2>病患資料查詢</h2>;
 const QueryOrganization = () => <h2>查詢醫事單位</h2>;
 
 const AddOrganization = () => <h2>新增醫事單位</h2>;
-
-const QueryPractitioner = () => <h2>查詢醫事人員</h2>;
-
-const AddPractitioner = () => <h2>新增醫事人員</h2>;
 
 const AddImmunization = () => <h2>新增疫苗接種資料</h2>;
 
@@ -60,13 +57,15 @@ const App = () => {
     }
   };
 
-  const handleSubmit = e => {
+  const handlePatientSubmit = e => {
     e.preventDefault();
-    const newErrors = findFormErrors();
+    const newErrors = findPatientFormErrors();
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       return false;
     }
+    // console.log(HttpRequest.sendPatientData(form, startDate));
+    HttpRequest.sendPatientData2();
 
     console.log('Done for filling form!');
   };
@@ -102,6 +101,61 @@ const App = () => {
     }
 
     console.log('Done for filling organization adding form');
+  };
+
+  const handleAddingImmunizationSubmit = e => {
+    e.preventDefault();
+    const newErrors = findHandleAddingImmunizationError();
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return false;
+    }
+
+    console.log('Done for filling immunization adding form');
+  };
+
+  const handleQueryingImmunizationSubmit = e => {
+    e.preventDefault();
+    const newErrors = findHandleQueryingImmunizationError();
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return false;
+    }
+
+    console.log('Done for filling immunization querying form');
+  };
+
+  const handleObservationAddingSubmit = e => {
+    e.preventDefault();
+    const newErrors = findHandleAddingObservationError();
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return false;
+    }
+
+    console.log('Done for filling observation adding form');
+  };
+
+  const handleObservationQueryingSubmit = e => {
+    e.preventDefault();
+    const newErrors = findHandleQueryingObservationError();
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return false;
+    }
+
+    console.log('Done for filling observation querying form');
+  };
+
+  const handleQueryOrgSubmit = e => {
+    e.preventDefault();
+    const newErrors = handleQueryOrgError();
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return false;
+    }
+
+    console.log('Done for filling org querying form');
   };
 
   const renderSearchTemplate = e => {
@@ -152,7 +206,6 @@ const App = () => {
       'Y': 31,
       'Z': 33,
     };
-    let digits = '0123456789';
     let errorMessage = '身份證字號格式錯誤！';
     if (!Object.keys(mappedAlphabetsNumbers).includes(idNumber[0])) {
       return '身份證字號第一碼應為英文大寫數字！';
@@ -160,7 +213,10 @@ const App = () => {
     if (idNumber[1] !== '1' && idNumber[1] !== '2') {
       return '身份證字號第二碼應為1或2！';
     }
-    if (!idNumber.substring(1).includes(digits)) {
+    let re = /\d+/;
+    let subNumericString = idNumber.substring(1);
+    let regRes = re.exec(subNumericString);
+    if (regRes[0] !== regRes['input']) {
       return errorMessage;
     }
     let alphabetNumStr = String(mappedAlphabetsNumbers[idNumber[0]]);
@@ -175,7 +231,6 @@ const App = () => {
         2 * Number(idNumber[7]) +
         1 * Number(idNumber[8]) +
         1 * Number(idNumber[9]);
-    console.log(checkNumber);
 
     return (checkNumber % 10 === 0) ? '' : errorMessage;
   };
@@ -224,14 +279,113 @@ const App = () => {
     return newErrors;
   };
 
-  const findFormErrors = () => {
+  const findHandleAddingImmunizationError = () => {
+    const {
+      vaccineId,
+      vaccineCode,
+      manufacturer,
+      patientId,
+      doseNumberPositiveInt,
+      seriesPositiveInt,
+      lotNumber,
+      medOrgId,
+    } = form;
+    const newErrors = {};
+    if (!vaccineId || vaccineId === '') {
+      newErrors.vaccineId = '請選擇疫苗代碼！';
+    }
+    if (!vaccineCode || vaccineCode === '') {
+      newErrors.vaccineCode = '請選擇疫苗名稱代號！';
+    }
+    if (!manufacturer || manufacturer === '') {
+      newErrors.manufacturer = '請選擇疫苗名稱代號！';
+    }
+    if (!patientId || patientId === '') {
+      newErrors.patientId = '請輸入Patient id！';
+    }
+    if (!doseNumberPositiveInt || doseNumberPositiveInt === '') {
+      newErrors.doseNumberPositiveInt = '請輸入劑別！';
+    }
+    if (!seriesPositiveInt || seriesPositiveInt === '') {
+      newErrors.seriesPositiveInt = '請輸入完整劑數！';
+    }
+    if (!lotNumber || lotNumber === '') {
+      newErrors.lotNumber = '請輸入批號！';
+    }
+    if (!medOrgId || medOrgId === '') {
+      newErrors.medOrgId = '請輸入醫事單位id！';
+    }
+
+    return newErrors;
+  };
+
+  const findHandleQueryingImmunizationError = () => {
+    const {
+      immunizationId,
+    } = form;
+    const newErrors = {};
+    if (!immunizationId || immunizationId === '') {
+      newErrors.immunizationId = '請輸入Immunization id!';
+    }
+
+    return newErrors;
+  };
+
+  const findHandleAddingObservationError = () => {
+    const {
+      observationMethod,
+      observationValue,
+      orgId,
+      doctorName,
+    } = form;
+    const newErrors = {};
+    if (!observationMethod || observationMethod === '') {
+      newErrors.observationMethod = '請選擇篩檢方法！';
+    }
+    if (!observationValue || observationValue === '') {
+      newErrors.observationValue = '請選擇篩檢結果！';
+    }
+    if (!orgId || orgId === '') {
+      newErrors.orgId = '請選擇組織id！';
+    }
+    if (!doctorName || doctorName === '') {
+      newErrors.doctorName = '請輸入醫事人員名稱！';
+    }
+
+    return newErrors;
+  };
+
+  const findHandleQueryingObservationError = () => {
+    const {
+      observationId,
+    } = form;
+    const newErrors = {};
+    if (!observationId || observationId === '') {
+      newErrors.observationId = '請輸入Observation id!';
+    }
+
+    return newErrors;
+  };
+
+  const handleQueryOrgError = () => {
+    const {
+      orgId,
+    } = form;
+    const newErrors = {};
+    if (!orgId || orgId === '') {
+      newErrors.orgId = '請輸入Organization id!';
+    }
+
+    return newErrors;
+  };
+
+  const findPatientFormErrors = () => {
     const {
       idNumber,
       passportNumber,
       patientName,
       patientEnName,
       patientSex,
-      patientBirthDate,
       patientHomeAddress,
       patientPhoneNumber,
     } = form;
@@ -269,9 +423,6 @@ const App = () => {
       if (patientSex !== 'male' && patientSex !== 'female') {
         newErrors.patientSex = '請選擇病患男性或女性！';
       }
-    }
-    if (!patientBirthDate || patientBirthDate === '') {
-      newErrors.patientBirthDate = '請選擇病患出生日期！';
     }
     if (!patientHomeAddress || patientHomeAddress === '') {
       newErrors.patientHomeAddress = '病患住家地址不可空白！';
@@ -318,7 +469,7 @@ const App = () => {
                 <Dropdown.Item eventKey="2">新增篩檢資料</Dropdown.Item>
               </LinkContainer>
               <LinkContainer to="/query_observation">
-                <Dropdown.Item eventkey="3">查詢篩檢資料</Dropdown.Item>
+                <Dropdown.Item eventKey="3">查詢篩檢資料</Dropdown.Item>
               </LinkContainer>
             </DropdownButton>
             <LinkContainer to="/fhir_server_setting">
@@ -358,7 +509,7 @@ const App = () => {
               </Form.Group>
 
               <Form.Group className="mb-3">
-                <Form.Label>請輸入病患英文姓名</Form.Label>
+                <Form.Label>請輸入病患英文姓名<Form.Label className="text-danger">*</Form.Label></Form.Label>
                 <Form.Control onChange={ e => setField('patientEnName', e.target.value) } type="text" placeholder="請輸入病患英文姓名" isInvalid={ !!errors.patientEnName }/>
                 <Form.Control.Feedback type='invalid'>{ errors.patientEnName }</Form.Control.Feedback>
               </Form.Group>
@@ -379,9 +530,8 @@ const App = () => {
                   className="form-control"
                   dateFormat="yyyy/MM/dd"
                   selected={startDate}
-                  onChange={(date) => setStartDate(date)}
+                  onChange={ (date) => setStartDate(date) }
                 />
-                <Form.Control.Feedback type='invalid'>{ errors.patientBirthDate }</Form.Control.Feedback>
               </Form.Group>
 
               <Form.Group className="mb-3">
@@ -396,7 +546,7 @@ const App = () => {
                 <Form.Control.Feedback type='invalid'>{ errors.patientPhoneNumber }</Form.Control.Feedback>
               </Form.Group>
 
-              <Button variant="primary" type="submit" onClick={ handleSubmit }>
+              <Button variant="primary" type="submit" onClick={ handlePatientSubmit }>
                 送出
               </Button>
             </Form>
@@ -434,11 +584,12 @@ const App = () => {
               <Form>
                 <Form.Group className="mb-3">
                   <Form.Label>請輸入Organization id<Form.Label className="text-danger">*</Form.Label></Form.Label>
-                  <Form.Control type="text" placeholder="請輸入Organization id"/>
+                  <Form.Control onChange={ e => setField('orgId', e.target.value) } type="text" placeholder="請輸入Organization id" isInvalid={ !!errors.orgId }/>
+                  <Form.Control.Feedback type='invalid'>{ errors.orgId }</Form.Control.Feedback>
                 </Form.Group>
               </Form>
 
-              <Button variant="primary" type="submit" onClick={ handleSubmit }>
+              <Button variant="primary" type="submit" onClick={ handleQueryOrgSubmit }>
                   送出
               </Button>
             </Route>
@@ -467,32 +618,32 @@ const App = () => {
                 <Form.Group className="mb-3">
                   <Form.Label>請選擇疫苗代碼<Form.Label className="text-danger">*</Form.Label></Form.Label>
                   <Form.Control onChange={ e => setField('vaccineId', e.target.value) } as="select" custom isInvalid={ !!errors.vaccineId }>
-                  <Form.Control.Feedback type='invalid'>{ errors.vaccineId }</Form.Control.Feedback>
                     <option>請選擇疫苗代碼</option>
                     <option value="AZ">COV_AZ</option>
                   </Form.Control>
+                  <Form.Control.Feedback type='invalid'>{ errors.vaccineId }</Form.Control.Feedback>
                 </Form.Group>
                 <Form.Group className="mb-3">
                   <Form.Label>請選擇疫苗名稱代號<Form.Label className="text-danger">*</Form.Label></Form.Label>
                   <Form.Control onChange={ e => setField('vaccineCode', e.target.value) } as="select" custom isInvalid={ !!errors.vaccineCode }>
-                  <Form.Control.Feedback type='invalid'>{ errors.vaccineCode }</Form.Control.Feedback>
                     <option>請選擇疫苗名稱代號</option>
                     <option value="AZD1222">AZD1222</option>
                     <option value="BNT162b2">BNT162b2</option>
                     <option value="mRNA-1273">mRNA-1273</option>
                     <option value="MVC-COV1901">MVC-COV1901</option>
                   </Form.Control>
+                  <Form.Control.Feedback type='invalid'>{ errors.vaccineCode }</Form.Control.Feedback>
                 </Form.Group>
                 <Form.Group className="mb-3">
                   <Form.Label>請選擇疫苗廠商<Form.Label className="text-danger">*</Form.Label></Form.Label>
                   <Form.Control onChange={ e => setField('manufacturer', e.target.value) } as="select" custom isInvalid={ !!errors.manufacturer }>
-                  <Form.Control.Feedback type='invalid'>{ errors.manufacturer }</Form.Control.Feedback>
                     <option>請選擇疫苗廠商</option>
                     <option value="AstraZeneca">AstraZeneca</option>
                     <option value="Pfizer BioNTech">Pfizer BioNTech</option>
                     <option value="Moderna Biotech">Moderna Biotech</option>
                     <option value="Medigen">Medigen</option>
                   </Form.Control>
+                  <Form.Control.Feedback type='invalid'>{ errors.manufacturer }</Form.Control.Feedback>
                 </Form.Group>
                 <Form.Group className="mb-3">
                   <Form.Label>請輸入Patient id<Form.Label className="text-danger">*</Form.Label></Form.Label>
@@ -506,11 +657,13 @@ const App = () => {
                 </Form.Group>
                 <Form.Group className="mb-3">
                   <Form.Label>請輸入完整劑數<Form.Label className="text-danger">*</Form.Label></Form.Label>
-                  <Form.Control type="text" placeholder="請輸入完整劑數"/>
+                  <Form.Control onChange={ e => setField('seriesPositiveInt', e.target.value) } type="text" placeholder="請輸入完整劑數" isInvalid={ !!errors.seriesPositiveInt }/>
+                  <Form.Control.Feedback type='invalid'>{ errors.seriesPositiveInt }</Form.Control.Feedback>
                 </Form.Group>
                 <Form.Group className="mb-3">
                   <Form.Label>請輸入批號<Form.Label className="text-danger">*</Form.Label></Form.Label>
-                  <Form.Control type="text" placeholder="請輸入批號"/>
+                  <Form.Control onChange={ e => setField('lotNumber', e.target.value) } type="text" placeholder="請輸入批號" isInvalid={ !!errors.lotNumber }/>
+                  <Form.Control.Feedback type='invalid'>{ errors.lotNumber }</Form.Control.Feedback>
                 </Form.Group>
                 <Form.Group className="mb-3">
                   <Form.Label>請選擇疫苗接種日期<Form.Label className="text-danger">*</Form.Label></Form.Label>
@@ -519,16 +672,17 @@ const App = () => {
                     dateFormat="yyyy/MM/dd"
                     selected={startDate}
                     onChange={(date) => setStartDate(date)}
+                    isInvalid={ !!errors.occurrenceDate }
                   />
-                  <Form.Control.Feedback type='invalid'>{ errors.patientBirthDate }</Form.Control.Feedback>
                 </Form.Group>
                 <Form.Group className="mb-3">
                   <Form.Label>請輸入Organization id<Form.Label className="text-danger">*</Form.Label></Form.Label>
-                  <Form.Control type="text" placeholder="請輸入Organization id"/>
+                  <Form.Control onChange={ e => setField('medOrgId', e.target.value) } type="text" placeholder="請輸入Organization id" isInvalid= { !!errors.medOrgId }/>
+                  <Form.Control.Feedback type='invalid'>{ errors.medOrgId }</Form.Control.Feedback>
                 </Form.Group>
               </Form>
 
-              <Button variant="primary" type="submit" onClick={ handleSubmit }>
+              <Button variant="primary" type="submit" onClick={ handleAddingImmunizationSubmit }>
                   送出
               </Button>
             </Route>
@@ -537,12 +691,13 @@ const App = () => {
               <Form>
                 <Form.Group className="mb-3">
                   <Form.Label>請輸入Immunization id<Form.Label className="text-danger">*</Form.Label></Form.Label>
-                  <Form.Control type="text" placeholder="請輸入Immunization id"/>
+                  <Form.Control onChange={ e => setField('immunizationId', e.target.value) } type="text" placeholder="請輸入Immunization id" isInvalid={ !!errors.immunizationId }/>
+                  <Form.Control.Feedback type='invalid'>{ errors.immunizationId }</Form.Control.Feedback>
                 </Form.Group>
               </Form>
 
-              <Button variant="primary" type="submit" onClick={ handleSubmit }>
-                  送出
+              <Button variant="primary" type="submit" onClick={ handleQueryingImmunizationSubmit }>
+                送出
               </Button>
             </Route>
             <Route path="/add_observation">
@@ -567,33 +722,45 @@ const App = () => {
                   />
                 </Form.Group>
                 <Form.Group className="mb-3">
-                  <Form.Control onChange={ e => setField('patientSex', e.target.value) } as="select" custom isInvalid={ !!errors.patientSex }>
+                  <Form.Control onChange={ e => setField('observationMethod', e.target.value) } as="select" custom isInvalid={ !!errors.observationMethod }>
                     <option>請選擇篩檢方法</option>
-                    <option value="AstraZeneca">AstraZeneca</option>
-                    <option value="Pfizer BioNTech">Pfizer BioNTech</option>
-                    <option value="Moderna Biotech">Moderna Biotech</option>
-                    <option value="Medigen">Medigen</option>
+                    <option value="PCR">PCR</option>
+                    <option value="Real-Time PCR">Real-Time PCR</option>
+                    <option value="RT-PCR">RT-PCR</option>
+                    <option value="RT-qPCR">RT-qPCR（ Quantitative Reverse Transcription PCR）</option>
+                    <option value="NAA">NAA（Nucleic acid Amplification）</option>
+                    <option value="NAAT">NAAT（Nucleic acid Amplification Test）</option>
+                    <option value="NAT">NAT（Nucleic acid Test）</option>
+                    <option value="LAMP">LAMP（Loop-Mediated isothermal Amplification）</option>
+                    <option value="RT-LAMP">RT-LAMP</option>
+                    <option value="COVID-19 RNA test">COVID-19 RNA test</option>
+                    <option value="SARS-CoV-2 RNA test">SARS-CoV-2 RNA test</option>
+                    <option value="Molecular Diagnostics">Molecular Diagnostics</option>
                   </Form.Control>
+                  <Form.Control.Feedback type='invalid'>{ errors.observationMethod }</Form.Control.Feedback>
                 </Form.Group>
                 <Form.Group className="mb-3">
-                  <Form.Control onChange={ e => setField('patientSex', e.target.value) } as="select" custom isInvalid={ !!errors.patientSex }>
+                  <Form.Control onChange={ e => setField('observationValue', e.target.value) } as="select" custom isInvalid={ !!errors.observationValue }>
                     <option>請選擇篩檢結果</option>
                     <option value="Positive">Positive(陽性)</option>
                     <option value="Negative">Negative(陰性)</option>
                   </Form.Control>
+                  <Form.Control.Feedback type='invalid'>{ errors.observationValue }</Form.Control.Feedback>
                 </Form.Group>
                 <Form.Group className="mb-3">
                   <Form.Label>請輸入Organization id<Form.Label className="text-danger">*</Form.Label></Form.Label>
-                  <Form.Control type="text" placeholder="請輸入Organization id"/>
+                  <Form.Control onChange={ e => setField('orgId', e.target.value) } type="text" placeholder="請輸入Organization id" isInvalid={ !!errors.orgId }/>
+                  <Form.Control.Feedback type='invalid'>{ errors.orgId }</Form.Control.Feedback>
                 </Form.Group>
                 <Form.Group className="mb-3">
-                  <Form.Label>請輸入Practitioner id<Form.Label className="text-danger">*</Form.Label></Form.Label>
-                  <Form.Control type="text" placeholder="請輸入Practitioner id"/>
+                  <Form.Label>請輸入醫師名稱<Form.Label className="text-danger">*</Form.Label></Form.Label>
+                  <Form.Control onChange={ e => setField('doctorName', e.target.value) } type="text" placeholder="請輸入醫師名稱" isInvalid={ !!errors.doctorName }/>
+                  <Form.Control.Feedback type='invalid'>{ errors.doctorName }</Form.Control.Feedback>
                 </Form.Group>
               </Form>
 
-              <Button variant="primary" type="submit" onClick={ handleSubmit }>
-                  送出
+              <Button variant="primary" type="submit" onClick={ handleObservationAddingSubmit }>
+                送出
               </Button>
             </Route>
             <Route path="/query_observation">
@@ -601,11 +768,12 @@ const App = () => {
               <Form>
                 <Form.Group className="mb-3">
                   <Form.Label>請輸入Observation id<Form.Label className="text-danger">*</Form.Label></Form.Label>
-                  <Form.Control type="text" placeholder="請輸入Observation id"/>
+                  <Form.Control onChange={ e => setField('observationId', e.target.value) } type="text" placeholder="請輸入Observation id" isInvalid={ !!errors.observationId }/>
+                  <Form.Control.Feedback type='invalid'>{ errors.observationId }</Form.Control.Feedback>
                 </Form.Group>
               </Form>
 
-              <Button variant="primary" type="submit" onClick={ handleSubmit }>
+              <Button variant="primary" type="submit" onClick={ handleObservationQueryingSubmit }>
                   送出
               </Button>
             </Route>
