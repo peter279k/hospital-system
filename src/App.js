@@ -43,6 +43,7 @@ const App = () => {
   const [createdDate, setCreatedDateText] = useState('');
   const [dateVisibleText, setDateVisibleText] = useState('invisible');
   const [startDate, setStartDate] = useState(new Date());
+  const [jsonResponse, setJsonResponseText] = useState([]);
 
   const setField = (field, value) => {
     setForm({
@@ -64,8 +65,7 @@ const App = () => {
       setErrors(newErrors);
       return false;
     }
-    // console.log(HttpRequest.sendPatientData(form, startDate));
-    HttpRequest.sendPatientData2();
+    HttpRequest.sendPatientData2(setJsonResponseText);
 
     console.log('Done for filling form!');
   };
@@ -544,6 +544,10 @@ const App = () => {
                 <Form.Label>請輸入病患聯絡手機<Form.Label className="text-danger">*</Form.Label></Form.Label>
                 <Form.Control onChange={ e => setField('patientPhoneNumber', e.target.value) } type="text" placeholder="請輸入病患聯絡手機" isInvalid={ !!errors.patientPhoneNumber }/>
                 <Form.Control.Feedback type='invalid'>{ errors.patientPhoneNumber }</Form.Control.Feedback>
+              </Form.Group>
+
+              <Form.Group className="mb-3">
+                <Form.Label>Fetched Result: <Form.Label className="text-info">{ jsonResponse.map((number) => <li>{ number['value'] }</li>) }</Form.Label></Form.Label>
               </Form.Group>
 
               <Button variant="primary" type="submit" onClick={ handlePatientSubmit }>
