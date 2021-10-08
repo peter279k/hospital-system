@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { MemoryRouter, Switch, Route } from 'react-router-dom';
+import createHistory from 'history/createBrowserHistory';
 
 import Jumbotron from 'react-bootstrap/Jumbotron';
 import Container from 'react-bootstrap/Container';
@@ -10,6 +11,9 @@ import DatePicker from "react-datepicker";
 import Form from 'react-bootstrap/Form';
 import ButtonToolbar from 'react-bootstrap/ButtonToolbar';
 import { LinkContainer } from 'react-router-bootstrap';
+
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { dark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
 import HttpRequest from './HttpRequest.js';
 import './App.css';
@@ -41,9 +45,16 @@ const App = () => {
   const [labelText, setLabelText] = useState('請輸入病患id');
   const [buttonText, setSearchButtonText] = useState('進階搜尋');
   const [createdDate, setCreatedDateText] = useState('');
-  const [dateVisibleText, setDateVisibleText] = useState('invisible');
+  const [visibleText, setVisibleText] = useState('invisible');
   const [startDate, setStartDate] = useState(new Date());
-  const [jsonResponse, setJsonResponseText] = useState([]);
+  const [jsonResponse, setJsonResponseText] = useState('');
+
+  const history = createHistory();
+  if (history.location && history.location.state && history.location.state.from) {
+    const state = { ...history.location.state };
+    delete state.from;
+    history.replace({ ...history.location, state });
+  }
 
   const setField = (field, value) => {
     setForm({
@@ -65,7 +76,6 @@ const App = () => {
       setErrors(newErrors);
       return false;
     }
-    HttpRequest.sendPatientData2(setJsonResponseText);
 
     console.log('Done for filling form!');
   };
@@ -89,7 +99,7 @@ const App = () => {
       return false;
     }
 
-    console.log('Done for filling FHIR server form');
+    HttpRequest.sendFHIRServerData(setVisibleText, setJsonResponseText, form.apiEndpoint);
   };
 
   const handleAddingOrgSubmit = e => {
@@ -164,13 +174,13 @@ const App = () => {
       setLabelText('請輸入病患id(Patient Resource id)');
       setSearchButtonText('進階搜尋');
       setCreatedDateText('');
-      setDateVisibleText('invisible');
+      setVisibleText('invisible');
     }
     if (e.currentTarget.textContent === '進階搜尋') {
       setLabelText('請輸入病患中文姓名');
       setSearchButtonText('基本搜尋');
       setCreatedDateText('請選擇建立資料之日期');
-      setDateVisibleText('visible');
+      setVisibleText('visible');
     }
   };
 
@@ -434,6 +444,11 @@ const App = () => {
     return newErrors;
   }
 
+  const initialRouteState = () => {
+    setJsonResponseText('');
+    setVisibleText('invisible');
+  };
+
   return (
   <MemoryRouter>
     <Container className="p-3">
@@ -445,35 +460,35 @@ const App = () => {
               <Button>首頁</Button>
             </LinkContainer>
             <LinkContainer to="/add_patient">
-              <Button>病患資料登錄</Button>
+              <Button onClick={ initialRouteState }>病患資料登錄</Button>
             </LinkContainer>
             <LinkContainer to="/query_patient">
-              <Button>病患資料查詢</Button>
+              <Button onClick={ initialRouteState }>病患資料查詢</Button>
             </LinkContainer>
             <DropdownButton className="custom-btn-toolbar" title="醫事單位管理" variant="secondary">
                 <LinkContainer to="/add_organization">
-                  <Dropdown.Item eventKey="1">新增醫事單位</Dropdown.Item>
+                  <Dropdown.Item onClick={ initialRouteState } eventKey="1">新增醫事單位</Dropdown.Item>
                 </LinkContainer>
                 <LinkContainer to="/query_organization">
-                  <Dropdown.Item eventKey="2">查詢醫事單位</Dropdown.Item>
+                  <Dropdown.Item onClick={ initialRouteState } eventKey="2">查詢醫事單位</Dropdown.Item>
                 </LinkContainer>
             </DropdownButton>
             <DropdownButton className="custom-btn-toolbar" title="疫苗曁篩檢資料管理" variant="info">
               <LinkContainer to="/add_immunization">
-                <Dropdown.Item eventKey="1">新增疫苗接種資料</Dropdown.Item>
+                <Dropdown.Item onClick={ initialRouteState } eventKey="1">新增疫苗接種資料</Dropdown.Item>
               </LinkContainer>
               <LinkContainer to="/query_immunization">
-                <Dropdown.Item eventKey="2">查詢疫苗接種資料</Dropdown.Item>
+                <Dropdown.Item onClick={ initialRouteState } eventKey="2">查詢疫苗接種資料</Dropdown.Item>
               </LinkContainer>
               <LinkContainer to="/add_observation">
-                <Dropdown.Item eventKey="2">新增篩檢資料</Dropdown.Item>
+                <Dropdown.Item onClick={ initialRouteState } eventKey="2">新增篩檢資料</Dropdown.Item>
               </LinkContainer>
               <LinkContainer to="/query_observation">
-                <Dropdown.Item eventKey="3">查詢篩檢資料</Dropdown.Item>
+                <Dropdown.Item onClick={ initialRouteState } eventKey="3">查詢篩檢資料</Dropdown.Item>
               </LinkContainer>
             </DropdownButton>
             <LinkContainer to="/fhir_server_setting">
-              <Button variant="info">FHIRServer設定</Button>
+              <Button onClick={ initialRouteState } variant="info">FHIRServer設定</Button>
             </LinkContainer>
           </ButtonToolbar>
       </Jumbotron>
@@ -546,13 +561,17 @@ const App = () => {
                 <Form.Control.Feedback type='invalid'>{ errors.patientPhoneNumber }</Form.Control.Feedback>
               </Form.Group>
 
-              <Form.Group className="mb-3">
-                <Form.Label>Fetched Result: <Form.Label className="text-info">{ jsonResponse.map((number) => <li>{ number['value'] }</li>) }</Form.Label></Form.Label>
-              </Form.Group>
-
               <Button variant="primary" type="submit" onClick={ handlePatientSubmit }>
                 送出
               </Button>
+
+              <Form.Group className={ "mb-3 " + visibleText }>
+                <h3 class="text-info">回應JSON</h3>
+                <SyntaxHighlighter language="json" style={ dark }>
+                  { jsonResponse }
+                </SyntaxHighlighter>
+              </Form.Group>
+
             </Form>
             </Route>
             <Route path="/query_patient">
@@ -568,7 +587,7 @@ const App = () => {
                   <Form.Control onChange={ e => setField('patientIdOrName', e.target.value) } type="text" placeholder={labelText} isInvalid={ !!errors.patientIdOrName }/>
                   <Form.Control.Feedback type='invalid'>{ errors.patientIdOrName }</Form.Control.Feedback>
                 </Form.Group>
-                <Form.Group className={'mb-3 ' + dateVisibleText}>
+                <Form.Group className={'mb-3 ' + visibleText}>
                   <Form.Label>{createdDate}</Form.Label>
                   <DatePicker
                     className="form-control"
@@ -581,6 +600,13 @@ const App = () => {
                 <Button variant="primary" type="submit" onClick={ handleQueryPatientSubmit }>
                   送出
                 </Button>
+
+                <Form.Group className={ "mb-3 " + visibleText }>
+                  <h3 class="text-info">回應JSON</h3>
+                  <SyntaxHighlighter language="json" style={ dark }>
+                    { jsonResponse }
+                  </SyntaxHighlighter>
+              </Form.Group>
               </Form>
             </Route>
             <Route path="/query_organization">
@@ -596,6 +622,12 @@ const App = () => {
               <Button variant="primary" type="submit" onClick={ handleQueryOrgSubmit }>
                   送出
               </Button>
+              <Form.Group className={ "mb-3 " + visibleText }>
+                <h3 class="text-info">回應JSON</h3>
+                <SyntaxHighlighter language="json" style={ dark }>
+                  { jsonResponse }
+                </SyntaxHighlighter>
+              </Form.Group>
             </Route>
             <Route path="/add_organization">
               <AddOrganization />
@@ -615,6 +647,12 @@ const App = () => {
               <Button variant="primary" type="submit" onClick={ handleAddingOrgSubmit }>
                   送出
               </Button>
+              <Form.Group className={ "mb-3 " + visibleText }>
+                <h3 class="text-info">回應JSON</h3>
+                <SyntaxHighlighter language="json" style={ dark }>
+                  { jsonResponse }
+                </SyntaxHighlighter>
+              </Form.Group>
             </Route>
             <Route path="/add_immunization">
               <AddImmunization />
@@ -689,6 +727,12 @@ const App = () => {
               <Button variant="primary" type="submit" onClick={ handleAddingImmunizationSubmit }>
                   送出
               </Button>
+              <Form.Group className={ "mb-3 " + visibleText }>
+                <h3 class="text-info">回應JSON</h3>
+                <SyntaxHighlighter language="json" style={ dark }>
+                  { jsonResponse }
+                </SyntaxHighlighter>
+              </Form.Group>
             </Route>
             <Route path="/query_immunization">
               <QueryImmunization />
@@ -703,6 +747,12 @@ const App = () => {
               <Button variant="primary" type="submit" onClick={ handleQueryingImmunizationSubmit }>
                 送出
               </Button>
+              <Form.Group className={ "mb-3 " + visibleText }>
+                <h3 class="text-info">回應JSON</h3>
+                <SyntaxHighlighter language="json" style={ dark }>
+                  { jsonResponse }
+                </SyntaxHighlighter>
+              </Form.Group>
             </Route>
             <Route path="/add_observation">
               <AddObservation />
@@ -766,6 +816,12 @@ const App = () => {
               <Button variant="primary" type="submit" onClick={ handleObservationAddingSubmit }>
                 送出
               </Button>
+              <Form.Group className={ "mb-3 " + visibleText }>
+                <h3 class="text-info">回應JSON</h3>
+                <SyntaxHighlighter language="json" style={ dark }>
+                  { jsonResponse }
+                </SyntaxHighlighter>
+              </Form.Group>
             </Route>
             <Route path="/query_observation">
               <QueryObservation />
@@ -780,6 +836,12 @@ const App = () => {
               <Button variant="primary" type="submit" onClick={ handleObservationQueryingSubmit }>
                   送出
               </Button>
+              <Form.Group className={ "mb-3 " + visibleText }>
+                <h3 class="text-info">回應JSON</h3>
+                <SyntaxHighlighter language="json" style={ dark }>
+                  { jsonResponse }
+                </SyntaxHighlighter>
+              </Form.Group>
             </Route>
             <Route path="/fhir_server_setting">
               <FHIRServerSetting />
@@ -792,6 +854,12 @@ const App = () => {
               <Button variant="primary" type="submit" onClick={ handleFHIRServerSubmit }>
                   送出
               </Button>
+              <Form.Group className={ "mb-3 " + visibleText }>
+                <h3 class="text-info">回應JSON</h3>
+                <SyntaxHighlighter language="json" style={ dark }>
+                  { jsonResponse }
+                </SyntaxHighlighter>
+              </Form.Group>
             </Route>
             <Route path="/">
               <Home />
