@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { MemoryRouter, Switch, Route } from 'react-router-dom';
-import createHistory from 'history/createBrowserHistory';
 
 import Jumbotron from 'react-bootstrap/Jumbotron';
 import Container from 'react-bootstrap/Container';
@@ -18,11 +17,10 @@ import { dark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import HttpRequest from './HttpRequest.js';
 import './App.css';
 
+
 const Home = () => <span></span>;
 
 const AddPatient = () => <h2 className="text-info">病患資料登錄</h2>;
-
-const QueryPatient = () => <h2>病患資料查詢</h2>;
 
 const QueryOrganization = () => <h2>查詢醫事單位</h2>;
 
@@ -44,17 +42,12 @@ const App = () => {
   const [errors, setErrors] = useState({});
   const [labelText, setLabelText] = useState('請輸入病患id');
   const [buttonText, setSearchButtonText] = useState('進階搜尋');
+  const [searchText, setSearchText] = useState('基本');
   const [createdDate, setCreatedDateText] = useState('');
   const [visibleText, setVisibleText] = useState('invisible');
+  const [searchVisibleText, setSearchVisibleText] = useState('invisible');
   const [startDate, setStartDate] = useState(new Date());
   const [jsonResponse, setJsonResponseText] = useState('');
-
-  const history = createHistory();
-  if (history.location && history.location.state && history.location.state.from) {
-    const state = { ...history.location.state };
-    delete state.from;
-    history.replace({ ...history.location, state });
-  }
 
   const setField = (field, value) => {
     setForm({
@@ -77,7 +70,7 @@ const App = () => {
       return false;
     }
 
-    console.log('Done for filling form!');
+    HttpRequest.sendPatientData(form, startDate, setJsonResponseText, setVisibleText);
   };
 
   const handleQueryPatientSubmit = e => {
@@ -88,7 +81,7 @@ const App = () => {
       return false;
     }
 
-    console.log('Done for filling query patient form');
+    HttpRequest.sendPatientQueryData(form, startDate, setJsonResponseText, setVisibleText);
   };
 
   const handleFHIRServerSubmit = e => {
@@ -173,14 +166,16 @@ const App = () => {
     if (e.currentTarget.textContent === '基本搜尋') {
       setLabelText('請輸入病患id(Patient Resource id)');
       setSearchButtonText('進階搜尋');
+      setSearchText('基本');
       setCreatedDateText('');
-      setVisibleText('invisible');
+      setSearchVisibleText('invisible');
     }
     if (e.currentTarget.textContent === '進階搜尋') {
       setLabelText('請輸入病患中文姓名');
       setSearchButtonText('基本搜尋');
       setCreatedDateText('請選擇建立資料之日期');
-      setVisibleText('visible');
+      setSearchVisibleText('visible');
+      setSearchText('進階');
     }
   };
 
@@ -447,6 +442,14 @@ const App = () => {
   const initialRouteState = () => {
     setJsonResponseText('');
     setVisibleText('invisible');
+    setForm({});
+    setErrors({});
+    setLabelText('請輸入病患id');
+    setSearchButtonText('進階搜尋');
+    setCreatedDateText('');
+    setVisibleText('invisible');
+    setStartDate(new Date());
+    setJsonResponseText('');
   };
 
   return (
@@ -566,7 +569,7 @@ const App = () => {
               </Button>
 
               <Form.Group className={ "mb-3 " + visibleText }>
-                <h3 class="text-info">回應JSON</h3>
+                <h3 className="text-info">回應JSON</h3>
                 <SyntaxHighlighter language="json" style={ dark }>
                   { jsonResponse }
                 </SyntaxHighlighter>
@@ -575,7 +578,7 @@ const App = () => {
             </Form>
             </Route>
             <Route path="/query_patient">
-              <QueryPatient />
+              <h2>病患資料{ searchText }查詢</h2>
               <Form>
                 <Form.Group className="mb-3">
                   <Button variant="info" type="button" onClick={ renderSearchTemplate }>
@@ -587,13 +590,13 @@ const App = () => {
                   <Form.Control onChange={ e => setField('patientIdOrName', e.target.value) } type="text" placeholder={labelText} isInvalid={ !!errors.patientIdOrName }/>
                   <Form.Control.Feedback type='invalid'>{ errors.patientIdOrName }</Form.Control.Feedback>
                 </Form.Group>
-                <Form.Group className={'mb-3 ' + visibleText}>
+                <Form.Group className={'mb-3 ' + searchVisibleText}>
                   <Form.Label>{createdDate}</Form.Label>
                   <DatePicker
                     className="form-control"
                     dateFormat="yyyy/MM/dd"
                     selected={startDate}
-                    onChange={ e => setField('createdDateField', e.target.value) }
+                    onChange={ (date) => setStartDate(date) }
                   />
                 </Form.Group>
 
@@ -602,7 +605,7 @@ const App = () => {
                 </Button>
 
                 <Form.Group className={ "mb-3 " + visibleText }>
-                  <h3 class="text-info">回應JSON</h3>
+                  <h3 className="text-info">回應JSON</h3>
                   <SyntaxHighlighter language="json" style={ dark }>
                     { jsonResponse }
                   </SyntaxHighlighter>
@@ -623,7 +626,7 @@ const App = () => {
                   送出
               </Button>
               <Form.Group className={ "mb-3 " + visibleText }>
-                <h3 class="text-info">回應JSON</h3>
+                <h3 className="text-info">回應JSON</h3>
                 <SyntaxHighlighter language="json" style={ dark }>
                   { jsonResponse }
                 </SyntaxHighlighter>
@@ -648,7 +651,7 @@ const App = () => {
                   送出
               </Button>
               <Form.Group className={ "mb-3 " + visibleText }>
-                <h3 class="text-info">回應JSON</h3>
+                <h3 className="text-info">回應JSON</h3>
                 <SyntaxHighlighter language="json" style={ dark }>
                   { jsonResponse }
                 </SyntaxHighlighter>
@@ -728,7 +731,7 @@ const App = () => {
                   送出
               </Button>
               <Form.Group className={ "mb-3 " + visibleText }>
-                <h3 class="text-info">回應JSON</h3>
+                <h3 className="text-info">回應JSON</h3>
                 <SyntaxHighlighter language="json" style={ dark }>
                   { jsonResponse }
                 </SyntaxHighlighter>
@@ -748,7 +751,7 @@ const App = () => {
                 送出
               </Button>
               <Form.Group className={ "mb-3 " + visibleText }>
-                <h3 class="text-info">回應JSON</h3>
+                <h3 className="text-info">回應JSON</h3>
                 <SyntaxHighlighter language="json" style={ dark }>
                   { jsonResponse }
                 </SyntaxHighlighter>
@@ -817,7 +820,7 @@ const App = () => {
                 送出
               </Button>
               <Form.Group className={ "mb-3 " + visibleText }>
-                <h3 class="text-info">回應JSON</h3>
+                <h3 className="text-info">回應JSON</h3>
                 <SyntaxHighlighter language="json" style={ dark }>
                   { jsonResponse }
                 </SyntaxHighlighter>
@@ -837,7 +840,7 @@ const App = () => {
                   送出
               </Button>
               <Form.Group className={ "mb-3 " + visibleText }>
-                <h3 class="text-info">回應JSON</h3>
+                <h3 className="text-info">回應JSON</h3>
                 <SyntaxHighlighter language="json" style={ dark }>
                   { jsonResponse }
                 </SyntaxHighlighter>
@@ -855,7 +858,7 @@ const App = () => {
                   送出
               </Button>
               <Form.Group className={ "mb-3 " + visibleText }>
-                <h3 class="text-info">回應JSON</h3>
+                <h3 className="text-info">回應JSON</h3>
                 <SyntaxHighlighter language="json" style={ dark }>
                   { jsonResponse }
                 </SyntaxHighlighter>
