@@ -5,9 +5,13 @@ import utf8 from 'utf8';
 
 var fhirServer = 'http://localhost:8000/api/fhir_server';
 var createPatient = 'http://localhost:8000/api/CreatePatient';
+var queryPatient = 'http://localhost:8000/api/QueryPatient';
+var searchPatient = 'http://localhost:8000/api/SearchPatient';
+var updatePatient = 'http://localhost:8000/api/UpdatePatient';
+var deletePatient = 'http://localhost:8000/api/DeletePatient';
 
 
-export function sendPatientData(form, startDate, setJsonResponseText, setVisibleText) {
+export function sendPatientData(form, startDate, setJsonResponseText, setErrorResponseText, setVisibleText) {
     let year = String(startDate.getFullYear());
     let month = String(startDate.getMonth() + 1);
     let day = String(startDate.getDate());
@@ -80,33 +84,218 @@ export function sendPatientData(form, startDate, setJsonResponseText, setVisible
         setJsonResponseText(responseJsonString);
         setVisibleText('visible');
     }).catch((error) => {
-        setJsonResponseText(error);
+        let errResponseJsonString = JSON.stringify(error.response, null, 2);
+        setJsonResponseText(errResponseJsonString);
+        setErrorResponseText('回應JSON (Error Response)');
+        setVisibleText('visible');
     });
 };
 
-export function sendPatientQueryData(form, startDate, setJsonResponseText) {
-    let year = String(startDate.getFullYear());
-    let month = String(startDate.getMonth() + 1);
-    let day = String(startDate.getDate());
-    if (month.length === 1) {
-        month = '0' + month;
-    }
-    if (day.length === 1) {
-        day = '0' + day;
-    }
-    let birthDate = year + '-' + month + '-' + day;
+export function sendPatientQueryData(form, startDate, searchText, setJsonResponseText, setVisibleText, setErrorResponseText) {
     let patientIdOrName = form.patientIdOrName;
+    let apiPatientUrl = queryPatient + '/' + patientIdOrName;
+    if (searchText === '進階') {
+        apiPatientUrl = searchPatient;
+        let createdDate = '';
+        let searchParams = '';
+        let numberPattern = new RegExp(/(\d+)/);
+        let patternResult = numberPattern.exec(patientIdOrName);
+        if (startDate && startDate !== '') {
+            let year = String(startDate.getFullYear());
+            let month = String(startDate.getMonth() + 1);
+            let day = String(startDate.getDate());
+            if (month.length === 1) {
+                month = '0' + month;
+            }
+            if (day.length === 1) {
+                day = '0' + day;
+            }
+            createdDate = year + '-' + month + '-' + day;
+        }
+        if (patternResult && patternResult[0] === patternResult['input']) {
+            searchParams += '_id=' + patientIdOrName;
+        } else {
+            searchParams += 'name=' + patientIdOrName;
+        }
+        if (createdDate !== '') {
+            searchParams += '&_lastUpdated=' + createdDate;
+        }
+        let requestPayload = {
+            'search_params': searchParams,
+        };
+        Axios.post(apiPatientUrl, requestPayload).then((response) => {
+            let responseJsonString = JSON.stringify(response.data, null, 2);
+            setJsonResponseText(responseJsonString);
+            setVisibleText('visible');
+        }).catch((error) => {
+            let errResponseJsonString = JSON.stringify(error.response, null, 2);
+            setJsonResponseText(errResponseJsonString);
+            setErrorResponseText('回應JSON (Error Response)');
+            setVisibleText('visible');
+        });
+    } else {
+        Axios.get(apiPatientUrl).then((response) => {
+            let responseJsonString = JSON.stringify(response.data, null, 2);
+            setJsonResponseText(responseJsonString);
+            setVisibleText('visible');
+        }).catch((error) => {
+            let errResponseJsonString = JSON.stringify(error.response, null, 2);
+            setJsonResponseText(errResponseJsonString);
+            setErrorResponseText('回應JSON (Error Response)');
+            setVisibleText('visible');
+        });
+    }
+};
 
-    Axios.post(queryPatient, requestPayload).then((response) => {
+export function modifyPatientData(form, startDate, setJsonResponseText, setErrorResponseText, setVisibleText) {
+    let jsonPayload = {
+        'resourceType': 'Patient',
+        'id': form.patientResourceId,
+        'address': [
+            {
+                'country': 'TW',
+            },
+        ],
+    };
+
+    if (form.patientSex) {
+        jsonPayload['gender'] = form.patientSex;
+    }
+
+    if (form.patientHomeAddress) {
+        jsonPayload['address'].push({
+            'use': 'home',
+            'text': form.patientHomeAddress,
+        });
+    }
+
+    if (form.patientPhoneNumber) {
+        jsonPayload['telecom'] = [
+            {
+                'use': 'home',
+                'system': 'phone',
+                'value': form.patientPhoneNumber,
+            },
+        ];
+    }
+
+    if (form.idNumber) {
+        if (jsonPayload['identifier'] === undefined) {
+            jsonPayload['identifier'] = [
+                {
+                    'system': 'https://www.dicom.org.tw/cs/identityCardNumber_tw',
+                    'value': form.idNumber,
+                },
+            ];
+        }
+    }
+
+    if (form.patientName) {
+        if (jsonPayload['name'] === undefined) {
+            jsonPayload['name'] = [
+                {
+                    'text': form.patientName,
+                    'family': form.patientName[0],
+                    'given': [form.patientName.substring(1)],
+                },
+            ];
+        } else {
+            jsonPayload['name'].push({
+                'text': form.patientName,
+                'family': form.patientName[0],
+                'given': [form.patientName.substring(1)],
+            });
+        }
+    }
+
+    if (form.patientEnName) {
+        let patientEnName = form.patientEnName;
+        let patientEnNameInfo = patientEnName.split(' ');
+        if (jsonPayload['name'] === undefined) {
+            jsonPayload['name'] = [
+                {
+                    'text': patientEnName,
+                    'family': patientEnNameInfo[patientEnNameInfo.length-1],
+                    'given': [
+                        patientEnNameInfo.slice(0, patientEnNameInfo.length-1).join(' '),
+                    ],
+                },
+            ];
+        } else {
+            jsonPayload['name'].push({
+                'text': patientEnName,
+                'family': patientEnNameInfo[patientEnNameInfo.length-1],
+                'given': [
+                    patientEnNameInfo.slice(0, patientEnNameInfo.length-1).join(' '),
+                ],
+            });
+        }
+    }
+
+    if (!!startDate) {
+        let year = String(startDate.getFullYear());
+        let month = String(startDate.getMonth() + 1);
+        let day = String(startDate.getDate());
+        if (month.length === 1) {
+            month = '0' + month;
+        }
+        if (day.length === 1) {
+            day = '0' + day;
+        }
+        let birthDate = year + '-' + month + '-' + day;
+        jsonPayload['birthDate'] = birthDate;
+    }
+
+    if (form.passportNumber) {
+        if (jsonPayload['identifier'] !== undefined) {
+            jsonPayload['identifier'].push({
+                'system': 'https://www.dicom.org.tw/cs/identityCardNumber_tw',
+                'value': form.passportNumber,
+            });
+        } else {
+            jsonPayload['identifier'] = [
+                {
+                    'system': 'https://www.dicom.org.tw/cs/identityCardNumber_tw',
+                    'value': form.passportNumber,
+                },
+            ];
+        }
+    }
+
+    let encodedJsonString = base64.encode(utf8.encode(JSON.stringify(jsonPayload)));
+    let requestPayload = {
+        'json_payload': encodedJsonString,
+        'patient_id': form.patientResourceId,
+    };
+
+    Axios.put(updatePatient, requestPayload).then((response) => {
         let responseJsonString = JSON.stringify(response.data, null, 2);
         setJsonResponseText(responseJsonString);
         setVisibleText('visible');
     }).catch((error) => {
-        setJsonResponseText(error);
+        let errResponseJsonString = JSON.stringify(error.response, null, 2);
+        setJsonResponseText(errResponseJsonString);
+        setErrorResponseText('回應JSON (Error Response)');
+        setVisibleText('visible');
     });
 };
 
-export function sendFHIRServerData(setVisibleText, setJsonResponseText, apiEndpoint) {
+export function deletePatientData(form, setVisibleText, setJsonResponseText, setErrorResponseText) {
+    let patientResourceId = form.patientResourceId;
+    let deletePatientUrl = deletePatient + '/' + patientResourceId;
+    Axios.delete(deletePatientUrl).then((response) => {
+        let responseJsonString = JSON.stringify(response.data, null, 2);
+        setJsonResponseText(responseJsonString);
+        setVisibleText('visible');
+    }).catch((error) => {
+        let errResponseJsonString = JSON.stringify(error.response, null, 2);
+        setJsonResponseText(errResponseJsonString);
+        setErrorResponseText('回應JSON (Error Response)');
+        setVisibleText('visible');
+    });
+};
+
+export function sendFHIRServerData(setVisibleText, setJsonResponseText, setErrorResponseText, apiEndpoint) {
     let requestPayload = {
         'fhir_server': apiEndpoint,
     };
@@ -115,12 +304,18 @@ export function sendFHIRServerData(setVisibleText, setJsonResponseText, apiEndpo
         setJsonResponseText(responseJsonString);
         setVisibleText('visible');
     }).catch((error) => {
-        setJsonResponseText(error);
+        let errResponseJsonString = JSON.stringify(error.response, null, 2);
+        setJsonResponseText(errResponseJsonString);
+        setErrorResponseText('回應JSON (Error Response)');
+        setVisibleText('visible');
     });
 }
 
 const HttpRequest = {
     sendPatientData,
     sendFHIRServerData,
+    sendPatientQueryData,
+    deletePatientData,
+    modifyPatientData,
 };
 export default HttpRequest;

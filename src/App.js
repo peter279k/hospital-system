@@ -22,6 +22,10 @@ const Home = () => <span></span>;
 
 const AddPatient = () => <h2 className="text-info">病患資料登錄</h2>;
 
+const DeletePatient = () => <h2 className="text-info">刪除病患資料</h2>;
+
+const ModifyPatient = () => <h2 className="text-info">修改病患資料</h2>;
+
 const QueryOrganization = () => <h2>查詢醫事單位</h2>;
 
 const AddOrganization = () => <h2>新增醫事單位</h2>;
@@ -48,6 +52,7 @@ const App = () => {
   const [searchVisibleText, setSearchVisibleText] = useState('invisible');
   const [startDate, setStartDate] = useState(new Date());
   const [jsonResponse, setJsonResponseText] = useState('');
+  const [errorResponse, setErrorResponseText] = useState('');
 
   const setField = (field, value) => {
     setForm({
@@ -70,7 +75,18 @@ const App = () => {
       return false;
     }
 
-    HttpRequest.sendPatientData(form, startDate, setJsonResponseText, setVisibleText);
+    HttpRequest.sendPatientData(form, startDate, setJsonResponseText, setErrorResponseText, setVisibleText);
+  };
+
+  const handleModifiedPatientSubmit = e => {
+    e.preventDefault();
+    const newErrors = findModifiedPatientFormErrors();
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return false;
+    }
+
+    HttpRequest.modifyPatientData(form, startDate, setJsonResponseText, setErrorResponseText, setVisibleText);
   };
 
   const handleQueryPatientSubmit = e => {
@@ -81,7 +97,18 @@ const App = () => {
       return false;
     }
 
-    HttpRequest.sendPatientQueryData(form, startDate, setJsonResponseText, setVisibleText);
+    HttpRequest.sendPatientQueryData(form, startDate, searchText, setJsonResponseText, setVisibleText, setErrorResponseText);
+  };
+
+  const handleDeletePatientSubmit = e => {
+    e.preventDefault();
+    const newErrors = findDeletePatientError();
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return false;
+    }
+
+    HttpRequest.deletePatientData(form, setVisibleText, setJsonResponseText, setErrorResponseText);
   };
 
   const handleFHIRServerSubmit = e => {
@@ -92,7 +119,7 @@ const App = () => {
       return false;
     }
 
-    HttpRequest.sendFHIRServerData(setVisibleText, setJsonResponseText, form.apiEndpoint);
+    HttpRequest.sendFHIRServerData(setVisibleText, setJsonResponseText, setErrorResponseText, form.apiEndpoint);
   };
 
   const handleAddingOrgSubmit = e => {
@@ -163,14 +190,14 @@ const App = () => {
 
   const renderSearchTemplate = e => {
     e.preventDefault();
-    if (e.currentTarget.textContent === '基本搜尋') {
+    if (searchText === '進階') {
       setLabelText('請輸入病患id(Patient Resource id)');
       setSearchButtonText('進階搜尋');
       setSearchText('基本');
       setCreatedDateText('');
       setSearchVisibleText('invisible');
     }
-    if (e.currentTarget.textContent === '進階搜尋') {
+    if (searchText === '基本') {
       setLabelText('請輸入病患中文姓名');
       setSearchButtonText('基本搜尋');
       setCreatedDateText('請選擇建立資料之日期');
@@ -372,6 +399,18 @@ const App = () => {
     return newErrors;
   };
 
+  const findDeletePatientError = () => {
+    const {
+      patientResourceId,
+    } = form;
+    const newErrors = {};
+    if (!patientResourceId || patientResourceId === '') {
+      newErrors.patientResourceId = '請輸入Patient resource id!';
+    }
+
+    return newErrors;
+  };
+
   const handleQueryOrgError = () => {
     const {
       orgId,
@@ -439,17 +478,59 @@ const App = () => {
     return newErrors;
   }
 
+  const findModifiedPatientFormErrors = () => {
+    const {
+      patientResourceId,
+      idNumber,
+      passportNumber,
+      patientSex,
+    } = form;
+    const newErrors = {};
+    let validateIdNumberRes = '';
+    if (!patientResourceId || patientResourceId === '') {
+      newErrors.patientResourceId = 'Patient resource id不可空白！';
+    }
+    if (!!idNumber) {
+      validateIdNumberRes = checkIdNumber(idNumber);
+    }
+    if (validateIdNumberRes !== '') {
+      newErrors.idNumber = validateIdNumberRes;
+    }
+    if (!!passportNumber) {
+      if (passportNumber.length !== 9) {
+        newErrors.passportNumber = '護照號碼長度應為9！';
+      }
+      let pattern = /(\d+)/g;
+      let validationRes = passportNumber.match(pattern);
+      if (validationRes === null || validationRes.length !== 1 || validationRes[0] !== passportNumber) {
+        newErrors.passportNumber = '護照號碼應只有數字！';
+      }
+    }
+    if (!!patientSex) {
+      if (patientSex !== 'male' && patientSex !== 'female') {
+        newErrors.patientSex = '請選擇病患男性或女性！';
+      }
+    }
+
+    return newErrors;
+  };
+
   const initialRouteState = () => {
     setJsonResponseText('');
     setVisibleText('invisible');
     setForm({});
     setErrors({});
-    setLabelText('請輸入病患id');
-    setSearchButtonText('進階搜尋');
-    setCreatedDateText('');
+    setLabelText('請輸入病患id(Patient Resource id)');
+    if (searchText === '基本') {
+      setSearchButtonText('進階搜尋');
+      setCreatedDateText('');
+    } else {
+      setSearchButtonText('基本搜尋');
+      setCreatedDateText('請選擇建立資料之日期');
+    }
     setVisibleText('invisible');
     setStartDate(new Date());
-    setJsonResponseText('');
+    setErrorResponseText('回應JSON');
   };
 
   return (
@@ -457,17 +538,24 @@ const App = () => {
     <Container className="p-3">
       <Jumbotron>
         <h1 className="header">歡迎來到醫院院內管理系統</h1>
-        <h2>{' '}</h2>
           <ButtonToolbar className="custom-btn-toolbar">
             <LinkContainer to="/">
               <Button>首頁</Button>
             </LinkContainer>
-            <LinkContainer to="/add_patient">
-              <Button onClick={ initialRouteState }>病患資料登錄</Button>
-            </LinkContainer>
-            <LinkContainer to="/query_patient">
-              <Button onClick={ initialRouteState }>病患資料查詢</Button>
-            </LinkContainer>
+            <DropdownButton className="custom-btn-toolbar" title="病患資料管理" variant="info">
+                <LinkContainer to="/add_patient">
+                  <Dropdown.Item onClick={ initialRouteState } eventKey="1">新增病患資料</Dropdown.Item>
+                </LinkContainer>
+                <LinkContainer to="/query_patient">
+                  <Dropdown.Item onClick={ initialRouteState } eventKey="2">查詢病患資料</Dropdown.Item>
+                </LinkContainer>
+                <LinkContainer to="/modify_patient">
+                  <Dropdown.Item onClick={ initialRouteState } eventKey="3">修改病患資料</Dropdown.Item>
+                </LinkContainer>
+                <LinkContainer to="/delete_patient">
+                  <Dropdown.Item onClick={ initialRouteState } eventKey="4">刪除病患資料</Dropdown.Item>
+                </LinkContainer>
+            </DropdownButton>
             <DropdownButton className="custom-btn-toolbar" title="醫事單位管理" variant="secondary">
                 <LinkContainer to="/add_organization">
                   <Dropdown.Item onClick={ initialRouteState } eventKey="1">新增醫事單位</Dropdown.Item>
@@ -491,13 +579,12 @@ const App = () => {
               </LinkContainer>
             </DropdownButton>
             <LinkContainer to="/fhir_server_setting">
-              <Button onClick={ initialRouteState } variant="info">FHIRServer設定</Button>
+              <Button onClick={ initialRouteState } variant="secondary">FHIRServer設定</Button>
             </LinkContainer>
           </ButtonToolbar>
       </Jumbotron>
     </Container>
     <Container className="p-3">
-      <h2>{' '}</h2>
           <Switch>
             <Route path="/add_patient">
             <AddPatient />
@@ -564,12 +651,99 @@ const App = () => {
                 <Form.Control.Feedback type='invalid'>{ errors.patientPhoneNumber }</Form.Control.Feedback>
               </Form.Group>
 
-              <Button variant="primary" type="submit" onClick={ handlePatientSubmit }>
-                送出
-              </Button>
+              <Form.Group className="mb-3">
+                <Button variant="primary" type="submit" onClick={ handlePatientSubmit }>
+                  送出
+                </Button>{' '}
+                <Button variant="danger" type="reset">
+                  清空資料
+                </Button>{' '}
+              </Form.Group>
 
               <Form.Group className={ "mb-3 " + visibleText }>
-                <h3 className="text-info">回應JSON</h3>
+                <h3 className="text-info">{ errorResponse }</h3>
+                <SyntaxHighlighter language="json" style={ dark }>
+                  { jsonResponse }
+                </SyntaxHighlighter>
+              </Form.Group>
+
+            </Form>
+            </Route>
+            <Route path="/modify_patient">
+            <ModifyPatient />{' '}
+            <Button variant="success" type="submit">載入資料</Button>
+            <Form>
+              <Form.Group className="mb-3">
+                <Form.Label>請輸入Patient resource id<Form.Label className="text-danger">*</Form.Label></Form.Label>
+                <Form.Control onChange={ e => setField('patientResourceId', e.target.value) } type="text" placeholder="輸入Patient resource id" isInvalid={ !!errors.patientResourceId }/>
+                <Form.Control.Feedback type='invalid'>{ errors.patientResourceId }</Form.Control.Feedback>
+              </Form.Group>
+              <Form.Group className="mb-3">
+                <Form.Label>請輸入病患身份證字號</Form.Label>
+                <Form.Control onChange={ e => setField('idNumber', e.target.value) } type="text" placeholder="輸入身份證字號"/>
+                <Form.Text className="text-info">
+                 此為醫事人員專用系統， 請勿任意分享身份證字號給他人
+                </Form.Text>
+              </Form.Group>
+
+              <Form.Group className="mb-3">
+                <Form.Label>請輸入病患護照號碼</Form.Label>
+                <Form.Control onChange={ e => setField('passportNumber', e.target.value) } type="text" placeholder="輸入護照號碼"/>
+                <Form.Text className="text-info">
+                 此為醫事人員專用系統， 請勿任意分享護照號碼給他人
+                </Form.Text>
+              </Form.Group>
+
+              <Form.Group className="mb-3">
+                <Form.Label>請輸入病患姓名</Form.Label>
+                <Form.Control onChange={ e => setField('patientName', e.target.value) } type="text" placeholder="請輸入病患姓名"/>
+              </Form.Group>
+
+              <Form.Group className="mb-3">
+                <Form.Label>請輸入病患英文姓名</Form.Label>
+                <Form.Control onChange={ e => setField('patientEnName', e.target.value) } type="text" placeholder="請輸入病患英文姓名"/>
+              </Form.Group>
+
+              <Form.Group className="mb-3">
+                <Form.Label>請輸入病患性別</Form.Label>
+                <Form.Control onChange={ e => setField('patientSex', e.target.value) } as="select" custom isInvalid={ !!errors.patientSex }>
+                  <option>請選擇病患性別</option>
+                  <option value="male">男</option>
+                  <option value="female">女</option>
+                </Form.Control>
+              </Form.Group>
+
+              <Form.Group className="mb-3">
+                <Form.Label>請選擇病患出生日期</Form.Label>
+                <DatePicker
+                  className="form-control"
+                  dateFormat="yyyy/MM/dd"
+                  selected={startDate}
+                  onChange={ (date) => setStartDate(date) }
+                />
+              </Form.Group>
+
+              <Form.Group className="mb-3">
+                <Form.Label>請輸入病患住家地址</Form.Label>
+                <Form.Control onChange={ e => setField('patientHomeAddress', e.target.value) } type="text" placeholder="請輸入病患住家地址" />
+              </Form.Group>
+
+              <Form.Group className="mb-3">
+                <Form.Label>請輸入病患聯絡手機</Form.Label>
+                <Form.Control onChange={ e => setField('patientPhoneNumber', e.target.value) } type="text" placeholder="請輸入病患聯絡手機" />
+              </Form.Group>
+
+              <Form.Group className="mb-3">
+                <Button variant="primary" type="submit" onClick={ handleModifiedPatientSubmit }>
+                  送出
+                </Button>{' '}
+                <Button variant="danger" type="reset">
+                  清空資料
+                </Button>{' '}
+              </Form.Group>
+
+              <Form.Group className={ "mb-3 " + visibleText }>
+                <h3 className="text-info">{ errorResponse }</h3>
                 <SyntaxHighlighter language="json" style={ dark }>
                   { jsonResponse }
                 </SyntaxHighlighter>
@@ -600,17 +774,48 @@ const App = () => {
                   />
                 </Form.Group>
 
-                <Button variant="primary" type="submit" onClick={ handleQueryPatientSubmit }>
-                  送出
-                </Button>
+                <Form.Group className="mb-3">
+                  <Button variant="primary" type="submit" onClick={ handleQueryPatientSubmit }>
+                    送出
+                  </Button>{' '}
+                  <Button variant="danger" type="reset">
+                    清空資料
+                  </Button>{' '}
+                </Form.Group>
 
                 <Form.Group className={ "mb-3 " + visibleText }>
-                  <h3 className="text-info">回應JSON</h3>
+                  <h3 className="text-info">{ errorResponse }</h3>
                   <SyntaxHighlighter language="json" style={ dark }>
                     { jsonResponse }
                   </SyntaxHighlighter>
               </Form.Group>
               </Form>
+            </Route>
+            <Route path="/delete_patient">
+              <DeletePatient />
+              <Form>
+                <Form.Group className="mb-3">
+                <Form.Label>請輸入Patient resource id<Form.Label className="text-danger">*</Form.Label></Form.Label>
+                <Form.Control onChange={ e => setField('patientResourceId', e.target.value) } type="text" placeholder="輸入Patient resource id" isInvalid={ !!errors.patientResourceId }/>
+                <Form.Control.Feedback type='invalid'>{ errors.patientResourceId }</Form.Control.Feedback>
+              </Form.Group>
+              </Form>
+
+              <Form.Group className="mb-3">
+                <Button variant="primary" type="submit" onClick={ handleDeletePatientSubmit }>
+                  送出
+                </Button>{' '}
+                <Button variant="danger" type="reset">
+                  清空資料
+                </Button>{' '}
+              </Form.Group>
+
+              <Form.Group className={ "mb-3 " + visibleText }>
+                <h3 className="text-info">{ errorResponse }</h3>
+                <SyntaxHighlighter language="json" style={ dark }>
+                  { jsonResponse }
+                </SyntaxHighlighter>
+              </Form.Group>
             </Route>
             <Route path="/query_organization">
               <QueryOrganization />
@@ -622,11 +827,17 @@ const App = () => {
                 </Form.Group>
               </Form>
 
-              <Button variant="primary" type="submit" onClick={ handleQueryOrgSubmit }>
+              <Form.Group className="mb-3">
+                <Button variant="primary" type="submit" onClick={ handleQueryOrgSubmit }>
                   送出
-              </Button>
+                </Button>{' '}
+                <Button variant="danger" type="reset">
+                  清空資料
+                </Button>{' '}
+              </Form.Group>
+
               <Form.Group className={ "mb-3 " + visibleText }>
-                <h3 className="text-info">回應JSON</h3>
+                <h3 className="text-info">{ errorResponse }</h3>
                 <SyntaxHighlighter language="json" style={ dark }>
                   { jsonResponse }
                 </SyntaxHighlighter>
@@ -647,11 +858,17 @@ const App = () => {
                 </Form.Group>
               </Form>
 
-              <Button variant="primary" type="submit" onClick={ handleAddingOrgSubmit }>
+              <Form.Group className="mb-3">
+                <Button variant="primary" type="submit" onClick={ handleAddingOrgSubmit }>
                   送出
-              </Button>
+                </Button>{' '}
+                <Button variant="danger" type="reset">
+                  清空資料
+                </Button>{' '}
+              </Form.Group>
+
               <Form.Group className={ "mb-3 " + visibleText }>
-                <h3 className="text-info">回應JSON</h3>
+                <h3 className="text-info">{ errorResponse }</h3>
                 <SyntaxHighlighter language="json" style={ dark }>
                   { jsonResponse }
                 </SyntaxHighlighter>
@@ -727,11 +944,17 @@ const App = () => {
                 </Form.Group>
               </Form>
 
-              <Button variant="primary" type="submit" onClick={ handleAddingImmunizationSubmit }>
+              <Form.Group className="mb-3">
+                <Button variant="primary" type="submit" onClick={ handleAddingImmunizationSubmit }>
                   送出
-              </Button>
+                </Button>{' '}
+                <Button variant="danger" type="reset">
+                  清空資料
+                </Button>{' '}
+              </Form.Group>
+
               <Form.Group className={ "mb-3 " + visibleText }>
-                <h3 className="text-info">回應JSON</h3>
+                <h3 className="text-info">{ errorResponse }</h3>
                 <SyntaxHighlighter language="json" style={ dark }>
                   { jsonResponse }
                 </SyntaxHighlighter>
@@ -747,11 +970,17 @@ const App = () => {
                 </Form.Group>
               </Form>
 
-              <Button variant="primary" type="submit" onClick={ handleQueryingImmunizationSubmit }>
-                送出
-              </Button>
+              <Form.Group className="mb-3">
+                <Button variant="primary" type="submit" onClick={ handleQueryingImmunizationSubmit }>
+                  送出
+                </Button>{' '}
+                <Button variant="danger" type="reset">
+                  清空資料
+                </Button>{' '}
+              </Form.Group>
+
               <Form.Group className={ "mb-3 " + visibleText }>
-                <h3 className="text-info">回應JSON</h3>
+                <h3 className="text-info">{ errorResponse }</h3>
                 <SyntaxHighlighter language="json" style={ dark }>
                   { jsonResponse }
                 </SyntaxHighlighter>
@@ -816,11 +1045,17 @@ const App = () => {
                 </Form.Group>
               </Form>
 
-              <Button variant="primary" type="submit" onClick={ handleObservationAddingSubmit }>
-                送出
-              </Button>
+              <Form.Group className="mb-3">
+                <Button variant="primary" type="submit" onClick={ handleObservationAddingSubmit }>
+                  送出
+                </Button>{' '}
+                <Button variant="danger" type="reset">
+                  清空資料
+                </Button>{' '}
+              </Form.Group>
+
               <Form.Group className={ "mb-3 " + visibleText }>
-                <h3 className="text-info">回應JSON</h3>
+                <h3 className="text-info">{ errorResponse }</h3>
                 <SyntaxHighlighter language="json" style={ dark }>
                   { jsonResponse }
                 </SyntaxHighlighter>
@@ -836,11 +1071,17 @@ const App = () => {
                 </Form.Group>
               </Form>
 
-              <Button variant="primary" type="submit" onClick={ handleObservationQueryingSubmit }>
+              <Form.Group className="mb-3">
+                <Button variant="primary" type="submit" onClick={ handleObservationQueryingSubmit }>
                   送出
-              </Button>
+                </Button>{' '}
+                <Button variant="danger" type="reset">
+                  清空資料
+                </Button>{' '}
+              </Form.Group>
+
               <Form.Group className={ "mb-3 " + visibleText }>
-                <h3 className="text-info">回應JSON</h3>
+                <h3 className="text-info">{ errorResponse }</h3>
                 <SyntaxHighlighter language="json" style={ dark }>
                   { jsonResponse }
                 </SyntaxHighlighter>
@@ -854,11 +1095,17 @@ const App = () => {
                 <Form.Control.Feedback type='invalid'>{ errors.apiEndpoint }</Form.Control.Feedback>
               </Form.Group>
 
-              <Button variant="primary" type="submit" onClick={ handleFHIRServerSubmit }>
+              <Form.Group className="mb-3">
+                <Button variant="primary" type="submit" onClick={ handleFHIRServerSubmit }>
                   送出
-              </Button>
+                </Button>{' '}
+                <Button variant="danger" type="reset">
+                  清空資料
+                </Button>{' '}
+              </Form.Group>
+
               <Form.Group className={ "mb-3 " + visibleText }>
-                <h3 className="text-info">回應JSON</h3>
+                <h3 className="text-info">{ errorResponse }</h3>
                 <SyntaxHighlighter language="json" style={ dark }>
                   { jsonResponse }
                 </SyntaxHighlighter>
