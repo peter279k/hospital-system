@@ -62,7 +62,7 @@ const AddOrgTemplate = () => {
     };
 
     return (
-        <Switch>
+      <Switch>
         <Route path="/add_organization">
               <AddOrganization />
               <Form>
@@ -94,8 +94,8 @@ const AddOrgTemplate = () => {
                 </SyntaxHighlighter>
               </Form.Group>
         </Route>
-        </Switch>
-    );
+      </Switch>
+  );
 };
 
 export default AddOrgTemplate;

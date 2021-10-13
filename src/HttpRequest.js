@@ -349,6 +349,12 @@ export function sendFHIRServerData(setVisibleText, setJsonResponseText, setError
     });
 }
 
+export function sendOrgData() {
+}
+
+export function queryOrgData() {
+}
+
 const HttpRequest = {
     sendPatientData,
     sendFHIRServerData,
