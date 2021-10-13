@@ -150,6 +150,9 @@ const AddPatientTemplate = () => {
             newErrors.patientSex = '請選擇病患男性或女性！';
           }
         }
+        if (!startDate || startDate === '' || startDate === null) {
+            newErrors.birthDate = '病患出生日期不可空白！';
+        }
         if (!patientHomeAddress || patientHomeAddress === '') {
           newErrors.patientHomeAddress = '病患住家地址不可空白！';
         }
@@ -213,6 +216,7 @@ const AddPatientTemplate = () => {
                   selected={startDate}
                   onChange={ (date) => setStartDate(date) }
                 />
+                <Form.Control.Feedback type='invalid'>{ errors.birthDate }</Form.Control.Feedback>
               </Form.Group>
 
               <Form.Group className="mb-3">

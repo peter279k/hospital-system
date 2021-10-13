@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Route, Switch } from 'react-router-dom';
 import Form from 'react-bootstrap/Form';
 import DatePicker from "react-datepicker";
@@ -21,18 +21,14 @@ const ModifyPatientTemplate = () => {
     const [jsonResponse, setJsonResponseText] = useState('');
     const [errorResponse, setErrorResponseText] = useState('');
 
-    const setField = (field, value) => {
-        setForm({
-          ...form,
-          [field]: value,
-        });
-        if (!!errors[field]) {
-          setErrors({
-            ...errors,
-            [field]: null,
-          });
-        }
-    };
+    const [patientResourceId, setPatientResourceId] = useState('');
+    const [idNumber, setIdNumber] = useState('');
+    const [passportNumber, setPassportNumber] = useState('');
+    const [patientName, setPatientName] = useState('');
+    const [patientEnName, setPatientEnName] = useState('');
+    const [patientSex, setPatientSex] = useState('');
+    const [patientHomeAddress, setPatientHomeAddress] = useState('');
+    const [patientPhoneNumber, setPatientPhoneNumber] = useState('');
 
     const checkIdNumber = (idNumber) => {
         if (idNumber.length !== 10) {
@@ -106,57 +102,119 @@ const ModifyPatientTemplate = () => {
         HttpRequest.modifyPatientData(form, startDate, setJsonResponseText, setErrorResponseText, setVisibleText);
     };
 
+    const resetInputFields = e => {
+        e.preventDefault();
+        setPatientResourceId('');
+        setIdNumber('');
+        setPassportNumber('');
+        setPatientName('');
+        setPatientEnName('');
+        setPatientSex('');
+        setPatientHomeAddress('');
+        setPatientPhoneNumber('');
+        setStartDate(new Date());
+    };
+
+    const handleLoadingPatientData = e => {
+        e.preventDefault();
+        const newErrors = findLoadingPatientDataError();
+        if (Object.keys(newErrors).length > 0) {
+            setErrors(newErrors);
+            return false;
+        }
+        let fieldStates = {
+            'idNumber': setIdNumber,
+            'passportNumber': setPassportNumber,
+            'patientName': setPatientName,
+            'patientEnName': setPatientEnName,
+            'patientSex': setPatientSex,
+            'patientHomeAddress': setPatientHomeAddress,
+            'patientPhoneNumber': setPatientPhoneNumber,
+            'errors': setErrors,
+        };
+
+        HttpRequest.sendPatientQueryDataJsonString(form, fieldStates);
+    };
+
+    const findLoadingPatientDataError = () => {
+        console.log(idNumber);
+        const newErrors = {};
+        if (!patientResourceId || patientResourceId === '') {
+            newErrors.patientResourceId = 'Patient resource id不可空白！';
+        }
+        return newErrors;
+    };
+
     const findModifiedPatientFormErrors = () => {
         const {
-          patientResourceId,
-          idNumber,
-          passportNumber,
-          patientSex,
-        } = form;
-        const newErrors = {};
-        let validateIdNumberRes = '';
-        if (!patientResourceId || patientResourceId === '') {
-          newErrors.patientResourceId = 'Patient resource id不可空白！';
-        }
-        if (!!idNumber) {
-          validateIdNumberRes = checkIdNumber(idNumber);
-        }
-        if (validateIdNumberRes !== '') {
-          newErrors.idNumber = validateIdNumberRes;
-        }
-        if (!!passportNumber) {
-          if (passportNumber.length !== 9) {
-            newErrors.passportNumber = '護照號碼長度應為9！';
+            idNumber,
+            passportNumber,
+            patientName,
+            patientEnName,
+            patientSex,
+            patientHomeAddress,
+            patientPhoneNumber,
+          } = form;
+          const newErrors = {};
+          if (!idNumber || idNumber === '') {
+            newErrors.idNumber = '身份證字號請勿空白！';
           }
-          let pattern = /(\d+)/g;
-          let validationRes = passportNumber.match(pattern);
-          if (validationRes === null || validationRes.length !== 1 || validationRes[0] !== passportNumber) {
-            newErrors.passportNumber = '護照號碼應只有數字！';
+          let validateIdNumberRes = '';
+          if (!!idNumber) {
+            validateIdNumberRes = checkIdNumber(idNumber);
           }
-        }
-        if (!!patientSex) {
-          if (patientSex !== 'male' && patientSex !== 'female') {
-            newErrors.patientSex = '請選擇病患男性或女性！';
+          if (validateIdNumberRes !== '') {
+            newErrors.idNumber = validateIdNumberRes;
           }
-        }
+          if (!!passportNumber) {
+            if (passportNumber.length !== 9) {
+              newErrors.passportNumber = '護照號碼長度應為9！';
+            }
+            let pattern = /(\d+)/g;
+            let validationRes = passportNumber.match(pattern);
+            if (validationRes === null || validationRes.length !== 1 || validationRes[0] !== passportNumber) {
+              newErrors.passportNumber = '護照號碼應只有數字！';
+            }
+          }
+          if (!patientName || patientName === '') {
+            newErrors.patientName = '病患姓名請勿空白！';
+          }
+          if (!patientEnName || patientEnName === '') {
+            newErrors.patientEnName = '病患英文姓名請勿空白！';
+          }
+          if (!patientSex || patientSex === '') {
+            newErrors.patientSex = '請選擇病患性別！';
+          }
+          if (!!patientSex) {
+            if (patientSex !== 'male' && patientSex !== 'female') {
+              newErrors.patientSex = '請選擇病患男性或女性！';
+            }
+          }
+          if (!patientHomeAddress || patientHomeAddress === '') {
+            newErrors.patientHomeAddress = '病患住家地址不可空白！';
+          }
+          if (!patientPhoneNumber || patientPhoneNumber === '') {
+            newErrors.patientPhoneNumber = '病患手機號碼不可空白！';
+          }
 
-        return newErrors;
+          return newErrors;
     };
 
     return (
         <Switch>
         <Route path="/modify_patient">
             <ModifyPatient />{' '}
-            <Button variant="success" type="submit">載入資料</Button>
+            <Button onClick={ handleLoadingPatientData } variant="success" type="submit">載入資料</Button>
             <Form>
               <Form.Group className="mb-3">
                 <Form.Label>請輸入Patient resource id<Form.Label className="text-danger">*</Form.Label></Form.Label>
-                <Form.Control onChange={ e => setField('patientResourceId', e.target.value) } type="text" placeholder="輸入Patient resource id" isInvalid={ !!errors.patientResourceId }/>
+                <Form.Control value={ patientResourceId } onChange={ e => setPatientResourceId(e.target.value) } type="text" placeholder="輸入Patient resource id" isInvalid={ !!errors.patientResourceId }/>
                 <Form.Control.Feedback type='invalid'>{ errors.patientResourceId }</Form.Control.Feedback>
               </Form.Group>
               <Form.Group className="mb-3">
-                <Form.Label>請輸入病患身份證字號</Form.Label>
-                <Form.Control onChange={ e => setField('idNumber', e.target.value) } type="text" placeholder="輸入身份證字號"/>
+                <Form.Label>請輸入病患身份證字號<Form.Label className="text-danger">*</Form.Label></Form.Label>
+                <Form.Control value={ idNumber } onChange={ e => setIdNumber(e.target.value) } type="text" placeholder="輸入身份證字號" isInvalid={ !!errors.idNumber }/>
+                <Form.Control.Feedback type='invalid'>{ errors.idNumber }</Form.Control.Feedback>
                 <Form.Text className="text-info">
                  此為醫事人員專用系統， 請勿任意分享身份證字號給他人
                 </Form.Text>
@@ -164,33 +222,37 @@ const ModifyPatientTemplate = () => {
 
               <Form.Group className="mb-3">
                 <Form.Label>請輸入病患護照號碼</Form.Label>
-                <Form.Control onChange={ e => setField('passportNumber', e.target.value) } type="text" placeholder="輸入護照號碼"/>
+                <Form.Control value={ passportNumber } onChange={ e => setField('passportNumber', e.target.value) } type="text" placeholder="輸入護照號碼" isInvalid={ !!errors.passportNumber }/>
+                <Form.Control.Feedback type='invalid'>{ errors.passportNumber }</Form.Control.Feedback>
                 <Form.Text className="text-info">
                  此為醫事人員專用系統， 請勿任意分享護照號碼給他人
                 </Form.Text>
               </Form.Group>
 
               <Form.Group className="mb-3">
-                <Form.Label>請輸入病患姓名</Form.Label>
-                <Form.Control onChange={ e => setField('patientName', e.target.value) } type="text" placeholder="請輸入病患姓名"/>
+                <Form.Label>請輸入病患姓名<Form.Label className="text-danger">*</Form.Label></Form.Label>
+                <Form.Control value={ patientName } onChange={ e => setField('patientName', e.target.value) } type="text" placeholder="請輸入病患姓名" isInvalid={ !!errors.patientName }/>
+                <Form.Control.Feedback type='invalid'>{ errors.patientName }</Form.Control.Feedback>
               </Form.Group>
 
               <Form.Group className="mb-3">
-                <Form.Label>請輸入病患英文姓名</Form.Label>
-                <Form.Control onChange={ e => setField('patientEnName', e.target.value) } type="text" placeholder="請輸入病患英文姓名"/>
+                <Form.Label>請輸入病患英文姓名<Form.Label className="text-danger">*</Form.Label></Form.Label>
+                <Form.Control value={ patientEnName } onChange={ e => setField('patientEnName', e.target.value) } type="text" placeholder="請輸入病患英文姓名" isInvalid={ !!errors.patientEnName }/>
+                <Form.Control.Feedback type='invalid'>{ errors.patientEnName }</Form.Control.Feedback>
               </Form.Group>
 
               <Form.Group className="mb-3">
-                <Form.Label>請輸入病患性別</Form.Label>
-                <Form.Control onChange={ e => setField('patientSex', e.target.value) } as="select" custom isInvalid={ !!errors.patientSex }>
+                <Form.Label>請輸入病患性別<Form.Label className="text-danger">*</Form.Label></Form.Label>
+                <Form.Control value={ patientSex } onChange={ e => setField('patientSex', e.target.value) } as="select" custom isInvalid={ !!errors.patientSex }>
                   <option>請選擇病患性別</option>
                   <option value="male">男</option>
                   <option value="female">女</option>
                 </Form.Control>
+                <Form.Control.Feedback type='invalid'>{ errors.patientSex }</Form.Control.Feedback>
               </Form.Group>
 
               <Form.Group className="mb-3">
-                <Form.Label>請選擇病患出生日期</Form.Label>
+                <Form.Label>請選擇病患出生日期<Form.Label className="text-danger">*</Form.Label></Form.Label>
                 <DatePicker
                   className="form-control"
                   dateFormat="yyyy/MM/dd"
@@ -200,20 +262,22 @@ const ModifyPatientTemplate = () => {
               </Form.Group>
 
               <Form.Group className="mb-3">
-                <Form.Label>請輸入病患住家地址</Form.Label>
-                <Form.Control onChange={ e => setField('patientHomeAddress', e.target.value) } type="text" placeholder="請輸入病患住家地址" />
+                <Form.Label>請輸入病患住家地址<Form.Label className="text-danger">*</Form.Label></Form.Label>
+                <Form.Control value={ patientHomeAddress } onChange={ e => setField('patientHomeAddress', e.target.value) } type="text" placeholder="請輸入病患住家地址" isInvalid={ !!errors.patientHomeAddress }/>
+                <Form.Control.Feedback type='invalid'>{ errors.patientHomeAddress }</Form.Control.Feedback>
               </Form.Group>
 
               <Form.Group className="mb-3">
-                <Form.Label>請輸入病患聯絡手機</Form.Label>
-                <Form.Control onChange={ e => setField('patientPhoneNumber', e.target.value) } type="text" placeholder="請輸入病患聯絡手機" />
+                <Form.Label>請輸入病患聯絡手機<Form.Label className="text-danger">*</Form.Label></Form.Label>
+                <Form.Control value={patientPhoneNumber} onChange={ e => setField('patientPhoneNumber', e.target.value) } type="text" placeholder="請輸入病患聯絡手機" isInvalid={ !!errors.patientPhoneNumber }/>
+                <Form.Control.Feedback type='invalid'>{ errors.patientPhoneNumber }</Form.Control.Feedback>
               </Form.Group>
 
               <Form.Group className="mb-3">
                 <Button variant="primary" type="submit" onClick={ handleModifiedPatientSubmit }>
                   送出
                 </Button>{' '}
-                <Button variant="danger" type="reset">
+                <Button variant="danger" type="submit" onClick={ resetInputFields }>
                   清空資料
                 </Button>{' '}
               </Form.Group>

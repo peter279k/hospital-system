@@ -82,6 +82,7 @@ export function sendPatientData(form, startDate, setJsonResponseText, setErrorRe
     Axios.post(createPatient, requestPayload).then((response) => {
         let responseJsonString = JSON.stringify(response.data, null, 2);
         setJsonResponseText(responseJsonString);
+        setErrorResponseText('回應JSON');
         setVisibleText('visible');
     }).catch((error) => {
         let errResponseJsonString = JSON.stringify(error.response, null, 2);
@@ -125,6 +126,7 @@ export function sendPatientQueryData(form, startDate, searchText, setJsonRespons
         };
         Axios.post(apiPatientUrl, requestPayload).then((response) => {
             let responseJsonString = JSON.stringify(response.data, null, 2);
+            setErrorResponseText('回應JSON');
             setJsonResponseText(responseJsonString);
             setVisibleText('visible');
         }).catch((error) => {
@@ -137,6 +139,7 @@ export function sendPatientQueryData(form, startDate, searchText, setJsonRespons
         Axios.get(apiPatientUrl).then((response) => {
             let responseJsonString = JSON.stringify(response.data, null, 2);
             setJsonResponseText(responseJsonString);
+            setErrorResponseText('回應JSON');
             setVisibleText('visible');
         }).catch((error) => {
             let errResponseJsonString = JSON.stringify(error.response, null, 2);
@@ -145,6 +148,38 @@ export function sendPatientQueryData(form, startDate, searchText, setJsonRespons
             setVisibleText('visible');
         });
     }
+};
+
+export function sendPatientQueryDataJsonString(form, fieldStates) {
+    let patientResourceId = form.patientResourceId;
+    let apiPatientUrl = queryPatient + '/' + patientResourceId;
+    Axios.get(apiPatientUrl).then((response) => {
+        let setIdNumber = fieldStates['idNumber'];
+        setIdNumber(response.data['identifier'][0]['value']);
+
+        if (response.data['identifier'].length > 1) {
+            let setPassportNumber = fieldStates['passportNumber'];
+            setPassportNumber(response.data['identifier'][1]['value']);
+        }
+
+        let setPatientName = fieldStates['patientName'];
+        let setPatientEnName = fieldStates['patientEnName'];
+        let setPatientSex = fieldStates['patientSex'];
+        let setPatientHomeAddress = fieldStates['patientHomeAddress'];
+        let setPatientPhoneNumber = fieldStates['patientPhoneNumber'];
+
+        setPatientName(response.data['name'][0]['text']);
+        setPatientEnName(response.data['name'][1]['text']);
+        setPatientSex(response.data['gender']);
+        setPatientHomeAddress(response.data['address'][0]['text']);
+        setPatientPhoneNumber(response.data['telecom'][0]['value']);
+    }).catch((error) => {
+        JSON.stringify(error.response, null, 2);
+        let setNewErrors = fieldStates['errors'];
+        setNewErrors({
+            patientResourceId: '查詢patient resource id: ' + patientResourceId + '錯誤',
+        });
+    });
 };
 
 export function modifyPatientData(form, startDate, setJsonResponseText, setErrorResponseText, setVisibleText) {
@@ -271,6 +306,7 @@ export function modifyPatientData(form, startDate, setJsonResponseText, setError
     Axios.put(updatePatient, requestPayload).then((response) => {
         let responseJsonString = JSON.stringify(response.data, null, 2);
         setJsonResponseText(responseJsonString);
+        setErrorResponseText('回應JSON');
         setVisibleText('visible');
     }).catch((error) => {
         let errResponseJsonString = JSON.stringify(error.response, null, 2);
@@ -286,6 +322,7 @@ export function deletePatientData(form, setVisibleText, setJsonResponseText, set
     Axios.delete(deletePatientUrl).then((response) => {
         let responseJsonString = JSON.stringify(response.data, null, 2);
         setJsonResponseText(responseJsonString);
+        setErrorResponseText('回應JSON');
         setVisibleText('visible');
     }).catch((error) => {
         let errResponseJsonString = JSON.stringify(error.response, null, 2);
@@ -302,6 +339,7 @@ export function sendFHIRServerData(setVisibleText, setJsonResponseText, setError
     Axios.post(fhirServer, requestPayload).then((response) => {
         let responseJsonString = JSON.stringify(response.data, null, 2);
         setJsonResponseText(responseJsonString);
+        setErrorResponseText('回應JSON');
         setVisibleText('visible');
     }).catch((error) => {
         let errResponseJsonString = JSON.stringify(error.response, null, 2);
@@ -317,5 +355,6 @@ const HttpRequest = {
     sendPatientQueryData,
     deletePatientData,
     modifyPatientData,
+    sendPatientQueryDataJsonString,
 };
 export default HttpRequest;

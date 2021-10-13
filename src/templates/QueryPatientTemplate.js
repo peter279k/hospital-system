@@ -82,7 +82,7 @@ const QueryPatientTemplate = () => {
     return (
         <Switch>
         <Route path="/query_patient">
-              <h2>病患資料{ searchText }查詢</h2>
+              <h2 className="text-info">病患資料{ searchText }查詢</h2>
               <Form>
                 <Form.Group className="mb-3">
                   <Button variant="info" type="button" onClick={ renderSearchTemplate }>

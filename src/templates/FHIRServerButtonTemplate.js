@@ -7,7 +7,7 @@ const FHIRServerButtonTemplate = () => {
 
     const [, setForm] = useState({});
     const [, setErrors] = useState({});
-    const [, setLabelText] = useState('請輸入病患id');
+    const [, setLabelText] = useState('請輸入病患id(Patient Resource id)');
     const [, setSearchButtonText] = useState('進階搜尋');
     const [searchText] = useState('基本');
     const [, setCreatedDateText] = useState('');
@@ -29,9 +29,8 @@ const FHIRServerButtonTemplate = () => {
           setSearchButtonText('基本搜尋');
           setCreatedDateText('請選擇建立資料之日期');
         }
-        setVisibleText('invisible');
         setStartDate(new Date());
-        setErrorResponseText('回應JSON');
+        setErrorResponseText('');
     };
 
     return (

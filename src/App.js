@@ -42,12 +42,12 @@ const App = () => {
             <DropDownPatientTemplate />
             <DropDownOrgTemplate />
             <DropDownImmunizationObservationTemplate />
-            <DropDownImmunizationObservationTemplate />
             <FHIRServerButtonTemplate />
           </ButtonToolbar>
       </Jumbotron>
     </Container>
     <Container className="p-3">
+        <HomeTemplate />
         <AddPatientTemplate />
         <QueryPatientTemplate />
         <ModifyPatientTemplate />
@@ -59,7 +59,6 @@ const App = () => {
         <AddObservationTemplate />
         <QueryObservationTemplate />
         <FHIRServerSettingTemplate />
-        <HomeTemplate />
     </Container>
   </MemoryRouter>
   );
