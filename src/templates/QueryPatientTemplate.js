@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Route } from 'react-router-dom';
+import { Route, Switch } from 'react-router-dom';
 import Form from 'react-bootstrap/Form';
 import DatePicker from "react-datepicker";
 import Button from 'react-bootstrap/Button';
@@ -80,6 +80,7 @@ const QueryPatientTemplate = () => {
     };
 
     return (
+        <Switch>
         <Route path="/query_patient">
               <h2>病患資料{ searchText }查詢</h2>
               <Form>
@@ -120,6 +121,7 @@ const QueryPatientTemplate = () => {
               </Form.Group>
               </Form>
             </Route>
+        </Switch>
     );
 };
 

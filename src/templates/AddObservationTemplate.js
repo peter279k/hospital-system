@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Route } from 'react-router-dom';
+import { Route, Switch } from 'react-router-dom';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import DatePicker from "react-datepicker";
@@ -16,11 +16,11 @@ const AddObservationTemplate = () => {
 
     const [form, setForm] = useState({});
     const [errors, setErrors] = useState({});
-    const [createdDate, setCreatedDateText] = useState('');
-    const [visibleText, setVisibleText] = useState('invisible');
+    const [, setCreatedDateText] = useState('');
+    const [visibleText] = useState('invisible');
     const [startDate, setStartDate] = useState(new Date());
-    const [jsonResponse, setJsonResponseText] = useState('');
-    const [errorResponse, setErrorResponseText] = useState('');
+    const [jsonResponse] = useState('');
+    const [errorResponse] = useState('');
 
     const setField = (field, value) => {
         setForm({
@@ -71,6 +71,7 @@ const AddObservationTemplate = () => {
     };
 
     return (
+        <Switch>
         <Route path="/add_observation">
         <AddObservation />
         <Form>
@@ -146,6 +147,7 @@ const AddObservationTemplate = () => {
           </SyntaxHighlighter>
         </Form.Group>
       </Route>
+      </Switch>
     );
 };
 

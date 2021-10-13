@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { MemoryRouter, Switch, Route } from 'react-router-dom';
+import { MemoryRouter } from 'react-router-dom';
 
 import Jumbotron from 'react-bootstrap/Jumbotron';
 import Container from 'react-bootstrap/Container';
@@ -9,6 +9,7 @@ import DropdownButton from 'react-bootstrap/DropdownButton';
 import ButtonToolbar from 'react-bootstrap/ButtonToolbar';
 import { LinkContainer } from 'react-router-bootstrap';
 
+import HomeTemplate from './templates/HomeTemplate.js';
 import AddPatientTemplate from './templates/AddPatientTemplate.js';
 import ModifyPatientTemplate from './templates/ModifyPatientTemplate.js';
 import QueryPatientTemplate from './templates/QueryPatientTemplate.js';
@@ -24,21 +25,18 @@ import FHIRServerSettingTemplate from './templates/FHIRServerSettingTemplate.js'
 import './App.css';
 
 
-const Home = () => <h2>Version 1.0</h2>;
-
 const App = () => {
 
-  const [form, setForm] = useState({});
-  const [errors, setErrors] = useState({});
-  const [labelText, setLabelText] = useState('請輸入病患id');
-  const [buttonText, setSearchButtonText] = useState('進階搜尋');
-  const [searchText, setSearchText] = useState('基本');
-  const [createdDate, setCreatedDateText] = useState('');
-  const [visibleText, setVisibleText] = useState('invisible');
-  const [searchVisibleText, setSearchVisibleText] = useState('invisible');
-  const [startDate, setStartDate] = useState(new Date());
-  const [jsonResponse, setJsonResponseText] = useState('');
-  const [errorResponse, setErrorResponseText] = useState('');
+  const [, setForm] = useState({});
+  const [, setErrors] = useState({});
+  const [, setLabelText] = useState('請輸入病患id(Patient Resource id)');
+  const [, setSearchButtonText] = useState('進階搜尋');
+  const [searchText] = useState('基本');
+  const [setCreatedDateText] = useState('');
+  const [setVisibleText] = useState('invisible');
+  const [setStartDate] = useState(new Date());
+  const [setJsonResponseText] = useState('');
+  const [setErrorResponseText] = useState('');
 
   const initialRouteState = () => {
     setJsonResponseText('');
@@ -110,44 +108,18 @@ const App = () => {
       </Jumbotron>
     </Container>
     <Container className="p-3">
-          <Switch>
-            <AddPatientTemplate />
-          </Switch>
-          <Switch>
-            <QueryPatientTemplate />
-          </Switch>
-          <Switch>
-            <ModifyPatientTemplate />
-          </Switch>
-          <Switch>
-            <DeletePatientTemplate />
-          </Switch>
-          <Switch>
-            <QueryOrgTemplate />
-          </Switch>
-          <Switch>
-            <AddOrgTemplate />
-          </Switch>
-          <Switch>
-            <AddImmunizationTemplate />
-          </Switch>
-          <Switch>
-            <QueryImmunizationTemplate />
-          </Switch>
-          <Switch>
-            <AddObservationTemplate />
-          </Switch>
-          <Switch>
-            <QueryObservationTemplate />
-          </Switch>
-          <Switch>
-            <FHIRServerSettingTemplate />
-          </Switch>
-          <Switch>
-            <Route path="/">
-              <Home />
-            </Route>
-          </Switch>
+        <AddPatientTemplate />
+        <QueryPatientTemplate />
+        <ModifyPatientTemplate />
+        <DeletePatientTemplate />
+        <QueryOrgTemplate />
+        <AddOrgTemplate />
+        <AddImmunizationTemplate />
+        <QueryImmunizationTemplate />
+        <AddObservationTemplate />
+        <QueryObservationTemplate />
+        <FHIRServerSettingTemplate />
+        <HomeTemplate />
     </Container>
   </MemoryRouter>
   );

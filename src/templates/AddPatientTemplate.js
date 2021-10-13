@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Route } from 'react-router-dom';
+import { Route, Switch } from 'react-router-dom';
 import Form from 'react-bootstrap/Form';
 import DatePicker from "react-datepicker";
 import Button from 'react-bootstrap/Button';
@@ -161,6 +161,7 @@ const AddPatientTemplate = () => {
     }
 
     return (
+        <Switch>
         <Route path="/add_patient">
             <AddPatient />
             <Form>
@@ -244,6 +245,7 @@ const AddPatientTemplate = () => {
 
             </Form>
         </Route>
+        </Switch>
     );
 };
 

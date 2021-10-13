@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Route } from 'react-router-dom';
+import { Route, Switch } from 'react-router-dom';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 
@@ -15,9 +15,9 @@ const AddOrgTemplate = () => {
 
     const [form, setForm] = useState({});
     const [errors, setErrors] = useState({});
-    const [visibleText, setVisibleText] = useState('invisible');
-    const [jsonResponse, setJsonResponseText] = useState('');
-    const [errorResponse, setErrorResponseText] = useState('');
+    const [visibleText] = useState('invisible');
+    const [jsonResponse] = useState('');
+    const [errorResponse] = useState('');
 
     const setField = (field, value) => {
         setForm({
@@ -62,6 +62,7 @@ const AddOrgTemplate = () => {
     };
 
     return (
+        <Switch>
         <Route path="/add_organization">
               <AddOrganization />
               <Form>
@@ -93,6 +94,7 @@ const AddOrgTemplate = () => {
                 </SyntaxHighlighter>
               </Form.Group>
         </Route>
+        </Switch>
     );
 };
 

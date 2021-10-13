@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Route } from 'react-router-dom';
+import { Route, Switch } from 'react-router-dom';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 
@@ -56,6 +56,7 @@ const DeletePatientTemplate = () => {
     };
 
     return (
+        <Switch>
         <Route path="/delete_patient">
               <DeletePatient />
               <Form>
@@ -82,6 +83,7 @@ const DeletePatientTemplate = () => {
                 </SyntaxHighlighter>
               </Form.Group>
         </Route>
+        </Switch>
     );
 };
 

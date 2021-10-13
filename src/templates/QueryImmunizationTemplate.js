@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
-import { Route } from 'react-router-dom';
+import { Route, Switch } from 'react-router-dom';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
-import DatePicker from "react-datepicker";
 
 import HttpRequest from '../HttpRequest.js';
 
@@ -15,10 +14,9 @@ const QueryImmunizationTemplate = () => {
 
     const [form, setForm] = useState({});
     const [errors, setErrors] = useState({});
-    const [visibleText, setVisibleText] = useState('invisible');
-    const [jsonResponse, setJsonResponseText] = useState('');
-    const [errorResponse, setErrorResponseText] = useState('');
-    const [startDate, setStartDate] = useState(new Date());
+    const [visibleText] = useState('invisible');
+    const [jsonResponse] = useState('');
+    const [errorResponse] = useState('');
 
     const setField = (field, value) => {
         setForm({
@@ -57,6 +55,7 @@ const QueryImmunizationTemplate = () => {
     };
 
     return (
+        <Switch>
         <Route path="/query_immunization">
               <QueryImmunization />
               <Form>
@@ -83,6 +82,7 @@ const QueryImmunizationTemplate = () => {
                 </SyntaxHighlighter>
               </Form.Group>
         </Route>
+        </Switch>
     );
 };
 

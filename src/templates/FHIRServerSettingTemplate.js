@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Route } from 'react-router-dom';
+import { Route, Switch } from 'react-router-dom';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 
@@ -58,6 +58,7 @@ const FHIRServerSettingTemplate = () => {
     };
 
     return (
+        <Switch>
         <Route path="/fhir_server_setting">
               <FHIRServerSetting />
               <Form.Group className="mb-3">
@@ -82,6 +83,7 @@ const FHIRServerSettingTemplate = () => {
                 </SyntaxHighlighter>
               </Form.Group>
         </Route>
+        </Switch>
     );
 };
 

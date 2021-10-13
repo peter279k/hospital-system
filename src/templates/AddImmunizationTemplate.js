@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Route } from 'react-router-dom';
+import { Route, Switch } from 'react-router-dom';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import DatePicker from "react-datepicker";
@@ -16,9 +16,9 @@ const AddImmunizationTemplate = () => {
 
     const [form, setForm] = useState({});
     const [errors, setErrors] = useState({});
-    const [visibleText, setVisibleText] = useState('invisible');
-    const [jsonResponse, setJsonResponseText] = useState('');
-    const [errorResponse, setErrorResponseText] = useState('');
+    const [visibleText] = useState('invisible');
+    const [jsonResponse] = useState('');
+    const [errorResponse] = useState('');
     const [startDate, setStartDate] = useState(new Date());
 
     const setField = (field, value) => {
@@ -86,6 +86,7 @@ const AddImmunizationTemplate = () => {
     };
 
     return (
+        <Switch>
         <Route path="/add_immunization">
         <AddImmunization />
         <Form>
@@ -172,6 +173,7 @@ const AddImmunizationTemplate = () => {
           </SyntaxHighlighter>
         </Form.Group>
         </Route>
+        </Switch>
     );
 };
 

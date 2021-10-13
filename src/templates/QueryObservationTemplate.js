@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Route } from 'react-router-dom';
+import { Route, Switch } from 'react-router-dom';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 
@@ -15,10 +15,9 @@ const QueryObservationTemplate = () => {
 
     const [form, setForm] = useState({});
     const [errors, setErrors] = useState({});
-    const [labelText, setLabelText] = useState('請輸入Observation id');
-    const [visibleText, setVisibleText] = useState('invisible');
-    const [jsonResponse, setJsonResponseText] = useState('');
-    const [errorResponse, setErrorResponseText] = useState('');
+    const [visibleText] = useState('invisible');
+    const [jsonResponse] = useState('');
+    const [errorResponse] = useState('');
 
     const setField = (field, value) => {
         setForm({
@@ -58,6 +57,7 @@ const QueryObservationTemplate = () => {
     };
 
     return (
+        <Switch>
         <Route path="/query_observation">
               <QueryObservation />
               <Form>
@@ -84,6 +84,7 @@ const QueryObservationTemplate = () => {
                 </SyntaxHighlighter>
               </Form.Group>
         </Route>
+        </Switch>
     );
 };
 

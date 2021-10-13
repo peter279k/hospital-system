@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Route } from 'react-router-dom';
+import { Route, Switch } from 'react-router-dom';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 
@@ -15,9 +15,9 @@ const QueryOrgTemplate = () => {
 
     const [form, setForm] = useState({});
     const [errors, setErrors] = useState({});
-    const [visibleText, setVisibleText] = useState('invisible');
-    const [jsonResponse, setJsonResponseText] = useState('');
-    const [errorResponse, setErrorResponseText] = useState('');
+    const [visibleText] = useState('invisible');
+    const [jsonResponse] = useState('');
+    const [errorResponse] = useState('');
 
     const setField = (field, value) => {
         setForm({
@@ -56,6 +56,7 @@ const QueryOrgTemplate = () => {
     };
 
     return (
+        <Switch>
         <Route path="/query_organization">
               <QueryOrganization />
               <Form>
@@ -82,6 +83,7 @@ const QueryOrgTemplate = () => {
                 </SyntaxHighlighter>
               </Form.Group>
         </Route>
+        </Switch>
     );
 };
 
