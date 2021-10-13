@@ -6,17 +6,16 @@ import { LinkContainer } from 'react-router-bootstrap';
 
 const DropDownOrgTemplate = () => {
 
-    const [form, setForm] = useState({});
-    const [errors, setErrors] = useState({});
-    const [labelText, setLabelText] = useState('請輸入病患id');
-    const [buttonText, setSearchButtonText] = useState('進階搜尋');
-    const [searchText, setSearchText] = useState('基本');
-    const [createdDate, setCreatedDateText] = useState('');
-    const [visibleText, setVisibleText] = useState('invisible');
-    const [searchVisibleText, setSearchVisibleText] = useState('invisible');
-    const [startDate, setStartDate] = useState(new Date());
-    const [jsonResponse, setJsonResponseText] = useState('');
-    const [errorResponse, setErrorResponseText] = useState('');
+    const [, setForm] = useState({});
+    const [, setErrors] = useState({});
+    const [, setLabelText] = useState('請輸入病患id');
+    const [, setSearchButtonText] = useState('進階搜尋');
+    const [searchText] = useState('基本');
+    const [, setCreatedDateText] = useState('');
+    const [, setVisibleText] = useState('invisible');
+    const [, setStartDate] = useState(new Date());
+    const [, setJsonResponseText] = useState('');
+    const [, setErrorResponseText] = useState('');
 
     const initialRouteState = () => {
         setJsonResponseText('');

@@ -16,7 +16,6 @@ const AddObservationTemplate = () => {
 
     const [form, setForm] = useState({});
     const [errors, setErrors] = useState({});
-    const [, setCreatedDateText] = useState('');
     const [visibleText] = useState('invisible');
     const [startDate, setStartDate] = useState(new Date());
     const [jsonResponse] = useState('');

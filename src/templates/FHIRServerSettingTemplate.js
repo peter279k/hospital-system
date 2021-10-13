@@ -32,7 +32,6 @@ const FHIRServerSettingTemplate = () => {
         }
     };
 
-
     const handleFHIRServerSubmit = e => {
         e.preventDefault();
         const newErrors = findFHIRServerError();
