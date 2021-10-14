@@ -10,16 +10,17 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { dark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
 
-const AddImmunization = () => <h2>新增疫苗接種資料</h2>;
+const AddImmunization = () => <h2 className="text-info">新增疫苗接種資料</h2>;
 
 const AddImmunizationTemplate = () => {
 
     const [form, setForm] = useState({});
     const [errors, setErrors] = useState({});
-    const [visibleText] = useState('invisible');
-    const [jsonResponse] = useState('');
-    const [errorResponse] = useState('');
+    const [visibleText, setVisibleText] = useState('invisible');
+    const [jsonResponse, setJsonResponseText] = useState('');
+    const [errorResponse, setErrorResponseText] = useState('');
     const [startDate, setStartDate] = useState(new Date());
+    const [bundleId, setBundleIdText] = useState('');
 
     const setField = (field, value) => {
         setForm({
@@ -41,8 +42,7 @@ const AddImmunizationTemplate = () => {
           setErrors(newErrors);
           return false;
         }
-
-        console.log('Done for filling immunization adding form');
+        HttpRequest.sendImmunizationBundleData(form, startDate, setJsonResponseText, setErrorResponseText, setVisibleText, setBundleIdText);
     };
 
     const findHandleAddingImmunizationError = () => {
@@ -55,6 +55,7 @@ const AddImmunizationTemplate = () => {
           seriesPositiveInt,
           lotNumber,
           medOrgId,
+          medName,
         } = form;
         const newErrors = {};
         if (!vaccineId || vaccineId === '') {
@@ -79,7 +80,13 @@ const AddImmunizationTemplate = () => {
           newErrors.lotNumber = '請輸入批號！';
         }
         if (!medOrgId || medOrgId === '') {
-          newErrors.medOrgId = '請輸入醫事單位id！';
+          newErrors.medOrgId = '請輸入Organization id！';
+        }
+        if (!medName || medName === '') {
+          newErrors.medName = '請輸入負責醫事人員名稱！';
+        }
+        if (!startDate || startDate === '' || startDate === null) {
+          newErrors.startDate = '請選擇疫苗接種日期！';
         }
 
         return newErrors;
@@ -94,7 +101,7 @@ const AddImmunizationTemplate = () => {
             <Form.Label>請選擇疫苗代碼<Form.Label className="text-danger">*</Form.Label></Form.Label>
             <Form.Control onChange={ e => setField('vaccineId', e.target.value) } as="select" custom isInvalid={ !!errors.vaccineId }>
               <option>請選擇疫苗代碼</option>
-              <option value="AZ">COV_AZ</option>
+              <option value="CoV_AZ">CoV_AZ</option>
             </Form.Control>
             <Form.Control.Feedback type='invalid'>{ errors.vaccineId }</Form.Control.Feedback>
           </Form.Group>
@@ -147,13 +154,18 @@ const AddImmunizationTemplate = () => {
               dateFormat="yyyy/MM/dd"
               selected={startDate}
               onChange={(date) => setStartDate(date)}
-              isInvalid={ !!errors.occurrenceDate }
             />
+            <Form.Control.Feedback type='invalid'>{ errors.startDate }</Form.Control.Feedback>
           </Form.Group>
           <Form.Group className="mb-3">
             <Form.Label>請輸入Organization id<Form.Label className="text-danger">*</Form.Label></Form.Label>
             <Form.Control onChange={ e => setField('medOrgId', e.target.value) } type="text" placeholder="請輸入Organization id" isInvalid= { !!errors.medOrgId }/>
             <Form.Control.Feedback type='invalid'>{ errors.medOrgId }</Form.Control.Feedback>
+          </Form.Group>
+          <Form.Group className="mb-3">
+            <Form.Label>請輸入負責醫事人員名稱<Form.Label className="text-danger">*</Form.Label></Form.Label>
+            <Form.Control onChange={ e => setField('medName', e.target.value) } type="text" placeholder="請輸入負責醫事人員名稱" isInvalid= { !!errors.medName }/>
+            <Form.Control.Feedback type='invalid'>{ errors.medName }</Form.Control.Feedback>
           </Form.Group>
         </Form>
 
@@ -167,6 +179,7 @@ const AddImmunizationTemplate = () => {
         </Form.Group>
 
         <Form.Group className={ "mb-3 " + visibleText }>
+          <h3 className="text-success">{ bundleId }</h3>
           <h3 className="text-info">{ errorResponse }</h3>
           <SyntaxHighlighter language="json" style={ dark }>
             { jsonResponse }
