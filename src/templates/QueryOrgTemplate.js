@@ -9,33 +9,17 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { dark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
 
-const QueryOrganization = () => <h2>查詢醫事單位</h2>;
+const QueryOrganization = () => <h2 className="text-info">查詢醫事單位</h2>;
 
 const QueryOrgTemplate = () => {
 
-    const [form, setForm] = useState({});
+    const [orgId, setOrgId] = useState('');
     const [errors, setErrors] = useState({});
-    const [visibleText] = useState('invisible');
-    const [jsonResponse] = useState('');
-    const [errorResponse] = useState('');
-
-    const setField = (field, value) => {
-        setForm({
-          ...form,
-          [field]: value,
-        });
-        if (!!errors[field]) {
-          setErrors({
-            ...errors,
-            [field]: null,
-          });
-        }
-    };
+    const [visibleText, setVisibleText] = useState('invisible');
+    const [jsonResponse, setJsonResponseText] = useState('');
+    const [errorResponse, setErrorResponseText] = useState('');
 
     const handleQueryOrgError = () => {
-        const {
-          orgId,
-        } = form;
         const newErrors = {};
         if (!orgId || orgId === '') {
           newErrors.orgId = '請輸入Organization id!';
@@ -52,7 +36,12 @@ const QueryOrgTemplate = () => {
           return false;
         }
 
-        console.log('Done for filling org querying form');
+        HttpRequest.sendQueryOrgData(orgId, setJsonResponseText, setVisibleText, setErrorResponseText);
+    };
+
+    const resetQueryOrgForm = e => {
+      e.preventDefault();
+      setOrgId('');
     };
 
     return (
@@ -61,8 +50,8 @@ const QueryOrgTemplate = () => {
               <QueryOrganization />
               <Form>
                 <Form.Group className="mb-3">
-                  <Form.Label>請輸入Organization id<Form.Label className="text-danger">*</Form.Label></Form.Label>
-                  <Form.Control onChange={ e => setField('orgId', e.target.value) } type="text" placeholder="請輸入Organization id" isInvalid={ !!errors.orgId }/>
+                  <Form.Label>請輸入Organization resource id<Form.Label className="text-danger">*</Form.Label></Form.Label>
+                  <Form.Control value={ orgId } onChange={ e => setOrgId(e.target.value) } type="text" placeholder="請輸入Organization resource id" isInvalid={ !!errors.orgId }/>
                   <Form.Control.Feedback type='invalid'>{ errors.orgId }</Form.Control.Feedback>
                 </Form.Group>
               </Form>
@@ -71,7 +60,7 @@ const QueryOrgTemplate = () => {
                 <Button variant="primary" type="submit" onClick={ handleQueryOrgSubmit }>
                   送出
                 </Button>{' '}
-                <Button variant="danger" type="reset">
+                <Button variant="danger" type="submit" onClick={ resetQueryOrgForm }>
                   清空資料
                 </Button>{' '}
               </Form.Group>

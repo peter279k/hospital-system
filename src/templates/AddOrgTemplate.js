@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Route, Switch } from 'react-router-dom';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
@@ -9,28 +9,20 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { dark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
 
-const AddOrganization = () => <h2>新增醫事單位</h2>;
+const AddOrganization = () => <h2 className="text-info">新增醫事單位</h2>;
 
 const AddOrgTemplate = () => {
 
-    const [form, setForm] = useState({});
     const [errors, setErrors] = useState({});
-    const [visibleText] = useState('invisible');
-    const [jsonResponse] = useState('');
-    const [errorResponse] = useState('');
+    const [visibleText, setVisibleText] = useState('invisible');
+    const [jsonResponse, setJsonResponseText] = useState('');
+    const [errorResponse, setErrorResponseText] = useState('');
+    const [medId, setMedId] = useState('');
+    const [hospitalLists, setHospitalLists] = useState([]);
 
-    const setField = (field, value) => {
-        setForm({
-          ...form,
-          [field]: value,
-        });
-        if (!!errors[field]) {
-          setErrors({
-            ...errors,
-            [field]: null,
-          });
-        }
-    };
+    useEffect(() => {
+      HttpRequest.getHospitalLists(setHospitalLists, setMedId);
+    }, []);
 
     const handleAddingOrgSubmit = e => {
         e.preventDefault();
@@ -40,22 +32,13 @@ const AddOrgTemplate = () => {
           return false;
         }
 
-        console.log('Done for filling organization adding form');
+        HttpRequest.sendOrgData(medId, hospitalLists, setJsonResponseText, setErrorResponseText, setVisibleText);
     };
 
     const findHandleAddingOrgError = () => {
-        const {
-          medId,
-          medName,
-        } = form;
         const newErrors = {};
-
         if (!medId || medId === '') {
           newErrors.medId = '醫事代碼請勿空白！';
-        }
-
-        if (!medName || medName === '') {
-          newErrors.medName = '醫事單位名稱請勿空白！';
         }
 
         return newErrors;
@@ -67,23 +50,24 @@ const AddOrgTemplate = () => {
               <AddOrganization />
               <Form>
                 <Form.Group className="mb-3">
-                  <Form.Label>請輸入醫事代碼<Form.Label className="text-danger">*</Form.Label></Form.Label>
-                  <Form.Control onChange={ e => setField('medId', e.target.value) } type="text" placeholder="請輸入醫事代碼" isInvalid={ !!errors.medId }/>
-                  <Form.Control.Feedback type='invalid'>{ errors.medId }</Form.Control.Feedback>
+                  <Form.Label>選擇的醫事代碼為：<h3 className="text-info">{ medId }</h3></Form.Label>
                 </Form.Group>
                 <Form.Group className="mb-3">
-                  <Form.Label>請輸入醫事單位名稱<Form.Label className="text-danger">*</Form.Label></Form.Label>
-                  <Form.Control onChange= { e => setField('medName', e.target.value) } type="text" placeholder="請輸入醫事單位名稱" isInvalid={ !!errors.medName }/>
-                  <Form.Control.Feedback type='invalid'>{ errors.medName }</Form.Control.Feedback>
+                  <Form.Label>請選擇醫事單位名稱<Form.Label className="text-danger">*</Form.Label></Form.Label>
+                  <Form.Control onChange= { e => setMedId(e.target.value) } as="select" custom placeholder="請輸入醫事單位名稱" isInvalid={ !!errors.medId }>
+                    {
+                      hospitalLists.map((hospitalList) => {
+                        return <option key={ hospitalList.id } value={ hospitalList.number }>{ hospitalList.name }</option>
+                      })
+                    }
+                  </Form.Control>
+                  <Form.Control.Feedback type='invalid'>{ errors.medId }</Form.Control.Feedback>
                 </Form.Group>
               </Form>
 
               <Form.Group className="mb-3">
                 <Button variant="primary" type="submit" onClick={ handleAddingOrgSubmit }>
                   送出
-                </Button>{' '}
-                <Button variant="danger" type="reset">
-                  清空資料
                 </Button>{' '}
               </Form.Group>
 

@@ -9,7 +9,9 @@ var queryPatient = 'http://localhost:8000/api/QueryPatient';
 var searchPatient = 'http://localhost:8000/api/SearchPatient';
 var updatePatient = 'http://localhost:8000/api/UpdatePatient';
 var deletePatient = 'http://localhost:8000/api/DeletePatient';
-
+var hospitalLists = 'http://localhost:8000/api/GetHospitalLists';
+var createOrganization = 'http://localhost:8000/api/CreateOrganization';
+var getOrganization = 'http://localhost:8000/api/GetOrganization';
 
 export function sendPatientData(form, startDate, setJsonResponseText, setErrorResponseText, setVisibleText) {
     let year = String(startDate.getFullYear());
@@ -349,10 +351,76 @@ export function sendFHIRServerData(setVisibleText, setJsonResponseText, setError
     });
 }
 
-export function sendOrgData() {
+export function getHospitalLists(setHospitalLists, setMedId) {
+    Axios.get(hospitalLists).then((response) => {
+        let responseArr = [{
+            id: 0,
+            name: '請選擇醫事單位',
+            number: '',
+        }];
+        for (let index=0; index<response.data.hospital_name.length; index++) {
+            responseArr.push({
+                id: (index+1),
+                name: response.data.hospital_name[index],
+                number: response.data.hospital_number[index],
+            });
+        }
+        setHospitalLists(responseArr);
+    }).catch((error) => {
+        let errResponseJsonString = JSON.stringify(error.response, null, 2);
+        setMedId(errResponseJsonString);
+    });
 }
 
-export function queryOrgData() {
+export function sendOrgData(medId, hospitalLists, setJsonResponseText, setErrorResponseText, setVisibleText) {
+    let filteredMed = hospitalLists.filter((hospitalList) => {
+        return hospitalList.number === medId;
+    });
+    let jsonPayload = {
+        'resourceType': 'Organization',
+        'identifier': [
+            {
+                'system': 'https://ma.mohw.gov.tw',
+                'value': medId,
+            },
+        ],
+        'name': filteredMed[0].name,
+        'address': {
+            'country': 'TW',
+        },
+    };
+
+    let encodedJsonString = base64.encode(utf8.encode(JSON.stringify(jsonPayload)));
+    let requestPayload = {
+        'json_payload': encodedJsonString,
+    };
+
+    Axios.post(createOrganization, requestPayload).then((response) => {
+        let responseJsonString = JSON.stringify(response.data, null, 2);
+        setJsonResponseText(responseJsonString);
+        setErrorResponseText('回應JSON');
+        setVisibleText('visible');
+    }).catch((error) => {
+        let errResponseJsonString = JSON.stringify(error.response, null, 2);
+        setJsonResponseText(errResponseJsonString);
+        setErrorResponseText('回應JSON (Error Response)');
+        setVisibleText('visible');
+    });
+};
+
+export function sendQueryOrgData(orgId, setJsonResponseText, setVisibleText, setErrorResponseText) {
+    let apiPatientUrl = getOrganization + '/' + orgId;
+    Axios.get(apiPatientUrl).then((response) => {
+        let responseJsonString = JSON.stringify(response.data, null, 2);
+        setJsonResponseText(responseJsonString);
+        setErrorResponseText('回應JSON');
+        setVisibleText('visible');
+    }).catch((error) => {
+        let errResponseJsonString = JSON.stringify(error.response, null, 2);
+        setJsonResponseText(errResponseJsonString);
+        setErrorResponseText('回應JSON (Error Response)');
+        setVisibleText('visible');
+    });
 }
 
 const HttpRequest = {
@@ -362,5 +430,8 @@ const HttpRequest = {
     deletePatientData,
     modifyPatientData,
     sendPatientQueryDataJsonString,
+    getHospitalLists,
+    sendOrgData,
+    sendQueryOrgData,
 };
 export default HttpRequest;
