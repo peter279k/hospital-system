@@ -10,16 +10,17 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { dark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
 
-const AddObservation = () => <h2>新增篩檢資料</h2>;
+const AddObservation = () => <h2 className="text-info">新增篩檢資料</h2>;
 
 const AddObservationTemplate = () => {
 
     const [form, setForm] = useState({});
     const [errors, setErrors] = useState({});
-    const [visibleText] = useState('invisible');
+    const [visibleText, setVisibleText] = useState('invisible');
     const [startDate, setStartDate] = useState(new Date());
-    const [jsonResponse] = useState('');
-    const [errorResponse] = useState('');
+    const [jsonResponse, setJsonResponseText] = useState('');
+    const [errorResponse, setErrorResponseText] = useState('');
+    const [bundleId, setBundleIdText] = useState('');
 
     const setField = (field, value) => {
         setForm({
@@ -42,7 +43,7 @@ const AddObservationTemplate = () => {
           return false;
         }
 
-        console.log('Done for filling observation adding form');
+        HttpRequest.sendObservationBundleData(form, startDate, setJsonResponseText, setErrorResponseText, setVisibleText, setBundleIdText);
     };
 
     const findHandleAddingObservationError = () => {
@@ -140,6 +141,7 @@ const AddObservationTemplate = () => {
         </Form.Group>
 
         <Form.Group className={ "mb-3 " + visibleText }>
+          <h3 className="text-success">{ bundleId }</h3>
           <h3 className="text-info">{ errorResponse }</h3>
           <SyntaxHighlighter language="json" style={ dark }>
             { jsonResponse }

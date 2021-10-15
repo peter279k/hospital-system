@@ -102,6 +102,8 @@ const AddImmunizationTemplate = () => {
             <Form.Control onChange={ e => setField('vaccineId', e.target.value) } as="select" custom isInvalid={ !!errors.vaccineId }>
               <option>請選擇疫苗代碼</option>
               <option value="CoV_AZ">CoV_AZ</option>
+              <option value="CoV_Moderna">CoV_Moderna</option>
+              <option value="CoV_Medigen">CoV_Medigen</option>
             </Form.Control>
             <Form.Control.Feedback type='invalid'>{ errors.vaccineId }</Form.Control.Feedback>
           </Form.Group>

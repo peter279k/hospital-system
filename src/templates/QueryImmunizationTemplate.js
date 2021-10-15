@@ -8,15 +8,15 @@ import HttpRequest from '../HttpRequest.js';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { dark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
-const QueryImmunization = () => <h2>查詢疫苗接種資料</h2>;
+const QueryImmunization = () => <h2 className="text-info">查詢疫苗接種資料</h2>;
 
 const QueryImmunizationTemplate = () => {
 
     const [form, setForm] = useState({});
     const [errors, setErrors] = useState({});
-    const [visibleText] = useState('invisible');
-    const [jsonResponse] = useState('');
-    const [errorResponse] = useState('');
+    const [visibleText, setVisibleText] = useState('invisible');
+    const [jsonResponse, setJsonResponseText] = useState('');
+    const [errorResponse, setErrorResponseText] = useState('');
 
     const setField = (field, value) => {
         setForm({
@@ -39,7 +39,9 @@ const QueryImmunizationTemplate = () => {
           return false;
         }
 
-        console.log('Done for filling immunization querying form');
+        let immunizationBundleId = form.immunizationId;
+
+        HttpRequest.sendImmunizationBundleQueryData(immunizationBundleId, setJsonResponseText, setVisibleText, setErrorResponseText);
     };
 
     const findHandleQueryingImmunizationError = () => {
@@ -60,8 +62,8 @@ const QueryImmunizationTemplate = () => {
               <QueryImmunization />
               <Form>
                 <Form.Group className="mb-3">
-                  <Form.Label>請輸入Immunization id<Form.Label className="text-danger">*</Form.Label></Form.Label>
-                  <Form.Control onChange={ e => setField('immunizationId', e.target.value) } type="text" placeholder="請輸入Immunization id" isInvalid={ !!errors.immunizationId }/>
+                  <Form.Label>請輸入Immunization Bundle id<Form.Label className="text-danger">*</Form.Label></Form.Label>
+                  <Form.Control onChange={ e => setField('immunizationId', e.target.value) } type="text" placeholder="請輸入Immunization Bundle id" isInvalid={ !!errors.immunizationId }/>
                   <Form.Control.Feedback type='invalid'>{ errors.immunizationId }</Form.Control.Feedback>
                 </Form.Group>
               </Form>
