@@ -18,6 +18,7 @@ const AddObservationTemplate = () => {
     const [errors, setErrors] = useState({});
     const [visibleText, setVisibleText] = useState('invisible');
     const [startDate, setStartDate] = useState(new Date());
+    const [issuedDate, setIssuedDate] = useState(new Date());
     const [jsonResponse, setJsonResponseText] = useState('');
     const [errorResponse, setErrorResponseText] = useState('');
     const [bundleId, setBundleIdText] = useState('');
@@ -43,7 +44,7 @@ const AddObservationTemplate = () => {
           return false;
         }
 
-        HttpRequest.sendObservationBundleData(form, startDate, setJsonResponseText, setErrorResponseText, setVisibleText, setBundleIdText);
+        HttpRequest.sendObservationBundleData(form, startDate, issuedDate, setJsonResponseText, setErrorResponseText, setVisibleText, setBundleIdText);
     };
 
     const findHandleAddingObservationError = () => {
@@ -51,7 +52,7 @@ const AddObservationTemplate = () => {
           observationMethod,
           observationValue,
           orgId,
-          doctorName,
+          patientId,
         } = form;
         const newErrors = {};
         if (!observationMethod || observationMethod === '') {
@@ -61,10 +62,16 @@ const AddObservationTemplate = () => {
           newErrors.observationValue = '請選擇篩檢結果！';
         }
         if (!orgId || orgId === '') {
-          newErrors.orgId = '請選擇組織id！';
+          newErrors.orgId = '請輸入醫事單位id！';
         }
-        if (!doctorName || doctorName === '') {
-          newErrors.doctorName = '請輸入醫事人員名稱！';
+        if (!patientId || patientId === '') {
+          newErrors.patientId = '請輸入patient id！';
+        }
+        if (!startDate || startDate === '' || startDate === null) {
+          newErrors.startDate = '請選擇採檢日期！';
+        }
+        if (!issuedDate || issuedDate === '' || issuedDate === null) {
+          newErrors.startDate = '請選擇報告日期！';
         }
 
         return newErrors;
@@ -83,17 +90,20 @@ const AddObservationTemplate = () => {
               selected={startDate}
               onChange={(date) => setStartDate(date)}
             />
+            <Form.Control.Feedback type='invalid'>{ errors.startDate }</Form.Control.Feedback>
           </Form.Group>
           <Form.Group className="mb-3">
             <Form.Label>請選擇報告日<Form.Label className="text-danger">*</Form.Label></Form.Label>
             <DatePicker
               className="form-control"
               dateFormat="yyyy/MM/dd"
-              selected={startDate}
-              onChange={(date) => setStartDate(date)}
+              selected={issuedDate}
+              onChange={(date) => setIssuedDate(date)}
             />
+            <Form.Control.Feedback type='invalid'>{ errors.issuedDate }</Form.Control.Feedback>
           </Form.Group>
           <Form.Group className="mb-3">
+            <Form.Label>請選擇篩檢方法<Form.Label className="text-danger">*</Form.Label></Form.Label>
             <Form.Control onChange={ e => setField('observationMethod', e.target.value) } as="select" custom isInvalid={ !!errors.observationMethod }>
               <option>請選擇篩檢方法</option>
               <option value="PCR">PCR</option>
@@ -112,6 +122,7 @@ const AddObservationTemplate = () => {
             <Form.Control.Feedback type='invalid'>{ errors.observationMethod }</Form.Control.Feedback>
           </Form.Group>
           <Form.Group className="mb-3">
+            <Form.Label>請選擇篩檢結果<Form.Label className="text-danger">*</Form.Label></Form.Label>
             <Form.Control onChange={ e => setField('observationValue', e.target.value) } as="select" custom isInvalid={ !!errors.observationValue }>
               <option>請選擇篩檢結果</option>
               <option value="Positive">Positive(陽性)</option>
@@ -125,9 +136,9 @@ const AddObservationTemplate = () => {
             <Form.Control.Feedback type='invalid'>{ errors.orgId }</Form.Control.Feedback>
           </Form.Group>
           <Form.Group className="mb-3">
-            <Form.Label>請輸入醫師名稱<Form.Label className="text-danger">*</Form.Label></Form.Label>
-            <Form.Control onChange={ e => setField('doctorName', e.target.value) } type="text" placeholder="請輸入醫師名稱" isInvalid={ !!errors.doctorName }/>
-            <Form.Control.Feedback type='invalid'>{ errors.doctorName }</Form.Control.Feedback>
+            <Form.Label>請輸入Patient id<Form.Label className="text-danger">*</Form.Label></Form.Label>
+            <Form.Control onChange={ e => setField('patientId', e.target.value) } type="text" placeholder="請輸入Patient id" isInvalid={ !!errors.patientId }/>
+            <Form.Control.Feedback type='invalid'>{ errors.patientId }</Form.Control.Feedback>
           </Form.Group>
         </Form>
 

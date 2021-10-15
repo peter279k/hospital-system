@@ -7,6 +7,7 @@ var queryPatient = 'http://localhost:8000/api/QueryPatient';
 var getOrganization = 'http://localhost:8000/api/GetOrganization';
 var getImmunization = 'http://localhost:8000/api/GetImmunization';
 var getComposition = 'http://localhost:8000/api/GetComposition';
+var getObservation = 'http://localhost:8000/api/GetObservation';
 
 var urnUuidPrefix = 'urn:uuid:';
 
@@ -98,6 +99,28 @@ export async function getImmunizationResourceById(immunizationId, fhirServerUrl,
     return immunizationResource;
 }
 
+export async function getObservationResourceById(observationId, fhirServerUrl, setJsonResponseText, setErrorResponseText, setVisibleText) {
+    let fullUrl = fhirServerUrl + '/Observation/' + observationId;
+    if (validate(observationId)) {
+        fullUrl = urnUuidPrefix + observationId;
+    }
+    let observationResource = {
+        'fullUrl': fullUrl,
+        'resource': {},
+    };
+    let apiUrl = getObservation + '/' + observationId;
+    await Axios.get(apiUrl).then((response) => {
+        observationResource['resource'] = response.data;
+    }).catch((error) => {
+        let errResponseJsonString = JSON.stringify(error.response, null, 2);
+        setJsonResponseText(errResponseJsonString);
+        setErrorResponseText('回應JSON (Get Observation Resource Error Response)');
+        setVisibleText('visible');
+    });
+
+    return observationResource;
+}
+
 export async function getFhirServerUrl(setJsonResponseText, setErrorResponseText, setVisibleText) {
     let fhirServerUrl = '';
     await Axios.get(fhirServer).then((response) => {
@@ -117,6 +140,7 @@ const ResourceFetcher = {
     getOrganizationResourceById,
     getPatientResourceById,
     getImmunizationResourceById,
+    getObservationResourceById,
     getFhirServerUrl,
 };
 

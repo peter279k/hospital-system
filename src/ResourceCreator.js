@@ -1,5 +1,5 @@
 import Axios from 'axios';
-
+import { v4 as uuidv4 } from 'uuid';
 
 export function getImmunizationBundleJsonPayload(identifierValue, vaccineDate, periodEndDate, startDate, entries) {
     let bundleJsonPayload = {
@@ -22,17 +22,53 @@ export function getImmunizationBundleJsonPayload(identifierValue, vaccineDate, p
     return bundleJsonPayload;
 };
 
-export function getCompositionJsonPayload(patientReference, startDate, organizationReference, immunizationReference) {
+export function getObservationBundleJsonPayload(identifierValue, startDate, entries) {
+    let startDateString = startDate.getFullYear() + '-' + String(startDate.getMonth() + 1) + '-' + startDate.getDate();
+    let bundleJsonPayload = {
+        'resourceType': 'Bundle',
+        'identifier': [
+            {
+                'system': 'https://www.vghtc.gov.tw',
+                'value': identifierValue,
+                'period': {
+                    'start': startDateString,
+                },
+            },
+        ],
+        'type': 'document',
+        'timestamp': startDate.toISOString().split('.')[0] + '+08:00',
+        'entry': entries,
+    };
+
+    return bundleJsonPayload;
+};
+
+export function getCompositionJsonPayload(patientReference, organizationReference, immunizationObservationReference, compositionType) {
+    let todayDate = new Date();
+    let todayISOString = todayDate.toISOString().split('.')[0] + '+08:00';
+    let todayLocaleTimeStringArr = String(todayDate).split(' ');
+    let todayLocaleTimeString = todayLocaleTimeStringArr.slice(1, todayLocaleTimeStringArr.length-4).join(' ');
+    let compositionInfo = {
+        'immunization': {
+            'system': 'http://loinc.org',
+            'code': '82593-5',
+            'display': 'Immunization summary report',
+        },
+        'observation': {
+            'system': 'http://loinc.org',
+            'code': 'LP6464-4',
+            'display': 'Nucleic acid amplification with probe detection',
+        },
+        'immunization_title': 'COVID-19 Vaccine',
+        'observation_title': 'COVID-19 Test Certificate ' + todayLocaleTimeString,
+    };
     let compositionJsonPayload = {
         'resourceType': 'Composition',
+        'id': uuidv4(),
         'status': 'final',
         'type': {
             'coding': [
-                {
-                    'system': 'http://loinc.org',
-                    'code': '82593-5',
-                    'display': 'Immunization summary report',
-                },
+                compositionInfo[compositionType],
             ],
         },
         'subject': [
@@ -40,8 +76,8 @@ export function getCompositionJsonPayload(patientReference, startDate, organizat
                 'reference': patientReference,
             }
         ],
-        'date': startDate.toISOString().split('.')[0] + '+08:00',
-        'title': 'COVID-19 Vaccine',
+        'date': todayISOString,
+        'title': compositionInfo[compositionType + '_title'],
         'author': [
             {
                 'reference': organizationReference,
@@ -56,7 +92,7 @@ export function getCompositionJsonPayload(patientReference, startDate, organizat
                     'reference': patientReference,
                 },
                 {
-                    'reference': immunizationReference,
+                    'reference': immunizationObservationReference,
                 },
             ],
         },
@@ -120,6 +156,35 @@ export function getImmunizationJsonPayload(form, vaccineDate) {
     return immunizationJsonPayload;
 };
 
+export function getObservationJsonPayload(form, effectivePeriodStartDate, effectivePeriodEndDate) {
+    let observationJsonPayload = {
+        'resourceType': 'Observation',
+        'id': uuidv4(),
+        'status': 'final',
+        'code': {
+            'coding': [
+                {
+                    'system': 'http://loinc.org',
+                    'code': 'LP6464-4',
+                    'display': 'Nucleic acid amplification with probe detection',
+                },
+            ],
+        },
+        'effectivePeriod': {
+            'start': effectivePeriodStartDate,
+            'end': effectivePeriodEndDate,
+        },
+        'valueString': form.observationValue,
+        'performer': [
+            {
+                'reference': 'Organization/' + form.orgId,
+            },
+        ],
+    }
+
+    return observationJsonPayload;
+};
+
 export async function createImmunizationResource(createImmunization, requestPayload, setJsonResponseText, setVisibleText) {
     let immunizationError = false;
     let immunizationId = '';
@@ -136,6 +201,25 @@ export async function createImmunizationResource(createImmunization, requestPayl
     return [
         immunizationError,
         immunizationId,
+    ];
+}
+
+export async function createObservationResource(createObservation, requestPayload, setJsonResponseText, setVisibleText) {
+    let observationError = false;
+    let observationId = '';
+
+    await Axios.post(createObservation, requestPayload).then((response) => {
+        observationId = response.data.id;
+    }).catch((error) => {
+        let errResponseJsonString = JSON.stringify(error.response, null, 2);
+        setJsonResponseText(errResponseJsonString);
+        setVisibleText('visible');
+        observationError = true;
+    });
+
+    return [
+        observationError,
+        observationId,
     ];
 }
 
@@ -158,16 +242,15 @@ export async function createCompositionResource(createComposition, requestPayloa
     ];
 }
 
-export function getObservationBundleJsonPayload(form) {
-};
-
 const ResourceCreator = {
     getImmunizationBundleJsonPayload,
     getObservationBundleJsonPayload,
     getImmunizationJsonPayload,
+    getObservationJsonPayload,
     getCompositionJsonPayload,
     createImmunizationResource,
     createCompositionResource,
+    createObservationResource,
 };
 
 export default ResourceCreator;

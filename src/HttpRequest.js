@@ -20,6 +20,7 @@ var getOrganization = 'http://localhost:8000/api/GetOrganization';
 var createComposition = 'http://localhost:8000/api/CreateComposition';
 var createImmunization = 'http://localhost:8000/api/CreateImmunization';
 var createImmunizationBundle = 'http://localhost:8000/api/CreateBundle/Immunization';
+var createObservation = 'http://localhost:8000/api/CreateObservation';
 var createObservationBundle = 'http://localhost:8000/api/CreateBundle/Observation';
 var getImmunizationBundle = 'http://localhost:8000/api/GetImmunizationBundle';
 
@@ -492,11 +493,11 @@ export async function sendImmunizationBundleData(form, startDate, setJsonRespons
         organizationReference = urnUuidPrefix + form.medOrgId;
     }
     let immunizationReference = 'Immunization/' + immunizationId;
-    if (validate(form.immunizationId)) {
+    if (validate(immunizationId)) {
         immunizationReference = urnUuidPrefix + immunizationId;
     }
 
-    let compositionJsonPayload = ResourceCreator.getCompositionJsonPayload(patientReference, startDate, organizationReference, immunizationReference);
+    let compositionJsonPayload = ResourceCreator.getCompositionJsonPayload(patientReference, organizationReference, immunizationReference, 'immunization');
     encodedJsonString = base64.encode(utf8.encode(JSON.stringify(compositionJsonPayload)));
     requestPayload = {
         'json_payload': encodedJsonString,
@@ -564,6 +565,126 @@ export async function sendImmunizationBundleData(form, startDate, setJsonRespons
     });
 };
 
+export async function sendObservationBundleData(form, startDate, issuedDate, setJsonResponseText, setErrorResponseText, setVisibleText, setBundleIdText) {
+    let apiUrl = queryPatient + '/' + form.patientId;
+    let patientIdError = await ResourceChecker.checkPatientResourceByUrl(apiUrl, setJsonResponseText, setVisibleText);
+    if (patientIdError) {
+        setErrorResponseText('回應JSON (Error Response, patient resource id error)');
+        return false;
+    }
+
+    apiUrl = getOrganization + '/' + form.orgId;
+    let orgIdError = await ResourceChecker.checkOrgResourceByUrl(apiUrl, setJsonResponseText, setVisibleText);
+
+    if (orgIdError) {
+        setErrorResponseText('回應JSON (Error Response, organization resource id error)');
+        return false;
+    }
+
+    let effectivePeriodStartDate = startDate.toISOString().split('.')[0] + 'Z';
+    let effectivePeriodEndDate = issuedDate.toISOString().split('.')[0] + 'Z';
+
+    let encodedJsonString = '';
+    let requestPayload = {};
+
+    let observationId = '';
+    let observationError = false;
+    let observationJsonPayload = ResourceCreator.getObservationJsonPayload(form, effectivePeriodStartDate, effectivePeriodEndDate);
+
+    encodedJsonString = base64.encode(utf8.encode(JSON.stringify(observationJsonPayload)));
+    requestPayload = {
+        'json_payload': encodedJsonString,
+    };
+
+    [observationError, observationId] = await ResourceCreator.createObservationResource(createObservation, requestPayload, setJsonResponseText, setVisibleText);
+    if (observationError) {
+        setErrorResponseText('回應JSON (Error Response, observation resource creating error)');
+        return false;
+    }
+
+    let compositionId = '';
+    let compositionError = false;
+    let patientReference = 'Patient/' + form.patientId;
+    if (validate(form.patientId)) {
+        patientReference = urnUuidPrefix + form.patientId;
+    }
+    let organizationReference = 'Organization/' + form.orgId;
+    if (validate(form.orgId)) {
+        organizationReference = urnUuidPrefix + form.orgId;
+    }
+    let observationReference = 'Observation/' + observationId;
+    if (validate(observationId)) {
+        observationReference = urnUuidPrefix + observationId;
+    }
+
+    let compositionJsonPayload = ResourceCreator.getCompositionJsonPayload(patientReference, organizationReference, observationReference, 'observation');
+    encodedJsonString = base64.encode(utf8.encode(JSON.stringify(compositionJsonPayload)));
+    requestPayload = {
+        'json_payload': encodedJsonString,
+    };
+
+    [compositionError, compositionId] = await ResourceCreator.createCompositionResource(createComposition, requestPayload, setJsonResponseText, setVisibleText);
+    if (compositionError) {
+        setErrorResponseText('回應JSON (Error Response, composition resource creating error)');
+        return false;
+    }
+
+    let fhirServerUrl = await ResourceFetcher.getFhirServerUrl(setJsonResponseText, setErrorResponseText, setVisibleText);
+    if (fhirServerUrl === '') {
+        return false;
+    }
+
+    let bundleId = '';
+    let organizationResource = await ResourceFetcher.getOrganizationResourceById(form.orgId, fhirServerUrl, setJsonResponseText, setErrorResponseText, setVisibleText);
+    let identifierValue = 'TW.' + organizationResource['resource']['identifier'][0]['value'] + '.' + startDate.toISOString().split('.')[0].replace(/[-,:,T]/g, '') + '.' + SerialNumber.getSerialNumber();
+    if (Object.keys(organizationResource).length === 0) {
+        return false;
+    }
+
+    let compositionResource = await ResourceFetcher.getCompositionResourceById(compositionId, fhirServerUrl, setJsonResponseText, setErrorResponseText, setVisibleText);
+    if (Object.keys(compositionResource).length === 0) {
+        return false;
+    }
+
+    let patientResource = await ResourceFetcher.getPatientResourceById(form.patientId, fhirServerUrl, setJsonResponseText, setErrorResponseText, setVisibleText);
+    if (Object.keys(patientResource).length === 0) {
+        return false;
+    }
+
+    let observationResource = await ResourceFetcher.getObservationResourceById(observationId, fhirServerUrl, setJsonResponseText, setErrorResponseText, setVisibleText);
+    if (Object.keys(observationResource).length === 0) {
+        return false;
+    }
+
+    let entries = [
+        compositionResource,
+        organizationResource,
+        patientResource,
+        observationResource,
+    ];
+    let bundleJsonPayload = ResourceCreator.getObservationBundleJsonPayload(identifierValue, startDate, entries);
+
+    encodedJsonString = base64.encode(utf8.encode(JSON.stringify(bundleJsonPayload)));
+    requestPayload = {
+        'json_payload': encodedJsonString,
+    };
+
+    Axios.post(createObservationBundle, requestPayload).then((response) => {
+        let responseJsonString = JSON.stringify(response.data, null, 2);
+        setJsonResponseText(responseJsonString);
+        setErrorResponseText('回應JSON (Bundle resource creating response)');
+        setVisibleText('visible');
+        bundleId = response.data.id;
+        setBundleIdText('Bundle id: ' + bundleId + '（請記下此id）');
+    }).catch((error) => {
+        let errResponseJsonString = JSON.stringify(error.response, null, 2);
+        setJsonResponseText(errResponseJsonString);
+        setErrorResponseText('回應JSON (Error Response for Observation Bundle resource creating)');
+        setVisibleText('visible');
+        setBundleIdText('');
+    });
+};
+
 export function sendImmunizationBundleQueryData(immunizationBundleId, setJsonResponseText, setVisibleText, setErrorResponseText) {
     let apiImmunizationBundleUrl = getImmunizationBundle + '/' + immunizationBundleId;
     Axios.get(apiImmunizationBundleUrl).then((response) => {
@@ -590,6 +711,7 @@ const HttpRequest = {
     sendOrgData,
     sendQueryOrgData,
     sendImmunizationBundleData,
+    sendObservationBundleData,
     sendImmunizationBundleQueryData,
 };
 export default HttpRequest;

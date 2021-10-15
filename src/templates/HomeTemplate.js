@@ -5,7 +5,6 @@ const HomeTemplate = () => {
     return (
         <Switch>
             <Route path="/">
-                <h2></h2>
             </Route>
         </Switch>
     );
