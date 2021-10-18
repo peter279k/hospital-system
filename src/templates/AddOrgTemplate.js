@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Route, Switch } from 'react-router-dom';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
+import ProgressBar from 'react-bootstrap/ProgressBar';
 
 import HttpRequest from '../HttpRequest.js';
 
@@ -15,6 +16,7 @@ const AddOrgTemplate = () => {
 
     const [errors, setErrors] = useState({});
     const [visibleText, setVisibleText] = useState('invisible');
+    const [visibleProgressBar, setVisibleProgressBarText] = useState('invisible');
     const [jsonResponse, setJsonResponseText] = useState('');
     const [errorResponse, setErrorResponseText] = useState('');
     const [medId, setMedId] = useState('');
@@ -32,7 +34,7 @@ const AddOrgTemplate = () => {
           return false;
         }
 
-        HttpRequest.sendOrgData(medId, hospitalLists, setJsonResponseText, setErrorResponseText, setVisibleText);
+        HttpRequest.sendOrgData(medId, hospitalLists, setJsonResponseText, setErrorResponseText, setVisibleText, setVisibleProgressBarText);
     };
 
     const findHandleAddingOrgError = () => {
@@ -70,6 +72,8 @@ const AddOrgTemplate = () => {
                   送出
                 </Button>{' '}
               </Form.Group>
+
+              <ProgressBar variant="secondary" className={ visibleProgressBar } animated now={100} />
 
               <Form.Group className={ "mb-3 " + visibleText }>
                 <h3 className="text-info">{ errorResponse }</h3>

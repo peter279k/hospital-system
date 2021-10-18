@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Route, Switch } from 'react-router-dom';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
+import ProgressBar from 'react-bootstrap/ProgressBar';
 
 import HttpRequest from '../HttpRequest.js';
 
@@ -15,6 +16,7 @@ const QueryImmunizationTemplate = () => {
     const [form, setForm] = useState({});
     const [errors, setErrors] = useState({});
     const [visibleText, setVisibleText] = useState('invisible');
+    const [visibleProgressBar, setVisibleProgressBarText] = useState('invisible');
     const [jsonResponse, setJsonResponseText] = useState('');
     const [errorResponse, setErrorResponseText] = useState('');
 
@@ -41,7 +43,7 @@ const QueryImmunizationTemplate = () => {
 
         let immunizationBundleId = form.immunizationId;
 
-        HttpRequest.sendImmunizationBundleQueryData(immunizationBundleId, setJsonResponseText, setVisibleText, setErrorResponseText);
+        HttpRequest.sendImmunizationBundleQueryData(immunizationBundleId, setJsonResponseText, setVisibleText, setErrorResponseText, setVisibleProgressBarText);
     };
 
     const findHandleQueryingImmunizationError = () => {
@@ -72,10 +74,9 @@ const QueryImmunizationTemplate = () => {
                 <Button variant="primary" type="submit" onClick={ handleQueryingImmunizationSubmit }>
                   送出
                 </Button>{' '}
-                <Button variant="danger" type="reset">
-                  清空資料
-                </Button>{' '}
               </Form.Group>
+
+              <ProgressBar variant="secondary" className={ visibleProgressBar } animated now={100} />
 
               <Form.Group className={ "mb-3 " + visibleText }>
                 <h3 className="text-info">{ errorResponse }</h3>

@@ -3,6 +3,7 @@ import { Route, Switch } from 'react-router-dom';
 import Form from 'react-bootstrap/Form';
 import DatePicker from "react-datepicker";
 import Button from 'react-bootstrap/Button';
+import ProgressBar from 'react-bootstrap/ProgressBar';
 
 import HttpRequest from '../HttpRequest.js';
 
@@ -13,6 +14,7 @@ import { dark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 const QueryPatientTemplate = () => {
 
     const [visibleText, setVisibleText] = useState('invisible');
+    const [visibleProgressBar, setVisibleProgressBarText] = useState('invisible');
     const [searchText, setSearchText] = useState('基本');
     const [buttonText, setSearchButtonText] = useState('進階搜尋');
     const [createdDate, setCreatedDateText] = useState('');
@@ -58,7 +60,7 @@ const QueryPatientTemplate = () => {
           return false;
         }
 
-        HttpRequest.sendPatientQueryData(form, startDate, searchText, setJsonResponseText, setVisibleText, setErrorResponseText);
+        HttpRequest.sendPatientQueryData(form, startDate, searchText, setJsonResponseText, setVisibleText, setErrorResponseText, setVisibleProgressBarText);
     };
 
     const renderSearchTemplate = e => {
@@ -108,10 +110,9 @@ const QueryPatientTemplate = () => {
                   <Button variant="primary" type="submit" onClick={ handleQueryPatientSubmit }>
                     送出
                   </Button>{' '}
-                  <Button variant="danger" type="reset">
-                    清空資料
-                  </Button>{' '}
                 </Form.Group>
+
+                <ProgressBar variant="secondary" className={ visibleProgressBar } animated now={100} />
 
                 <Form.Group className={ "mb-3 " + visibleText }>
                   <h3 className="text-info">{ errorResponse }</h3>

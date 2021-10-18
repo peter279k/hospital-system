@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Route, Switch } from 'react-router-dom';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
+import ProgressBar from 'react-bootstrap/ProgressBar';
 import DatePicker from "react-datepicker";
 
 import HttpRequest from '../HttpRequest.js';
@@ -17,6 +18,7 @@ const AddImmunizationTemplate = () => {
     const [form, setForm] = useState({});
     const [errors, setErrors] = useState({});
     const [visibleText, setVisibleText] = useState('invisible');
+    const [visibleProgressBar, setVisibleProgressBarText] = useState('visible');
     const [jsonResponse, setJsonResponseText] = useState('');
     const [errorResponse, setErrorResponseText] = useState('');
     const [startDate, setStartDate] = useState(new Date());
@@ -42,7 +44,7 @@ const AddImmunizationTemplate = () => {
           setErrors(newErrors);
           return false;
         }
-        HttpRequest.sendImmunizationBundleData(form, startDate, setJsonResponseText, setErrorResponseText, setVisibleText, setBundleIdText);
+        HttpRequest.sendImmunizationBundleData(form, startDate, setJsonResponseText, setErrorResponseText, setVisibleText, setBundleIdText, setVisibleProgressBarText);
     };
 
     const findHandleAddingImmunizationError = () => {
@@ -175,10 +177,9 @@ const AddImmunizationTemplate = () => {
           <Button variant="primary" type="submit" onClick={ handleAddingImmunizationSubmit }>
             送出
           </Button>{' '}
-          <Button variant="danger" type="reset">
-            清空資料
-          </Button>{' '}
         </Form.Group>
+
+        <ProgressBar variant="secondary" className={ visibleProgressBar } animated now={100} />
 
         <Form.Group className={ "mb-3 " + visibleText }>
           <h3 className="text-success">{ bundleId }</h3>

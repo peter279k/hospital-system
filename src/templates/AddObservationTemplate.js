@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Route, Switch } from 'react-router-dom';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
+import ProgressBar from 'react-bootstrap/ProgressBar';
 import DatePicker from "react-datepicker";
 
 import HttpRequest from '../HttpRequest.js';
@@ -17,6 +18,7 @@ const AddObservationTemplate = () => {
     const [form, setForm] = useState({});
     const [errors, setErrors] = useState({});
     const [visibleText, setVisibleText] = useState('invisible');
+    const [visibleProgressBar, setVisibleProgressBarText] = useState('invisible');
     const [startDate, setStartDate] = useState(new Date());
     const [issuedDate, setIssuedDate] = useState(new Date());
     const [jsonResponse, setJsonResponseText] = useState('');
@@ -44,7 +46,7 @@ const AddObservationTemplate = () => {
           return false;
         }
 
-        HttpRequest.sendObservationBundleData(form, startDate, issuedDate, setJsonResponseText, setErrorResponseText, setVisibleText, setBundleIdText);
+        HttpRequest.sendObservationBundleData(form, startDate, issuedDate, setJsonResponseText, setErrorResponseText, setVisibleText, setBundleIdText, setVisibleProgressBarText);
     };
 
     const findHandleAddingObservationError = () => {
@@ -146,10 +148,9 @@ const AddObservationTemplate = () => {
           <Button variant="primary" type="submit" onClick={ handleObservationAddingSubmit }>
             送出
           </Button>{' '}
-          <Button variant="danger" type="reset">
-            清空資料
-          </Button>{' '}
         </Form.Group>
+
+        <ProgressBar variant="secondary" className={ visibleProgressBar } animated now={100} />
 
         <Form.Group className={ "mb-3 " + visibleText }>
           <h3 className="text-success">{ bundleId }</h3>

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Route, Switch } from 'react-router-dom';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
+import ProgressBar from 'react-bootstrap/ProgressBar';
 
 import HttpRequest from '../HttpRequest.js';
 
@@ -16,6 +17,7 @@ const QueryOrgTemplate = () => {
     const [orgId, setOrgId] = useState('');
     const [errors, setErrors] = useState({});
     const [visibleText, setVisibleText] = useState('invisible');
+    const [visibleProgressBar, setVisibleProgressBarText] = useState('invisible');
     const [jsonResponse, setJsonResponseText] = useState('');
     const [errorResponse, setErrorResponseText] = useState('');
 
@@ -36,7 +38,7 @@ const QueryOrgTemplate = () => {
           return false;
         }
 
-        HttpRequest.sendQueryOrgData(orgId, setJsonResponseText, setVisibleText, setErrorResponseText);
+        HttpRequest.sendQueryOrgData(orgId, setJsonResponseText, setVisibleText, setErrorResponseText, setVisibleProgressBarText);
     };
 
     const resetQueryOrgForm = e => {
@@ -64,6 +66,8 @@ const QueryOrgTemplate = () => {
                   清空資料
                 </Button>{' '}
               </Form.Group>
+
+              <ProgressBar variant="secondary" className={ visibleProgressBar } animated now={100} />
 
               <Form.Group className={ "mb-3 " + visibleText }>
                 <h3 className="text-info">{ errorResponse }</h3>

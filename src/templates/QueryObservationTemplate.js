@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Route, Switch } from 'react-router-dom';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
+import ProgressBar from 'react-bootstrap/ProgressBar';
 
 import HttpRequest from '../HttpRequest.js';
 
@@ -15,9 +16,10 @@ const QueryObservationTemplate = () => {
 
     const [form, setForm] = useState({});
     const [errors, setErrors] = useState({});
-    const [visibleText] = useState('invisible');
-    const [jsonResponse] = useState('');
-    const [errorResponse] = useState('');
+    const [visibleText, setVisibleText] = useState('invisible');
+    const [visibleProgressBar, setVisibleProgressBarText] = useState('invisible');
+    const [jsonResponse, setJsonResponseText] = useState('');
+    const [errorResponse, setErrorResponseText] = useState('');
 
     const setField = (field, value) => {
         setForm({
@@ -40,7 +42,9 @@ const QueryObservationTemplate = () => {
           return false;
         }
 
-        console.log('Done for filling observation querying form');
+        let observationBundleId = form.observationId;
+
+        HttpRequest.sendObservationBundleQueryData(observationBundleId, setJsonResponseText, setVisibleText, setErrorResponseText, setVisibleProgressBarText);
     };
 
 
@@ -72,10 +76,9 @@ const QueryObservationTemplate = () => {
                 <Button variant="primary" type="submit" onClick={ handleObservationQueryingSubmit }>
                   送出
                 </Button>{' '}
-                <Button variant="danger" type="reset">
-                  清空資料
-                </Button>{' '}
               </Form.Group>
+
+              <ProgressBar variant="secondary" className={ visibleProgressBar } animated now={100} />
 
               <Form.Group className={ "mb-3 " + visibleText }>
                 <h3 className="text-info">{ errorResponse }</h3>

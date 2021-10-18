@@ -23,10 +23,11 @@ var createImmunizationBundle = 'http://localhost:8000/api/CreateBundle/Immunizat
 var createObservation = 'http://localhost:8000/api/CreateObservation';
 var createObservationBundle = 'http://localhost:8000/api/CreateBundle/Observation';
 var getImmunizationBundle = 'http://localhost:8000/api/GetImmunizationBundle';
+var getObservationBundle = 'http://localhost:8000/api/GetObservationBundle';
 
 var urnUuidPrefix = 'urn:uuid:';
 
-export function sendPatientData(form, startDate, setJsonResponseText, setErrorResponseText, setVisibleText) {
+export function sendPatientData(form, startDate, setJsonResponseText, setErrorResponseText, setVisibleText, setVisibleProgressBarText) {
     let year = String(startDate.getFullYear());
     let month = String(startDate.getMonth() + 1);
     let day = String(startDate.getDate());
@@ -94,20 +95,21 @@ export function sendPatientData(form, startDate, setJsonResponseText, setErrorRe
         'json_payload': encodedJsonString,
     };
 
+    setVisibleProgressBarText('visible');
     Axios.post(createPatient, requestPayload).then((response) => {
         let responseJsonString = JSON.stringify(response.data, null, 2);
         setJsonResponseText(responseJsonString);
         setErrorResponseText('回應JSON');
-        setVisibleText('visible');
+        setVisibleProgressBarText('invisible');
     }).catch((error) => {
         let errResponseJsonString = JSON.stringify(error.response, null, 2);
         setJsonResponseText(errResponseJsonString);
         setErrorResponseText('回應JSON (Error Response)');
-        setVisibleText('visible');
+        setVisibleProgressBarText('invisible');
     });
 };
 
-export function sendPatientQueryData(form, startDate, searchText, setJsonResponseText, setVisibleText, setErrorResponseText) {
+export function sendPatientQueryData(form, startDate, searchText, setJsonResponseText, setVisibleText, setErrorResponseText, setVisibleProgressBarText) {
     let patientIdOrName = form.patientIdOrName;
     let apiPatientUrl = queryPatient + '/' + patientIdOrName;
     if (searchText === '進階') {
@@ -139,16 +141,19 @@ export function sendPatientQueryData(form, startDate, searchText, setJsonRespons
         let requestPayload = {
             'search_params': searchParams,
         };
+        setVisibleProgressBarText('visible');
         Axios.post(apiPatientUrl, requestPayload).then((response) => {
             let responseJsonString = JSON.stringify(response.data, null, 2);
             setErrorResponseText('回應JSON');
             setJsonResponseText(responseJsonString);
             setVisibleText('visible');
+            setVisibleProgressBarText('invisible');
         }).catch((error) => {
             let errResponseJsonString = JSON.stringify(error.response, null, 2);
             setJsonResponseText(errResponseJsonString);
             setErrorResponseText('回應JSON (Error Response)');
             setVisibleText('visible');
+            setVisibleProgressBarText('invisible');
         });
     } else {
         Axios.get(apiPatientUrl).then((response) => {
@@ -156,18 +161,22 @@ export function sendPatientQueryData(form, startDate, searchText, setJsonRespons
             setJsonResponseText(responseJsonString);
             setErrorResponseText('回應JSON');
             setVisibleText('visible');
+            setVisibleProgressBarText('invisible');
         }).catch((error) => {
             let errResponseJsonString = JSON.stringify(error.response, null, 2);
             setJsonResponseText(errResponseJsonString);
             setErrorResponseText('回應JSON (Error Response)');
             setVisibleText('visible');
+            setVisibleProgressBarText('invisible');
         });
     }
 };
 
-export function sendPatientQueryDataJsonString(form, fieldStates) {
+export function sendPatientQueryDataJsonString(form, fieldStates, setVisibleProgressBarText) {
     let patientResourceId = form.patientResourceId;
     let apiPatientUrl = queryPatient + '/' + patientResourceId;
+
+    setVisibleProgressBarText('visible');
     Axios.get(apiPatientUrl).then((response) => {
         let setIdNumber = fieldStates['idNumber'];
         setIdNumber(response.data['identifier'][0]['value']);
@@ -188,16 +197,18 @@ export function sendPatientQueryDataJsonString(form, fieldStates) {
         setPatientSex(response.data['gender']);
         setPatientHomeAddress(response.data['address'][0]['text']);
         setPatientPhoneNumber(response.data['telecom'][0]['value']);
+        setVisibleProgressBarText('invisible');
     }).catch((error) => {
         JSON.stringify(error.response, null, 2);
         let setNewErrors = fieldStates['errors'];
         setNewErrors({
             patientResourceId: '查詢patient resource id: ' + patientResourceId + '錯誤',
         });
+        setVisibleProgressBarText('invisible');
     });
 };
 
-export function modifyPatientData(form, startDate, setJsonResponseText, setErrorResponseText, setVisibleText) {
+export function modifyPatientData(form, startDate, setJsonResponseText, setErrorResponseText, setVisibleText, setVisibleProgressBarText) {
     let jsonPayload = {
         'resourceType': 'Patient',
         'id': form.patientResourceId,
@@ -318,38 +329,45 @@ export function modifyPatientData(form, startDate, setJsonResponseText, setError
         'patient_id': form.patientResourceId,
     };
 
+    setVisibleProgressBarText('visible');
     Axios.put(updatePatient, requestPayload).then((response) => {
         let responseJsonString = JSON.stringify(response.data, null, 2);
         setJsonResponseText(responseJsonString);
         setErrorResponseText('回應JSON');
         setVisibleText('visible');
+        setVisibleProgressBarText('invisible');
     }).catch((error) => {
         let errResponseJsonString = JSON.stringify(error.response, null, 2);
         setJsonResponseText(errResponseJsonString);
         setErrorResponseText('回應JSON (Error Response)');
         setVisibleText('visible');
+        setVisibleProgressBarText('invisible');
     });
 };
 
-export function deletePatientData(form, setVisibleText, setJsonResponseText, setErrorResponseText) {
+export function deletePatientData(form, setVisibleText, setJsonResponseText, setErrorResponseText, setVisibleProgressBarText) {
     let patientResourceId = form.patientResourceId;
     let deletePatientUrl = deletePatient + '/' + patientResourceId;
+    setVisibleProgressBarText('visible');
     Axios.delete(deletePatientUrl).then((response) => {
         let responseJsonString = JSON.stringify(response.data, null, 2);
         setJsonResponseText(responseJsonString);
         setErrorResponseText('回應JSON');
         setVisibleText('visible');
+        setVisibleProgressBarText('invisible');
     }).catch((error) => {
         let errResponseJsonString = JSON.stringify(error.response, null, 2);
         setJsonResponseText(errResponseJsonString);
         setErrorResponseText('回應JSON (Error Response)');
         setVisibleText('visible');
+        setVisibleProgressBarText('invisible');
     });
 };
 
-export function sendFHIRServerData(setVisibleText, setJsonResponseText, setErrorResponseText, apiEndpoint) {
+export function sendFHIRServerData(setVisibleText, setJsonResponseText, setErrorResponseText, apiEndpoint, apiToken) {
     let requestPayload = {
         'fhir_server': apiEndpoint,
+        'fhir_token': apiToken,
     };
     Axios.post(fhirServer, requestPayload).then((response) => {
         let responseJsonString = JSON.stringify(response.data, null, 2);
@@ -385,7 +403,7 @@ export function getHospitalLists(setHospitalLists, setMedId) {
     });
 }
 
-export function sendOrgData(medId, hospitalLists, setJsonResponseText, setErrorResponseText, setVisibleText) {
+export function sendOrgData(medId, hospitalLists, setJsonResponseText, setErrorResponseText, setVisibleText, setVisibleProgressBarText) {
     let filteredMed = hospitalLists.filter((hospitalList) => {
         return hospitalList.number === medId;
     });
@@ -408,39 +426,47 @@ export function sendOrgData(medId, hospitalLists, setJsonResponseText, setErrorR
         'json_payload': encodedJsonString,
     };
 
+    setVisibleProgressBarText('visible');
     Axios.post(createOrganization, requestPayload).then((response) => {
         let responseJsonString = JSON.stringify(response.data, null, 2);
         setJsonResponseText(responseJsonString);
         setErrorResponseText('回應JSON');
         setVisibleText('visible');
+        setVisibleProgressBarText('invisible');
     }).catch((error) => {
         let errResponseJsonString = JSON.stringify(error.response, null, 2);
         setJsonResponseText(errResponseJsonString);
         setErrorResponseText('回應JSON (Error Response)');
         setVisibleText('visible');
+        setVisibleProgressBarText('invisible');
     });
 };
 
-export function sendQueryOrgData(orgId, setJsonResponseText, setVisibleText, setErrorResponseText) {
+export function sendQueryOrgData(orgId, setJsonResponseText, setVisibleText, setErrorResponseText, setVisibleProgressBarText) {
     let apiPatientUrl = getOrganization + '/' + orgId;
+    setVisibleProgressBarText('visible');
     Axios.get(apiPatientUrl).then((response) => {
         let responseJsonString = JSON.stringify(response.data, null, 2);
         setJsonResponseText(responseJsonString);
         setErrorResponseText('回應JSON');
         setVisibleText('visible');
+        setVisibleProgressBarText('invisible');
     }).catch((error) => {
         let errResponseJsonString = JSON.stringify(error.response, null, 2);
         setJsonResponseText(errResponseJsonString);
         setErrorResponseText('回應JSON (Error Response)');
         setVisibleText('visible');
+        setVisibleProgressBarText('invisible');
     });
 }
 
-export async function sendImmunizationBundleData(form, startDate, setJsonResponseText, setErrorResponseText, setVisibleText, setBundleIdText) {
+export async function sendImmunizationBundleData(form, startDate, setJsonResponseText, setErrorResponseText, setVisibleText, setBundleIdText, setVisibleProgressBarText) {
+    setVisibleProgressBarText('visible');
     let apiUrl = queryPatient + '/' + form.patientId;
     let patientIdError = await ResourceChecker.checkPatientResourceByUrl(apiUrl, setJsonResponseText, setVisibleText);
     if (patientIdError) {
         setErrorResponseText('回應JSON (Error Response, patient resource id error)');
+        setVisibleProgressBarText('invisible');
         return false;
     }
 
@@ -449,6 +475,7 @@ export async function sendImmunizationBundleData(form, startDate, setJsonRespons
 
     if (orgIdError) {
         setErrorResponseText('回應JSON (Error Response, organization resource id error)');
+        setVisibleProgressBarText('invisible');
         return false;
     }
 
@@ -479,6 +506,7 @@ export async function sendImmunizationBundleData(form, startDate, setJsonRespons
     [immunizationError, immunizationId] = await ResourceCreator.createImmunizationResource(createImmunization, requestPayload, setJsonResponseText, setVisibleText);
     if (immunizationError) {
         setErrorResponseText('回應JSON (Error Response, immunization resource creating error)');
+        setVisibleProgressBarText('invisible');
         return false;
     }
 
@@ -506,11 +534,13 @@ export async function sendImmunizationBundleData(form, startDate, setJsonRespons
     [compositionError, compositionId] = await ResourceCreator.createCompositionResource(createComposition, requestPayload, setJsonResponseText, setVisibleText);
     if (compositionError) {
         setErrorResponseText('回應JSON (Error Response, composition resource creating error)');
+        setVisibleProgressBarText('invisible');
         return false;
     }
 
     let fhirServerUrl = await ResourceFetcher.getFhirServerUrl(setJsonResponseText, setErrorResponseText, setVisibleText);
     if (fhirServerUrl === '') {
+        setVisibleProgressBarText('invisible');
         return false;
     }
 
@@ -518,21 +548,25 @@ export async function sendImmunizationBundleData(form, startDate, setJsonRespons
     let organizationResource = await ResourceFetcher.getOrganizationResourceById(form.medOrgId, fhirServerUrl, setJsonResponseText, setErrorResponseText, setVisibleText);
     let identifierValue = 'TW.' + organizationResource['resource']['identifier'][0]['value'] + '.' + startDate.toISOString().split('.')[0].replace(/[-,:,T]/g, '') + '.' + SerialNumber.getSerialNumber();
     if (Object.keys(organizationResource).length === 0) {
+        setVisibleProgressBarText('invisible');
         return false;
     }
 
     let compositionResource = await ResourceFetcher.getCompositionResourceById(compositionId, fhirServerUrl, setJsonResponseText, setErrorResponseText, setVisibleText);
     if (Object.keys(compositionResource).length === 0) {
+        setVisibleProgressBarText('invisible');
         return false;
     }
 
     let patientResource = await ResourceFetcher.getPatientResourceById(form.patientId, fhirServerUrl, setJsonResponseText, setErrorResponseText, setVisibleText);
     if (Object.keys(patientResource).length === 0) {
+        setVisibleProgressBarText('invisible');
         return false;
     }
 
     let immunizationResource = await ResourceFetcher.getImmunizationResourceById(immunizationId, fhirServerUrl, setJsonResponseText, setErrorResponseText, setVisibleText);
     if (Object.keys(immunizationResource).length === 0) {
+        setVisibleProgressBarText('invisible');
         return false;
     }
 
@@ -554,6 +588,7 @@ export async function sendImmunizationBundleData(form, startDate, setJsonRespons
         setJsonResponseText(responseJsonString);
         setErrorResponseText('回應JSON (Bundle resource creating response)');
         setVisibleText('visible');
+        setVisibleProgressBarText('invisible');
         bundleId = response.data.id;
         setBundleIdText('Bundle id: ' + bundleId + '（請記下此id）');
     }).catch((error) => {
@@ -561,15 +596,18 @@ export async function sendImmunizationBundleData(form, startDate, setJsonRespons
         setJsonResponseText(errResponseJsonString);
         setErrorResponseText('回應JSON (Error Response for Immunization Bundle resource creating)');
         setVisibleText('visible');
+        setVisibleProgressBarText('invisible');
         setBundleIdText('');
     });
 };
 
-export async function sendObservationBundleData(form, startDate, issuedDate, setJsonResponseText, setErrorResponseText, setVisibleText, setBundleIdText) {
+export async function sendObservationBundleData(form, startDate, issuedDate, setJsonResponseText, setErrorResponseText, setVisibleText, setBundleIdText, setVisibleProgressBarText) {
+    setVisibleProgressBarText('visible');
     let apiUrl = queryPatient + '/' + form.patientId;
     let patientIdError = await ResourceChecker.checkPatientResourceByUrl(apiUrl, setJsonResponseText, setVisibleText);
     if (patientIdError) {
         setErrorResponseText('回應JSON (Error Response, patient resource id error)');
+        setVisibleProgressBarText('invisible');
         return false;
     }
 
@@ -578,6 +616,7 @@ export async function sendObservationBundleData(form, startDate, issuedDate, set
 
     if (orgIdError) {
         setErrorResponseText('回應JSON (Error Response, organization resource id error)');
+        setVisibleProgressBarText('invisible');
         return false;
     }
 
@@ -599,6 +638,7 @@ export async function sendObservationBundleData(form, startDate, issuedDate, set
     [observationError, observationId] = await ResourceCreator.createObservationResource(createObservation, requestPayload, setJsonResponseText, setVisibleText);
     if (observationError) {
         setErrorResponseText('回應JSON (Error Response, observation resource creating error)');
+        setVisibleProgressBarText('invisible');
         return false;
     }
 
@@ -626,11 +666,13 @@ export async function sendObservationBundleData(form, startDate, issuedDate, set
     [compositionError, compositionId] = await ResourceCreator.createCompositionResource(createComposition, requestPayload, setJsonResponseText, setVisibleText);
     if (compositionError) {
         setErrorResponseText('回應JSON (Error Response, composition resource creating error)');
+        setVisibleProgressBarText('invisible');
         return false;
     }
 
     let fhirServerUrl = await ResourceFetcher.getFhirServerUrl(setJsonResponseText, setErrorResponseText, setVisibleText);
     if (fhirServerUrl === '') {
+        setVisibleProgressBarText('invisible');
         return false;
     }
 
@@ -638,21 +680,25 @@ export async function sendObservationBundleData(form, startDate, issuedDate, set
     let organizationResource = await ResourceFetcher.getOrganizationResourceById(form.orgId, fhirServerUrl, setJsonResponseText, setErrorResponseText, setVisibleText);
     let identifierValue = 'TW.' + organizationResource['resource']['identifier'][0]['value'] + '.' + startDate.toISOString().split('.')[0].replace(/[-,:,T]/g, '') + '.' + SerialNumber.getSerialNumber();
     if (Object.keys(organizationResource).length === 0) {
+        setVisibleProgressBarText('invisible');
         return false;
     }
 
     let compositionResource = await ResourceFetcher.getCompositionResourceById(compositionId, fhirServerUrl, setJsonResponseText, setErrorResponseText, setVisibleText);
     if (Object.keys(compositionResource).length === 0) {
+        setVisibleProgressBarText('invisible');
         return false;
     }
 
     let patientResource = await ResourceFetcher.getPatientResourceById(form.patientId, fhirServerUrl, setJsonResponseText, setErrorResponseText, setVisibleText);
     if (Object.keys(patientResource).length === 0) {
+        setVisibleProgressBarText('invisible');
         return false;
     }
 
     let observationResource = await ResourceFetcher.getObservationResourceById(observationId, fhirServerUrl, setJsonResponseText, setErrorResponseText, setVisibleText);
     if (Object.keys(observationResource).length === 0) {
+        setVisibleProgressBarText('invisible');
         return false;
     }
 
@@ -674,6 +720,7 @@ export async function sendObservationBundleData(form, startDate, issuedDate, set
         setJsonResponseText(responseJsonString);
         setErrorResponseText('回應JSON (Bundle resource creating response)');
         setVisibleText('visible');
+        setVisibleProgressBarText('invisible');
         bundleId = response.data.id;
         setBundleIdText('Bundle id: ' + bundleId + '（請記下此id）');
     }).catch((error) => {
@@ -681,22 +728,46 @@ export async function sendObservationBundleData(form, startDate, issuedDate, set
         setJsonResponseText(errResponseJsonString);
         setErrorResponseText('回應JSON (Error Response for Observation Bundle resource creating)');
         setVisibleText('visible');
+        setVisibleProgressBarText('invisible');
         setBundleIdText('');
     });
 };
 
-export function sendImmunizationBundleQueryData(immunizationBundleId, setJsonResponseText, setVisibleText, setErrorResponseText) {
+export function sendImmunizationBundleQueryData(immunizationBundleId, setJsonResponseText, setVisibleText, setErrorResponseText, setVisibleProgressBarText) {
     let apiImmunizationBundleUrl = getImmunizationBundle + '/' + immunizationBundleId;
+
+    setVisibleProgressBarText('visible');
     Axios.get(apiImmunizationBundleUrl).then((response) => {
         let responseJsonString = JSON.stringify(response.data, null, 2);
         setJsonResponseText(responseJsonString);
         setErrorResponseText('回應JSON');
         setVisibleText('visible');
+        setVisibleProgressBarText('invisible');
     }).catch((error) => {
         let errResponseJsonString = JSON.stringify(error.response, null, 2);
         setJsonResponseText(errResponseJsonString);
         setErrorResponseText('回應JSON (Error Response)');
         setVisibleText('visible');
+        setVisibleProgressBarText('invisible');
+    });
+}
+
+export function sendObservationBundleQueryData(observationBundleId, setJsonResponseText, setVisibleText, setErrorResponseText, setVisibleProgressBarText) {
+    let apiObservationBundleUrl = getObservationBundle + '/' + observationBundleId;
+
+    setVisibleProgressBarText('visible');
+    Axios.get(apiObservationBundleUrl).then((response) => {
+        let responseJsonString = JSON.stringify(response.data, null, 2);
+        setJsonResponseText(responseJsonString);
+        setErrorResponseText('回應JSON');
+        setVisibleText('visible');
+        setVisibleProgressBarText('invisible');
+    }).catch((error) => {
+        let errResponseJsonString = JSON.stringify(error.response, null, 2);
+        setJsonResponseText(errResponseJsonString);
+        setErrorResponseText('回應JSON (Error Response)');
+        setVisibleText('visible');
+        setVisibleProgressBarText('invisible');
     });
 }
 
@@ -713,5 +784,6 @@ const HttpRequest = {
     sendImmunizationBundleData,
     sendObservationBundleData,
     sendImmunizationBundleQueryData,
+    sendObservationBundleQueryData,
 };
 export default HttpRequest;

@@ -9,11 +9,12 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { dark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
 
-const FHIRServerSetting = () => <h2>FHIRServer設定</h2>;
+const FHIRServerSetting = () => <h2 className="text-info">FHIRServer設定</h2>;
 
 const FHIRServerSettingTemplate = () => {
 
     const [form, setForm] = useState({});
+    const [apiToken, setApiToken] = useState('');
     const [errors, setErrors] = useState({});
     const [visibleText, setVisibleText] = useState('invisible');
     const [jsonResponse, setJsonResponseText] = useState('');
@@ -40,7 +41,7 @@ const FHIRServerSettingTemplate = () => {
             return false;
         }
 
-        HttpRequest.sendFHIRServerData(setVisibleText, setJsonResponseText, setErrorResponseText, form.apiEndpoint);
+        HttpRequest.sendFHIRServerData(setVisibleText, setJsonResponseText, setErrorResponseText, form.apiEndpoint, apiToken);
     };
 
     const findFHIRServerError = () => {
@@ -67,11 +68,13 @@ const FHIRServerSettingTemplate = () => {
               </Form.Group>
 
               <Form.Group className="mb-3">
+                <Form.Label>請輸入FIHR Server API Token</Form.Label>
+                <Form.Control onChange={ e => setApiToken(e.target.value) } type="text" placeholder="請輸入FIHR Server API Token"/>
+              </Form.Group>
+
+              <Form.Group className="mb-3">
                 <Button variant="primary" type="submit" onClick={ handleFHIRServerSubmit }>
                   送出
-                </Button>{' '}
-                <Button variant="danger" type="reset">
-                  清空資料
                 </Button>{' '}
               </Form.Group>
 

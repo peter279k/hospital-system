@@ -3,6 +3,7 @@ import { Route, Switch } from 'react-router-dom';
 import Form from 'react-bootstrap/Form';
 import DatePicker from "react-datepicker";
 import Button from 'react-bootstrap/Button';
+import ProgressBar from 'react-bootstrap/ProgressBar';
 
 import HttpRequest from '../HttpRequest.js';
 
@@ -14,6 +15,7 @@ const AddPatient = () => <h2 className="text-info">病患資料登錄</h2>;
 const AddPatientTemplate = () => {
 
     const [visibleText, setVisibleText] = useState('invisible');
+    const [visibleProgressBar, setVisibleProgressBarText] = useState('invisible');
     const [form, setForm] = useState({});
     const [errors, setErrors] = useState({});
     const [startDate, setStartDate] = useState(new Date());
@@ -102,7 +104,7 @@ const AddPatientTemplate = () => {
           return false;
         }
 
-        HttpRequest.sendPatientData(form, startDate, setJsonResponseText, setErrorResponseText, setVisibleText);
+        HttpRequest.sendPatientData(form, startDate, setJsonResponseText, setErrorResponseText, setVisibleText, setVisibleProgressBarText);
     };
 
     const findPatientFormErrors = () => {
@@ -235,10 +237,9 @@ const AddPatientTemplate = () => {
                 <Button variant="primary" type="submit" onClick={ handlePatientSubmit }>
                   送出
                 </Button>{' '}
-                <Button variant="danger" type="reset">
-                  清空資料
-                </Button>{' '}
               </Form.Group>
+
+              <ProgressBar variant="secondary" className={ visibleProgressBar } animated now={100} />
 
               <Form.Group className={ "mb-3 " + visibleText }>
                 <h3 className="text-info">{ errorResponse }</h3>

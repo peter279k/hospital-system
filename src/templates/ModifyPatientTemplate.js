@@ -3,6 +3,7 @@ import { Route, Switch } from 'react-router-dom';
 import Form from 'react-bootstrap/Form';
 import DatePicker from "react-datepicker";
 import Button from 'react-bootstrap/Button';
+import ProgressBar from 'react-bootstrap/ProgressBar';
 
 import HttpRequest from '../HttpRequest.js';
 
@@ -15,6 +16,7 @@ const ModifyPatient = () => <h2 className="text-info">修改病患資料</h2>;
 const ModifyPatientTemplate = () => {
 
     const [visibleText, setVisibleText] = useState('invisible');
+    const [visibleProgressBar, setVisibleProgressBarText] = useState('invisible');
     const [errors, setErrors] = useState({});
     const [startDate, setStartDate] = useState(new Date());
     const [jsonResponse, setJsonResponseText] = useState('');
@@ -108,7 +110,7 @@ const ModifyPatientTemplate = () => {
           'patientPhoneNumber': patientPhoneNumber,
         };
 
-        HttpRequest.modifyPatientData(form, startDate, setJsonResponseText, setErrorResponseText, setVisibleText);
+        HttpRequest.modifyPatientData(form, startDate, setJsonResponseText, setErrorResponseText, setVisibleText, setVisibleProgressBarText);
     };
 
     const resetInputFields = e => {
@@ -145,7 +147,7 @@ const ModifyPatientTemplate = () => {
           'patientResourceId': patientResourceId,
         };
 
-        HttpRequest.sendPatientQueryDataJsonString(form, fieldStates);
+        HttpRequest.sendPatientQueryDataJsonString(form, fieldStates, setVisibleProgressBarText);
     };
 
     const findLoadingPatientDataError = () => {
@@ -284,6 +286,8 @@ const ModifyPatientTemplate = () => {
                   清空資料
                 </Button>{' '}
               </Form.Group>
+
+              <ProgressBar variant="secondary" className={ visibleProgressBar } animated now={100} />
 
               <Form.Group className={ "mb-3 " + visibleText }>
                 <h3 className="text-info">{ errorResponse }</h3>
