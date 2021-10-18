@@ -100,11 +100,13 @@ export function sendPatientData(form, startDate, setJsonResponseText, setErrorRe
         let responseJsonString = JSON.stringify(response.data, null, 2);
         setJsonResponseText(responseJsonString);
         setErrorResponseText('回應JSON');
+        setVisibleText('visible');
         setVisibleProgressBarText('invisible');
     }).catch((error) => {
         let errResponseJsonString = JSON.stringify(error.response, null, 2);
         setJsonResponseText(errResponseJsonString);
         setErrorResponseText('回應JSON (Error Response)');
+        setVisibleText('visible');
         setVisibleProgressBarText('invisible');
     });
 };

@@ -16,23 +16,32 @@ const AddPatientTemplate = () => {
 
     const [visibleText, setVisibleText] = useState('invisible');
     const [visibleProgressBar, setVisibleProgressBarText] = useState('invisible');
-    const [form, setForm] = useState({});
     const [errors, setErrors] = useState({});
     const [startDate, setStartDate] = useState(new Date());
     const [jsonResponse, setJsonResponseText] = useState('');
     const [errorResponse, setErrorResponseText] = useState('');
 
-    const setField = (field, value) => {
-        setForm({
-          ...form,
-          [field]: value,
-        });
-        if (!!errors[field]) {
-          setErrors({
-            ...errors,
-            [field]: null,
-          });
-        }
+    const [idNumber, setIdNumber] = useState('');
+    const [passportNumber, setPassportNumber] = useState('');
+    const [patientName, setPatientName] = useState('');
+    const [patientEnName, setPatientEnName] = useState('');
+    const [patientSex, setPatientSex] = useState('');
+    const [patientHomeAddress, setPatientHomeAddress] = useState('');
+    const [patientPhoneNumber, setPatientPhoneNumber] = useState('');
+
+    const resetInputField = e => {
+      e.preventDefault();
+      setIdNumber('');
+      setPassportNumber('');
+      setPatientName('');
+      setPatientEnName('');
+      setPatientSex('');
+      setPatientHomeAddress('');
+      setPatientPhoneNumber('');
+      setStartDate(new Date());
+      setVisibleText('invisible');
+      setJsonResponseText('');
+      setErrorResponseText('');
     };
 
     const checkIdNumber = (idNumber) => {
@@ -104,19 +113,21 @@ const AddPatientTemplate = () => {
           return false;
         }
 
+        let form = {
+          'idNumber': idNumber,
+          'passportNumber': passportNumber,
+          'patientName': patientName,
+          'patientEnName': patientEnName,
+          'patientSex': patientSex,
+          'patientHomeAddress': patientHomeAddress,
+          'patientPhoneNumber': patientPhoneNumber,
+          'startDate': startDate,
+        };
+
         HttpRequest.sendPatientData(form, startDate, setJsonResponseText, setErrorResponseText, setVisibleText, setVisibleProgressBarText);
     };
 
     const findPatientFormErrors = () => {
-        const {
-          idNumber,
-          passportNumber,
-          patientName,
-          patientEnName,
-          patientSex,
-          patientHomeAddress,
-          patientPhoneNumber,
-        } = form;
         const newErrors = {};
         if (!idNumber || idNumber === '') {
           newErrors.idNumber = '身份證字號請勿空白！';
@@ -172,7 +183,7 @@ const AddPatientTemplate = () => {
             <Form>
               <Form.Group className="mb-3">
                 <Form.Label>請輸入病患身份證字號<Form.Label className="text-danger">*</Form.Label></Form.Label>
-                <Form.Control onChange={ e => setField('idNumber', e.target.value) } type="text" placeholder="輸入身份證字號" isInvalid={ !!errors.idNumber }/>
+                <Form.Control value={ idNumber } onChange={ e => setIdNumber(e.target.value) } type="text" placeholder="輸入身份證字號" isInvalid={ !!errors.idNumber }/>
                 <Form.Control.Feedback type='invalid'>{ errors.idNumber }</Form.Control.Feedback>
                 <Form.Text className="text-info">
                  此為醫事人員專用系統， 請勿任意分享身份證字號給他人
@@ -181,7 +192,7 @@ const AddPatientTemplate = () => {
 
               <Form.Group className="mb-3">
                 <Form.Label>請輸入病患護照號碼</Form.Label>
-                <Form.Control onChange={ e => setField('passportNumber', e.target.value) } type="text" placeholder="輸入護照號碼" isInvalid={ !!errors.passportNumber }/>
+                <Form.Control value={ passportNumber } onChange={ e => setPassportNumber(e.target.value) } type="text" placeholder="輸入護照號碼" isInvalid={ !!errors.passportNumber }/>
                 <Form.Control.Feedback type='invalid'>{ errors.passportNumber }</Form.Control.Feedback>
                 <Form.Text className="text-info">
                  此為醫事人員專用系統， 請勿任意分享護照號碼給他人
@@ -190,19 +201,19 @@ const AddPatientTemplate = () => {
 
               <Form.Group className="mb-3">
                 <Form.Label>請輸入病患姓名<Form.Label className="text-danger">*</Form.Label></Form.Label>
-                <Form.Control onChange={ e => setField('patientName', e.target.value) } type="text" placeholder="請輸入病患姓名" isInvalid={ !!errors.patientName }/>
+                <Form.Control value={ patientName } onChange={ e => setPatientName(e.target.value) } type="text" placeholder="請輸入病患姓名" isInvalid={ !!errors.patientName }/>
                 <Form.Control.Feedback type='invalid'>{ errors.patientName }</Form.Control.Feedback>
               </Form.Group>
 
               <Form.Group className="mb-3">
                 <Form.Label>請輸入病患英文姓名<Form.Label className="text-danger">*</Form.Label></Form.Label>
-                <Form.Control onChange={ e => setField('patientEnName', e.target.value) } type="text" placeholder="請輸入病患英文姓名" isInvalid={ !!errors.patientEnName }/>
+                <Form.Control value={ patientEnName } onChange={ e => setPatientEnName(e.target.value) } type="text" placeholder="請輸入病患英文姓名" isInvalid={ !!errors.patientEnName }/>
                 <Form.Control.Feedback type='invalid'>{ errors.patientEnName }</Form.Control.Feedback>
               </Form.Group>
 
               <Form.Group className="mb-3">
                 <Form.Label>請輸入病患性別<Form.Label className="text-danger">*</Form.Label></Form.Label>
-                <Form.Control onChange={ e => setField('patientSex', e.target.value) } as="select" custom isInvalid={ !!errors.patientSex }>
+                <Form.Control value={ patientSex } onChange={ e => setPatientSex(e.target.value) } as="select" custom isInvalid={ !!errors.patientSex }>
                   <option>請選擇病患性別</option>
                   <option value="male">男</option>
                   <option value="female">女</option>
@@ -223,19 +234,22 @@ const AddPatientTemplate = () => {
 
               <Form.Group className="mb-3">
                 <Form.Label>請輸入病患住家地址<Form.Label className="text-danger">*</Form.Label></Form.Label>
-                <Form.Control onChange={ e => setField('patientHomeAddress', e.target.value) } type="text" placeholder="請輸入病患住家地址" isInvalid={ !!errors.patientHomeAddress } />
+                <Form.Control value={ patientHomeAddress } onChange={ e => setPatientHomeAddress(e.target.value) } type="text" placeholder="請輸入病患住家地址" isInvalid={ !!errors.patientHomeAddress } />
                 <Form.Control.Feedback type='invalid'>{ errors.patientHomeAddress }</Form.Control.Feedback>
               </Form.Group>
 
               <Form.Group className="mb-3">
                 <Form.Label>請輸入病患聯絡手機<Form.Label className="text-danger">*</Form.Label></Form.Label>
-                <Form.Control onChange={ e => setField('patientPhoneNumber', e.target.value) } type="text" placeholder="請輸入病患聯絡手機" isInvalid={ !!errors.patientPhoneNumber }/>
+                <Form.Control value={ patientPhoneNumber } onChange={ e => setPatientPhoneNumber(e.target.value) } type="text" placeholder="請輸入病患聯絡手機" isInvalid={ !!errors.patientPhoneNumber }/>
                 <Form.Control.Feedback type='invalid'>{ errors.patientPhoneNumber }</Form.Control.Feedback>
               </Form.Group>
 
               <Form.Group className="mb-3">
                 <Button variant="primary" type="submit" onClick={ handlePatientSubmit }>
                   送出
+                </Button>{' '}
+                <Button variant="danger" type="submit" onClick={ resetInputField }>
+                  清空資料
                 </Button>{' '}
               </Form.Group>
 
