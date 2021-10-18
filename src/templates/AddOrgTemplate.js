@@ -26,6 +26,14 @@ const AddOrgTemplate = () => {
       HttpRequest.getHospitalLists(setHospitalLists, setMedId);
     }, []);
 
+    const resetInputField = e => {
+      e.preventDefault();
+      setMedId('');
+      setVisibleText('invisible');
+      setErrorResponseText('');
+      setJsonResponseText('');
+    };
+
     const handleAddingOrgSubmit = e => {
         e.preventDefault();
         const newErrors = findHandleAddingOrgError();
@@ -56,7 +64,7 @@ const AddOrgTemplate = () => {
                 </Form.Group>
                 <Form.Group className="mb-3">
                   <Form.Label>請選擇醫事單位名稱<Form.Label className="text-danger">*</Form.Label></Form.Label>
-                  <Form.Control onChange= { e => setMedId(e.target.value) } as="select" custom placeholder="請輸入醫事單位名稱" isInvalid={ !!errors.medId }>
+                  <Form.Control value={ medId } onChange= { e => setMedId(e.target.value) } as="select" custom placeholder="請輸入醫事單位名稱" isInvalid={ !!errors.medId }>
                     {
                       hospitalLists.map((hospitalList) => {
                         return <option key={ hospitalList.id } value={ hospitalList.number }>{ hospitalList.name }</option>
@@ -70,6 +78,9 @@ const AddOrgTemplate = () => {
               <Form.Group className="mb-3">
                 <Button variant="primary" type="submit" onClick={ handleAddingOrgSubmit }>
                   送出
+                </Button>{' '}
+                <Button variant="danger" type="submit" onClick={ resetInputField }>
+                  清空資料
                 </Button>{' '}
               </Form.Group>
 

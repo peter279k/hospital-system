@@ -13,24 +13,19 @@ const QueryImmunization = () => <h2 className="text-info">查詢疫苗接種資�
 
 const QueryImmunizationTemplate = () => {
 
-    const [form, setForm] = useState({});
     const [errors, setErrors] = useState({});
     const [visibleText, setVisibleText] = useState('invisible');
     const [visibleProgressBar, setVisibleProgressBarText] = useState('invisible');
     const [jsonResponse, setJsonResponseText] = useState('');
     const [errorResponse, setErrorResponseText] = useState('');
+    const [immunizationId, setImmunizationId] = useState('');
 
-    const setField = (field, value) => {
-        setForm({
-          ...form,
-          [field]: value,
-        });
-        if (!!errors[field]) {
-          setErrors({
-            ...errors,
-            [field]: null,
-          });
-        }
+    const resetInputField = e => {
+      e.preventDefault();
+      setVisibleText('invisible');
+      setJsonResponseText('');
+      setErrorResponseText('');
+      setImmunizationId('');
     };
 
     const handleQueryingImmunizationSubmit = e => {
@@ -41,15 +36,12 @@ const QueryImmunizationTemplate = () => {
           return false;
         }
 
-        let immunizationBundleId = form.immunizationId;
+        let immunizationBundleId = immunizationId;
 
         HttpRequest.sendImmunizationBundleQueryData(immunizationBundleId, setJsonResponseText, setVisibleText, setErrorResponseText, setVisibleProgressBarText);
     };
 
     const findHandleQueryingImmunizationError = () => {
-        const {
-          immunizationId,
-        } = form;
         const newErrors = {};
         if (!immunizationId || immunizationId === '') {
           newErrors.immunizationId = '請輸入Immunization id!';
@@ -65,7 +57,7 @@ const QueryImmunizationTemplate = () => {
               <Form>
                 <Form.Group className="mb-3">
                   <Form.Label>請輸入Immunization Bundle id<Form.Label className="text-danger">*</Form.Label></Form.Label>
-                  <Form.Control onChange={ e => setField('immunizationId', e.target.value) } type="text" placeholder="請輸入Immunization Bundle id" isInvalid={ !!errors.immunizationId }/>
+                  <Form.Control value={ immunizationId } onChange={ e => setImmunizationId(e.target.value) } type="text" placeholder="請輸入Immunization Bundle id" isInvalid={ !!errors.immunizationId }/>
                   <Form.Control.Feedback type='invalid'>{ errors.immunizationId }</Form.Control.Feedback>
                 </Form.Group>
               </Form>
@@ -73,6 +65,9 @@ const QueryImmunizationTemplate = () => {
               <Form.Group className="mb-3">
                 <Button variant="primary" type="submit" onClick={ handleQueryingImmunizationSubmit }>
                   送出
+                </Button>{' '}
+                <Button variant="danger" type="submit" onClick={ resetInputField }>
+                  清空資料
                 </Button>{' '}
               </Form.Group>
 

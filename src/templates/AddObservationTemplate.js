@@ -15,7 +15,6 @@ const AddObservation = () => <h2 className="text-info">新增篩檢資料</h2>;
 
 const AddObservationTemplate = () => {
 
-    const [form, setForm] = useState({});
     const [errors, setErrors] = useState({});
     const [visibleText, setVisibleText] = useState('invisible');
     const [visibleProgressBar, setVisibleProgressBarText] = useState('invisible');
@@ -25,17 +24,23 @@ const AddObservationTemplate = () => {
     const [errorResponse, setErrorResponseText] = useState('');
     const [bundleId, setBundleIdText] = useState('');
 
-    const setField = (field, value) => {
-        setForm({
-            ...form,
-            [field]: value,
-        });
-        if (!!errors[field]) {
-            setErrors({
-                ...errors,
-                [field]: null,
-            });
-        }
+    const [observationMethod, setObservationMethod] = useState('');
+    const [observationValue, setObservationValue] = useState('');
+    const [orgId, setOrgId] = useState('');
+    const [patientId, setPatientId] = useState('');
+
+    const resetInputField = e => {
+      e.preventDefault();
+      setStartDate(new Date());
+      setIssuedDate(new Date());
+      setVisibleText('invisible');
+      setJsonResponseText('');
+      setErrorResponseText('');
+      setBundleIdText('');
+      setObservationMethod('');
+      setObservationValue('');
+      setOrgId('');
+      setPatientId('');
     };
 
     const handleObservationAddingSubmit = e => {
@@ -46,16 +51,17 @@ const AddObservationTemplate = () => {
           return false;
         }
 
+        let form = {
+          'observationMethod': observationMethod,
+          'observationValue': observationValue,
+          'orgId': orgId,
+          'patientId': patientId,
+        };
+
         HttpRequest.sendObservationBundleData(form, startDate, issuedDate, setJsonResponseText, setErrorResponseText, setVisibleText, setBundleIdText, setVisibleProgressBarText);
     };
 
     const findHandleAddingObservationError = () => {
-        const {
-          observationMethod,
-          observationValue,
-          orgId,
-          patientId,
-        } = form;
         const newErrors = {};
         if (!observationMethod || observationMethod === '') {
           newErrors.observationMethod = '請選擇篩檢方法！';
@@ -106,7 +112,7 @@ const AddObservationTemplate = () => {
           </Form.Group>
           <Form.Group className="mb-3">
             <Form.Label>請選擇篩檢方法<Form.Label className="text-danger">*</Form.Label></Form.Label>
-            <Form.Control onChange={ e => setField('observationMethod', e.target.value) } as="select" custom isInvalid={ !!errors.observationMethod }>
+            <Form.Control value={ observationMethod } onChange={ e => setObservationMethod(e.target.value) } as="select" custom isInvalid={ !!errors.observationMethod }>
               <option>請選擇篩檢方法</option>
               <option value="PCR">PCR</option>
               <option value="Real-Time PCR">Real-Time PCR</option>
@@ -125,7 +131,7 @@ const AddObservationTemplate = () => {
           </Form.Group>
           <Form.Group className="mb-3">
             <Form.Label>請選擇篩檢結果<Form.Label className="text-danger">*</Form.Label></Form.Label>
-            <Form.Control onChange={ e => setField('observationValue', e.target.value) } as="select" custom isInvalid={ !!errors.observationValue }>
+            <Form.Control value={ observationValue } onChange={ e => setObservationValue(e.target.value) } as="select" custom isInvalid={ !!errors.observationValue }>
               <option>請選擇篩檢結果</option>
               <option value="Positive">Positive(陽性)</option>
               <option value="Negative">Negative(陰性)</option>
@@ -134,12 +140,12 @@ const AddObservationTemplate = () => {
           </Form.Group>
           <Form.Group className="mb-3">
             <Form.Label>請輸入Organization id<Form.Label className="text-danger">*</Form.Label></Form.Label>
-            <Form.Control onChange={ e => setField('orgId', e.target.value) } type="text" placeholder="請輸入Organization id" isInvalid={ !!errors.orgId }/>
+            <Form.Control value={ orgId } onChange={ e => setOrgId(e.target.value) } type="text" placeholder="請輸入Organization id" isInvalid={ !!errors.orgId }/>
             <Form.Control.Feedback type='invalid'>{ errors.orgId }</Form.Control.Feedback>
           </Form.Group>
           <Form.Group className="mb-3">
             <Form.Label>請輸入Patient id<Form.Label className="text-danger">*</Form.Label></Form.Label>
-            <Form.Control onChange={ e => setField('patientId', e.target.value) } type="text" placeholder="請輸入Patient id" isInvalid={ !!errors.patientId }/>
+            <Form.Control value={ patientId } onChange={ e => setPatientId(e.target.value) } type="text" placeholder="請輸入Patient id" isInvalid={ !!errors.patientId }/>
             <Form.Control.Feedback type='invalid'>{ errors.patientId }</Form.Control.Feedback>
           </Form.Group>
         </Form>
@@ -147,6 +153,9 @@ const AddObservationTemplate = () => {
         <Form.Group className="mb-3">
           <Button variant="primary" type="submit" onClick={ handleObservationAddingSubmit }>
             送出
+          </Button>{' '}
+          <Button variant="danger" type="submit" onClick={ resetInputField }>
+            清空資料
           </Button>{' '}
         </Form.Group>
 

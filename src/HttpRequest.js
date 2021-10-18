@@ -197,7 +197,7 @@ export function sendPatientQueryDataJsonString(form, fieldStates, setVisibleProg
         setPatientName(response.data['name'][0]['text']);
         setPatientEnName(response.data['name'][1]['text']);
         setPatientSex(response.data['gender']);
-        setPatientHomeAddress(response.data['address'][0]['text']);
+        setPatientHomeAddress((!response.data['address'][0]['text']) ? (response.data['address'][1]['text']) : (response.data['address'][0]['text']));
         setPatientPhoneNumber(response.data['telecom'][0]['value']);
         setVisibleProgressBarText('invisible');
     }).catch((error) => {

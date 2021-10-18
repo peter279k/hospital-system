@@ -124,6 +124,9 @@ const ModifyPatientTemplate = () => {
         setPatientHomeAddress('');
         setPatientPhoneNumber('');
         setStartDate(new Date());
+        setVisibleText('invisible');
+        setJsonResponseText('');
+        setErrorResponseText('');
     };
 
     const handleLoadingPatientData = e => {

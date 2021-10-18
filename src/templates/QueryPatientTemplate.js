@@ -19,30 +19,22 @@ const QueryPatientTemplate = () => {
     const [buttonText, setSearchButtonText] = useState('進階搜尋');
     const [createdDate, setCreatedDateText] = useState('');
     const [searchVisibleText, setSearchVisibleText] = useState('invisible');
-    const [form, setForm] = useState({});
     const [errors, setErrors] = useState({});
     const [labelText, setLabelText] = useState('請輸入病患id');
     const [startDate, setStartDate] = useState(new Date());
     const [jsonResponse, setJsonResponseText] = useState('');
     const [errorResponse, setErrorResponseText] = useState('');
+    const [patientIdOrName, setPatientIdOrName] = useState('');
 
-    const setField = (field, value) => {
-        setForm({
-          ...form,
-          [field]: value,
-        });
-        if (!!errors[field]) {
-          setErrors({
-            ...errors,
-            [field]: null,
-          });
-        }
+    const resetInputFields = e => {
+      e.preventDefault();
+      setJsonResponseText('');
+      setErrorResponseText('');
+      setVisibleText('invisible');
+      setPatientIdOrName('');
     };
 
     const findQueryPatientErrors = () => {
-        const {
-          patientIdOrName,
-        } = form;
         const newErrors = {};
 
         if (!patientIdOrName || patientIdOrName === '') {
@@ -59,6 +51,10 @@ const QueryPatientTemplate = () => {
           setErrors(newErrors);
           return false;
         }
+
+        let form = {
+          'patientIdOrName': patientIdOrName,
+        };
 
         HttpRequest.sendPatientQueryData(form, startDate, searchText, setJsonResponseText, setVisibleText, setErrorResponseText, setVisibleProgressBarText);
     };
@@ -93,7 +89,7 @@ const QueryPatientTemplate = () => {
                 </Form.Group>
                 <Form.Group className="mb-3">
                   <Form.Label>{labelText}<Form.Label className="text-danger">*</Form.Label></Form.Label>
-                  <Form.Control onChange={ e => setField('patientIdOrName', e.target.value) } type="text" placeholder={labelText} isInvalid={ !!errors.patientIdOrName }/>
+                  <Form.Control value={ patientIdOrName } onChange={ e => setPatientIdOrName(e.target.value) } type="text" placeholder={labelText} isInvalid={ !!errors.patientIdOrName }/>
                   <Form.Control.Feedback type='invalid'>{ errors.patientIdOrName }</Form.Control.Feedback>
                 </Form.Group>
                 <Form.Group className={'mb-3 ' + searchVisibleText}>
@@ -109,6 +105,9 @@ const QueryPatientTemplate = () => {
                 <Form.Group className="mb-3">
                   <Button variant="primary" type="submit" onClick={ handleQueryPatientSubmit }>
                     送出
+                  </Button>{' '}
+                  <Button variant="danger" type="submit" onClick={ resetInputFields }>
+                    清空資料
                   </Button>{' '}
                 </Form.Group>
 
