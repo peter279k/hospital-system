@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { Route, Switch } from 'react-router-dom';
+import Col from 'react-bootstrap/Col';
 import Form from 'react-bootstrap/Form';
+import Image from 'react-bootstrap/Image';
 import Button from 'react-bootstrap/Button';
 import ProgressBar from 'react-bootstrap/ProgressBar';
 
@@ -16,6 +18,8 @@ const QueryObservationTemplate = () => {
 
     const [errors, setErrors] = useState({});
     const [visibleText, setVisibleText] = useState('invisible');
+    const [qrCodeVisibleText, setQRCodeVisibleText] = useState('invisible');
+    const [qrCodeImage, setQRCodeImage] = useState('');
     const [visibleProgressBar, setVisibleProgressBarText] = useState('invisible');
     const [jsonResponse, setJsonResponseText] = useState('');
     const [errorResponse, setErrorResponseText] = useState('');
@@ -28,6 +32,19 @@ const QueryObservationTemplate = () => {
       setJsonResponseText('');
       setErrorResponseText('');
       setObservationId('');
+    };
+
+    const generateObservationQRCode = e => {
+      e.preventDefault();
+      const newErrors = findHandleQueryingObservationError();
+      if (Object.keys(newErrors).length > 0) {
+        setErrors(newErrors);
+        return false;
+      }
+
+      let observationBundleId = observationId;
+
+      HttpRequest.generateObservationQRCode(observationBundleId, setJsonResponseText, setVisibleText, setErrorResponseText, setVisibleProgressBarText, setQRCodeVisibleText, setQRCodeImage, setErrorResponseText);
     };
 
     const handleObservationQueryingSubmit = e => {
@@ -72,6 +89,9 @@ const QueryObservationTemplate = () => {
                 <Button variant="danger" type="submit" onClick={ resetInputField }>
                   清空資料
                 </Button>{' '}
+                <Button variant="success" type="submit" onClick={ generateObservationQRCode }>
+                  產生QRCode
+                </Button>{' '}
               </Form.Group>
 
               <ProgressBar variant="secondary" className={ visibleProgressBar } animated now={100} />
@@ -82,6 +102,10 @@ const QueryObservationTemplate = () => {
                   { jsonResponse }
                 </SyntaxHighlighter>
               </Form.Group>
+
+              <Col xs={6} md={4}>
+                <Image className={ qrCodeVisibleText } src={ qrCodeImage } thumbnail />
+              </Col>
         </Route>
         </Switch>
     );

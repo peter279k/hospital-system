@@ -31,7 +31,7 @@ export async function getCompositionResourceById(compositionId, fhirServerUrl, s
     });
 
     return compositionResource;
-}
+};
 
 export async function getOrganizationResourceById(organizationId, fhirServerUrl, setJsonResponseText, setErrorResponseText, setVisibleText) {
     let fullUrl = fhirServerUrl + '/Organization/' + organizationId;
@@ -53,7 +53,7 @@ export async function getOrganizationResourceById(organizationId, fhirServerUrl,
     });
 
     return organizationResource;
-}
+};
 
 export async function getPatientResourceById(patientId, fhirServerUrl, setJsonResponseText, setErrorResponseText, setVisibleText) {
     let fullUrl = fhirServerUrl + '/Patient/' + patientId;
@@ -75,7 +75,7 @@ export async function getPatientResourceById(patientId, fhirServerUrl, setJsonRe
     });
 
     return patientResource;
-}
+};
 
 export async function getImmunizationResourceById(immunizationId, fhirServerUrl, setJsonResponseText, setErrorResponseText, setVisibleText) {
     let fullUrl = fhirServerUrl + '/Immunization/' + immunizationId;
@@ -97,7 +97,7 @@ export async function getImmunizationResourceById(immunizationId, fhirServerUrl,
     });
 
     return immunizationResource;
-}
+};
 
 export async function getObservationResourceById(observationId, fhirServerUrl, setJsonResponseText, setErrorResponseText, setVisibleText) {
     let fullUrl = fhirServerUrl + '/Observation/' + observationId;
@@ -133,7 +133,20 @@ export async function getFhirServerUrl(setJsonResponseText, setErrorResponseText
     });
 
     return fhirServerUrl;
-}
+};
+
+export async function getObservationBundleById(observationBundleId) {
+    let apiObservationBundleUrl = getObservation + '/' + observationBundleId;
+    let observationBundle = {};
+
+    await Axios.get(apiObservationBundleUrl).then((response) => {
+        observationBundle = response.data;
+    }).catch((error) => {
+        observationBundle = error.response;
+    });
+
+    return observationBundle;
+};
 
 const ResourceFetcher = {
     getCompositionResourceById,
@@ -141,6 +154,7 @@ const ResourceFetcher = {
     getPatientResourceById,
     getImmunizationResourceById,
     getObservationResourceById,
+    getObservationBundleById,
     getFhirServerUrl,
 };
 
