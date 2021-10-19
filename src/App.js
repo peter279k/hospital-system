@@ -23,6 +23,7 @@ import FHIRServerSettingTemplate from './templates/FHIRServerSettingTemplate.js'
 import DropDownPatientTemplate from './templates/DropDown/DropDownPatientTemplate.js';
 import DropDownOrgTemplate from './templates/DropDown/DropDownOrgTemplate.js';
 import DropDownImmunizationObservationTemplate from './templates/DropDown/DropDownImmunizationObservationTemplate.js';
+import DropDownQueryImmunizationObservationTemplate from './templates/DropDown/DropDownQueryImmunizationObservationTemplate.js';
 import FHIRServerButtonTemplate from './templates/FHIRServerButtonTemplate';
 
 import './App.css';
@@ -34,7 +35,7 @@ const App = () => {
   <MemoryRouter>
     <Container className="p-3">
       <Jumbotron>
-        <h1 className="header">歡迎來到醫院院內管理系統</h1>
+        <h1 className="header">FHIR Resource JSON產生器</h1>
           <ButtonToolbar className="custom-btn-toolbar">
             <LinkContainer to="/">
               <Button>首頁</Button>
@@ -42,6 +43,7 @@ const App = () => {
             <DropDownPatientTemplate />
             <DropDownOrgTemplate />
             <DropDownImmunizationObservationTemplate />
+            <DropDownQueryImmunizationObservationTemplate />
             <FHIRServerButtonTemplate />
           </ButtonToolbar>
       </Jumbotron>

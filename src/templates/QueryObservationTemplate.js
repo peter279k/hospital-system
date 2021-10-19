@@ -10,7 +10,7 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { dark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
 
-const QueryObservation = () => <h2>查詢篩檢資料</h2>;
+const QueryObservation = () => <h2 className="text-info">查詢篩檢資料</h2>;
 
 const QueryObservationTemplate = () => {
 

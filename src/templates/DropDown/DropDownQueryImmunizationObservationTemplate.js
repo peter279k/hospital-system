@@ -4,7 +4,7 @@ import DropdownButton from 'react-bootstrap/DropdownButton';
 import { LinkContainer } from 'react-router-bootstrap';
 
 
-const DropDownImmunizationObservationTemplate = () => {
+const DropDownQueryImmunizationObservationTemplate = () => {
 
     const [, setForm] = useState({});
     const [, setErrors] = useState({});
@@ -35,15 +35,15 @@ const DropDownImmunizationObservationTemplate = () => {
     };
 
     return (
-        <DropdownButton className="custom-btn-toolbar" title="疫苗曁篩檢資料管理" variant="info">
-        <LinkContainer to="/add_immunization">
-          <Dropdown.Item onClick={ initialRouteState } eventKey="1">新增疫苗接種資料</Dropdown.Item>
+        <DropdownButton className="custom-btn-toolbar" title="查詢疫苗曁篩檢資料（正式）" variant="success">
+        <LinkContainer to="/query_immunization">
+          <Dropdown.Item onClick={ initialRouteState } eventKey="1">查詢疫苗接種資料</Dropdown.Item>
         </LinkContainer>
-        <LinkContainer to="/add_observation">
-          <Dropdown.Item onClick={ initialRouteState } eventKey="2">新增篩檢資料</Dropdown.Item>
+        <LinkContainer to="/query_observation">
+          <Dropdown.Item onClick={ initialRouteState } eventKey="2">查詢篩檢資料</Dropdown.Item>
         </LinkContainer>
       </DropdownButton>
     );
 };
 
-export default DropDownImmunizationObservationTemplate;
+export default DropDownQueryImmunizationObservationTemplate;
