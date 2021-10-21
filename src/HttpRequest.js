@@ -23,8 +23,8 @@ var createImmunization = 'http://localhost:8000/api/CreateImmunization';
 var createImmunizationBundle = 'http://localhost:8000/api/CreateBundle/Immunization';
 var createObservation = 'http://localhost:8000/api/CreateObservation';
 var createObservationBundle = 'http://localhost:8000/api/CreateBundle/Observation';
-var getImmunizationBundle = 'http://localhost:8000/api/GetImmunizationBundle';
 var getObservationBundle = 'http://localhost:8000/api/GetObservationBundle';
+var searchImmunization = 'http://localhost:8000/api/SearchImmunization';
 
 var urnUuidPrefix = 'urn:uuid:';
 
@@ -736,11 +736,9 @@ export async function sendObservationBundleData(form, startDate, issuedDate, set
     });
 };
 
-export function sendImmunizationBundleQueryData(immunizationBundleId, setJsonResponseText, setVisibleText, setErrorResponseText, setVisibleProgressBarText) {
-    let apiImmunizationBundleUrl = getImmunizationBundle + '/' + immunizationBundleId;
-
+export function sendImmunizationQueryData(requestPayload, setJsonResponseText, setVisibleText, setErrorResponseText, setVisibleProgressBarText) {
     setVisibleProgressBarText('visible');
-    Axios.get(apiImmunizationBundleUrl).then((response) => {
+    Axios.post(searchImmunization, requestPayload).then((response) => {
         let responseJsonString = JSON.stringify(response.data, null, 2);
         setJsonResponseText(responseJsonString);
         setErrorResponseText('回應JSON');
@@ -814,7 +812,7 @@ const HttpRequest = {
     sendQueryOrgData,
     sendImmunizationBundleData,
     sendObservationBundleData,
-    sendImmunizationBundleQueryData,
+    sendImmunizationQueryData,
     sendObservationBundleQueryData,
     generateObservationQRCode,
 };

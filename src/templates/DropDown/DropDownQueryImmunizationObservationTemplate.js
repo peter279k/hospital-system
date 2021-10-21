@@ -39,8 +39,11 @@ const DropDownQueryImmunizationObservationTemplate = () => {
         <LinkContainer to="/query_immunization">
           <Dropdown.Item onClick={ initialRouteState } eventKey="1">查詢疫苗接種資料</Dropdown.Item>
         </LinkContainer>
-        <LinkContainer to="/query_observation">
+        {/* <LinkContainer to="/query_observation">
           <Dropdown.Item onClick={ initialRouteState } eventKey="2">查詢篩檢資料</Dropdown.Item>
+        </LinkContainer> */}
+        <LinkContainer to="/generate_qrcode">
+          <Dropdown.Item onClick={ initialRouteState } eventKey="3">產生QRCode</Dropdown.Item>
         </LinkContainer>
       </DropdownButton>
     );

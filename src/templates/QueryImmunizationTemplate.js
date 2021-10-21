@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Route, Switch } from 'react-router-dom';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
+import DatePicker from "react-datepicker";
 import ProgressBar from 'react-bootstrap/ProgressBar';
 
 import HttpRequest from '../HttpRequest.js';
@@ -18,14 +19,18 @@ const QueryImmunizationTemplate = () => {
     const [visibleProgressBar, setVisibleProgressBarText] = useState('invisible');
     const [jsonResponse, setJsonResponseText] = useState('');
     const [errorResponse, setErrorResponseText] = useState('');
-    const [immunizationId, setImmunizationId] = useState('');
+    const [patientOrOrgId, setPatientOrOrgId] = useState('');
+    const [searchChangeText, setSearchChangeText] = useState('使用醫事單位id尋找');
+    const [startDate, setStartDate] = useState(new Date());
+    const [visibleOrgIdStar, setVisibleOrgIdStar] = useState('invisible');
+    const [labelText, setLabelText] = useState('請輸入病患id');
 
     const resetInputField = e => {
       e.preventDefault();
       setVisibleText('invisible');
       setJsonResponseText('');
       setErrorResponseText('');
-      setImmunizationId('');
+      setStartDate(new Date());
     };
 
     const handleQueryingImmunizationSubmit = e => {
@@ -36,18 +41,58 @@ const QueryImmunizationTemplate = () => {
           return false;
         }
 
-        let immunizationBundleId = immunizationId;
+        let requestPayload = {
+          'search_params': '',
+        };
+        let searchParams = 'performer=';
+        if (searchChangeText === '使用醫事單位id尋找') {
+          searchParams = 'patient=';
+        }
+        searchParams += patientOrOrgId;
 
-        HttpRequest.sendImmunizationBundleQueryData(immunizationBundleId, setJsonResponseText, setVisibleText, setErrorResponseText, setVisibleProgressBarText);
+        if (!!startDate) {
+          let year = String(startDate.getFullYear());
+          let month = startDate.getMonth() + 1;
+          let date = startDate.getDate();
+          if (month <= 9) {
+            month = '0' + String(month);
+          }
+          if (date <= 9) {
+            date = '0' + String(date);
+          }
+          searchParams += '&date=' + year + '-' + month + '-' + date;
+        }
+
+        requestPayload['search_params'] = searchParams;
+
+        HttpRequest.sendImmunizationQueryData(requestPayload, setJsonResponseText, setVisibleText, setErrorResponseText, setVisibleProgressBarText);
     };
 
     const findHandleQueryingImmunizationError = () => {
         const newErrors = {};
-        if (!immunizationId || immunizationId === '') {
-          newErrors.immunizationId = '請輸入Immunization id!';
+        if (!patientOrOrgId || patientOrOrgId === '') {
+          newErrors.patientOrOrgId = '請輸入醫事單位id';
+          if (searchChangeText === '使用醫事單位id尋找') {
+            newErrors.patientOrOrgId = '請輸入病患id';
+          }
         }
 
         return newErrors;
+    };
+
+    const searchOgrId = e => {
+      e.preventDefault();
+      if (searchChangeText === '使用醫事單位id尋找') {
+        setSearchChangeText('使用病患id尋找');
+        setVisibleOrgIdStar('text-danger visible');
+        setPatientOrOrgId('');
+        setLabelText('請輸入醫事單位id');
+      } else {
+        setSearchChangeText('使用醫事單位id尋找');
+        setVisibleOrgIdStar('invisible');
+        setPatientOrOrgId('');
+        setLabelText('請輸入病患id');
+      }
     };
 
     return (
@@ -56,9 +101,23 @@ const QueryImmunizationTemplate = () => {
               <QueryImmunization />
               <Form>
                 <Form.Group className="mb-3">
-                  <Form.Label>請輸入Immunization Bundle id<Form.Label className="text-danger">*</Form.Label></Form.Label>
-                  <Form.Control value={ immunizationId } onChange={ e => setImmunizationId(e.target.value) } type="text" placeholder="請輸入Immunization Bundle id" isInvalid={ !!errors.immunizationId }/>
-                  <Form.Control.Feedback type='invalid'>{ errors.immunizationId }</Form.Control.Feedback>
+                  <Button variant="primary" type="submit" onClick={ searchOgrId }>
+                    { searchChangeText }
+                  </Button>
+                </Form.Group>
+                <Form.Group className="mb-3">
+                  <Form.Label>{ labelText }<Form.Label className="text-danger">*</Form.Label></Form.Label>
+                  <Form.Control value={ patientOrOrgId } onChange={ e => setPatientOrOrgId(e.target.value) } type="text" placeholder={ labelText } isInvalid={ !!errors.patientOrOrgId }/>
+                  <Form.Control.Feedback type='invalid'>{ errors.patientOrOrgId }</Form.Control.Feedback>
+                </Form.Group>
+                <Form.Group className="mb-3">
+                <Form.Label>請選擇接種日期<Form.Label className={ visibleOrgIdStar }>*</Form.Label></Form.Label>
+                  <DatePicker
+                    className="form-control"
+                    dateFormat="yyyy/MM/dd"
+                    selected={startDate}
+                    onChange={ (date) => setStartDate(date) }
+                  />
                 </Form.Group>
               </Form>
 

@@ -35,7 +35,7 @@ const FHIRServerButtonTemplate = () => {
 
     return (
         <LinkContainer to="/fhir_server_setting">
-              <Button onClick={ initialRouteState } variant="secondary">FHIRServer設定</Button>
+              <Button onClick={ initialRouteState } variant="danger">FHIRServer設定</Button>
         </LinkContainer>
     );
 };
