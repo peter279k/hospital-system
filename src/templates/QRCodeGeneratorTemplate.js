@@ -81,7 +81,7 @@ const QRCodeGeneratorTemplate = () => {
                 <h3 className="text-info">目前疫苗第幾劑：<span className="text-success">{ doseVaccineNumber }</span></h3>{' '}
                 <Image src={ qrCodeImage } thumbnail />
               </Form.Group>
-              <Form.Group className={ "mb-3" + visibleText }>
+              <Form.Group className={ "mb-3 " + visibleText }>
                 <Button variant="primary" type="submit" onClick={ updateVaccineRecordFromFHIR }>
                   更新疫苗資料紀錄
                 </Button>{' '}
