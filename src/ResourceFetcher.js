@@ -21,14 +21,19 @@ export async function getCompositionResourceById(compositionId, fhirServerUrl, s
         'resource': {},
     };
     let apiUrl = getComposition + '/' + compositionId;
-    await Axios.get(apiUrl).then((response) => {
-        compositionResource['resource'] = response.data;
+    let resource = {};
+    resource = await Axios.get(apiUrl).then((response) => {
+        return response.data;
     }).catch((error) => {
         let errResponseJsonString = JSON.stringify(error.response, null, 2);
         setJsonResponseText(errResponseJsonString);
         setErrorResponseText('回應JSON (Get Composition Resource Error Response)');
         setVisibleText('visible');
+        return false;
     });
+    if (resource) {
+        compositionResource['resource'] = resource;
+    }
 
     return compositionResource;
 };
@@ -42,15 +47,20 @@ export async function getOrganizationResourceById(organizationId, fhirServerUrl,
         'fullUrl': fullUrl,
         'resource': {},
     };
+    let resource = {};
     let apiUrl = getOrganization + '/' + organizationId;
-    await Axios.get(apiUrl).then((response) => {
-        organizationResource['resource'] = response.data;
+    resource = await Axios.get(apiUrl).then((response) => {
+        return response.data;
     }).catch((error) => {
         let errResponseJsonString = JSON.stringify(error.response, null, 2);
         setJsonResponseText(errResponseJsonString);
         setErrorResponseText('回應JSON (Get Organization Resource Error Response)');
         setVisibleText('visible');
+        return false;
     });
+    if (resource) {
+        organizationResource['resource'] = resource;
+    }
 
     return organizationResource;
 };
@@ -65,14 +75,20 @@ export async function getPatientResourceById(patientId, fhirServerUrl, setJsonRe
         'fullUrl': fullUrl,
         'resource': {},
     };
-    await Axios.get(apiUrl).then((response) => {
-        patientResource['resource'] = response.data;
+    let resource = {};
+    resource = await Axios.get(apiUrl).then((response) => {
+        return response.data;
     }).catch((error) => {
         let errResponseJsonString = JSON.stringify(error.response, null, 2);
         setJsonResponseText(errResponseJsonString);
         setErrorResponseText('回應JSON (Get Patient Resource Error Response)');
         setVisibleText('visible');
+        return false;
     });
+
+    if (resource) {
+        patientResource['resource'] = resource;
+    }
 
     return patientResource;
 };
@@ -87,14 +103,20 @@ export async function getImmunizationResourceById(immunizationId, fhirServerUrl,
         'resource': {},
     };
     let apiUrl = getImmunization + '/' + immunizationId;
-    await Axios.get(apiUrl).then((response) => {
-        immunizationResource['resource'] = response.data;
+    let resource = {};
+    resource = await Axios.get(apiUrl).then((response) => {
+        return response.data;
     }).catch((error) => {
         let errResponseJsonString = JSON.stringify(error.response, null, 2);
         setJsonResponseText(errResponseJsonString);
         setErrorResponseText('回應JSON (Get Immunization Resource Error Response)');
         setVisibleText('visible');
+        resource = false;
     });
+
+    if (resource) {
+        immunizationResource['resource'] = resource;
+    }
 
     return immunizationResource;
 };
@@ -109,27 +131,34 @@ export async function getObservationResourceById(observationId, fhirServerUrl, s
         'resource': {},
     };
     let apiUrl = getObservation + '/' + observationId;
-    await Axios.get(apiUrl).then((response) => {
-        observationResource['resource'] = response.data;
+    let resource = {};
+    resource = await Axios.get(apiUrl).then((response) => {
+        return response.data;
     }).catch((error) => {
         let errResponseJsonString = JSON.stringify(error.response, null, 2);
         setJsonResponseText(errResponseJsonString);
         setErrorResponseText('回應JSON (Get Observation Resource Error Response)');
         setVisibleText('visible');
+        return false;
     });
+
+    if (resource) {
+        observationResource['resource'] = resource;
+    }
 
     return observationResource;
 }
 
 export async function getFhirServerUrl(setJsonResponseText, setErrorResponseText, setVisibleText) {
     let fhirServerUrl = '';
-    await Axios.get(fhirServer).then((response) => {
-        fhirServerUrl = response.data.fhir_server;
+    fhirServerUrl = await Axios.get(fhirServer).then((response) => {
+        return response.data.fhir_server;
     }).catch((error) => {
         let errResponseJsonString = JSON.stringify(error.response, null, 2);
         setJsonResponseText(errResponseJsonString);
         setErrorResponseText('回應JSON (Get FHIR Server URL Error Response)');
         setVisibleText('visible');
+        return false;
     });
 
     return fhirServerUrl;
@@ -139,10 +168,10 @@ export async function getObservationBundleById(observationBundleId) {
     let apiObservationBundleUrl = getObservation + '/' + observationBundleId;
     let observationBundle = {};
 
-    await Axios.get(apiObservationBundleUrl).then((response) => {
-        observationBundle = response.data;
+    observationBundle = await Axios.get(apiObservationBundleUrl).then((response) => {
+        return response.data;
     }).catch((error) => {
-        observationBundle = error.response;
+        return error.response;
     });
 
     return observationBundle;

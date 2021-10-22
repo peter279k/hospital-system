@@ -19,6 +19,7 @@ import QueryImmunizationTemplate from './templates/QueryImmunizationTemplate.js'
 import AddObservationTemplate from './templates/AddObservationTemplate.js';
 import QueryObservationTemplate from './templates/QueryObservationTemplate.js';
 import FHIRServerSettingTemplate from './templates/FHIRServerSettingTemplate.js';
+import QRCodeGeneratorTemplate from './templates/QRCodeGeneratorTemplate.js';
 
 import DropDownPatientTemplate from './templates/DropDown/DropDownPatientTemplate.js';
 import DropDownOrgTemplate from './templates/DropDown/DropDownOrgTemplate.js';
@@ -60,6 +61,7 @@ const App = () => {
         <QueryImmunizationTemplate />
         <AddObservationTemplate />
         <QueryObservationTemplate />
+        <QRCodeGeneratorTemplate />
         <FHIRServerSettingTemplate />
     </Container>
   </MemoryRouter>

@@ -6,7 +6,6 @@ import ResourceChecker from './ResourceChecker.js';
 import ResourceFetcher from './ResourceFetcher.js';
 import ResourceCreator from './ResourceCreator.js';
 import SerialNumber from './SerialNumber.js';
-import QRCodeGenerator from './QRCodeGenerator.js';
 
 
 var fhirServer = 'http://localhost:8000/api/fhir_server';
@@ -772,34 +771,6 @@ export function sendObservationBundleQueryData(observationBundleId, setJsonRespo
     });
 };
 
-export async function generateObservationQRCode(observationBundleId, setJsonResponseText, setVisibleText, setErrorResponseText, setVisibleProgressBarText, setQRCodeVisibleText, setQRCodeImage) {
-    setVisibleProgressBarText('visible');
-    let observationBundle = await ResourceFetcher.getObservationBundleById(observationBundleId);
-    if (observationBundle['data']['resourceType'] === 'OperationOutcome') {
-        let errResponseJsonString = JSON.stringify(observationBundle, null, 2);
-        setJsonResponseText(errResponseJsonString);
-        setErrorResponseText('回應JSON (Error Response)');
-        setVisibleText('visible');
-        setVisibleProgressBarText('invisible');
-        setQRCodeVisibleText('invisible');
-        setQRCodeImage('');
-
-        return false;
-    }
-
-    setJsonResponseText('');
-    setErrorResponseText('QRCode(Observation)');
-    setVisibleText('invisible');
-    setVisibleProgressBarText('invisible');
-
-    let encodedJsonString = base64.encode(utf8.encode(JSON.stringify(observationBundle)));
-    let bundlePayload = {
-        'json_payload': encodedJsonString,
-    };
-
-    QRCodeGenerator.generateQRCode(bundlePayload, setQRCodeImage, setQRCodeVisibleText);
-};
-
 const HttpRequest = {
     sendPatientData,
     sendFHIRServerData,
@@ -814,7 +785,6 @@ const HttpRequest = {
     sendObservationBundleData,
     sendImmunizationQueryData,
     sendObservationBundleQueryData,
-    generateObservationQRCode,
 };
 
 export default HttpRequest;
