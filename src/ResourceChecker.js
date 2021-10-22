@@ -3,13 +3,14 @@ import Axios from 'axios';
 
 export async function checkPatientResourceByUrl(apiUrl, setJsonResponseText, setVisibleText) {
     let patientIdError = false;
-    await Axios.get(apiUrl).then((response) => {
+    patientIdError = await Axios.get(apiUrl).then((response) => {
         console.log(response.data);
+        return false;
     }).catch((error) => {
         let errResponseJsonString = JSON.stringify(error.response, null, 2);
         setJsonResponseText(errResponseJsonString);
         setVisibleText('visible');
-        patientIdError = true;
+        return true;
     });
 
     return patientIdError;
@@ -17,7 +18,7 @@ export async function checkPatientResourceByUrl(apiUrl, setJsonResponseText, set
 
 export async function checkOrgResourceByUrl(apiUrl, setJsonResponseText, setVisibleText) {
     let orgIdError = false;
-    await Axios.get(apiUrl).then((response) => {
+    orgIdError = await Axios.get(apiUrl).then((response) => {
         console.log(response.data);
     }).catch((error) => {
         let errResponseJsonString = JSON.stringify(error.response, null, 2);

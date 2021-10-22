@@ -43,7 +43,7 @@ const DropDownQueryImmunizationObservationTemplate = () => {
           <Dropdown.Item onClick={ initialRouteState } eventKey="2">查詢篩檢資料</Dropdown.Item>
         </LinkContainer> */}
         <LinkContainer to="/generate_qrcode">
-          <Dropdown.Item onClick={ initialRouteState } eventKey="3">產生QRCode</Dropdown.Item>
+          <Dropdown.Item onClick={ initialRouteState } eventKey="2">產生QRCode</Dropdown.Item>
         </LinkContainer>
       </DropdownButton>
     );

@@ -188,58 +188,76 @@ export function getObservationJsonPayload(form, effectivePeriodStartDate, effect
 export async function createImmunizationResource(createImmunization, requestPayload, setJsonResponseText, setVisibleText) {
     let immunizationError = false;
     let immunizationId = '';
+    let result = [];
 
-    await Axios.post(createImmunization, requestPayload).then((response) => {
+    result = await Axios.post(createImmunization, requestPayload).then((response) => {
         immunizationId = response.data.id;
+        return [
+            immunizationError,
+            immunizationId,
+        ];
     }).catch((error) => {
         let errResponseJsonString = JSON.stringify(error.response, null, 2);
         setJsonResponseText(errResponseJsonString);
         setVisibleText('visible');
-        immunizationError = true;
+        immunizationId = true;
+        return [
+            immunizationError,
+            immunizationId,
+        ];
     });
 
-    return [
-        immunizationError,
-        immunizationId,
-    ];
+    return result;
 }
 
 export async function createObservationResource(createObservation, requestPayload, setJsonResponseText, setVisibleText) {
     let observationError = false;
     let observationId = '';
+    let result = [];
 
-    await Axios.post(createObservation, requestPayload).then((response) => {
+    result = await Axios.post(createObservation, requestPayload).then((response) => {
         observationId = response.data.id;
+        return [
+            observationError,
+            observationId,
+        ];
     }).catch((error) => {
         let errResponseJsonString = JSON.stringify(error.response, null, 2);
         setJsonResponseText(errResponseJsonString);
         setVisibleText('visible');
         observationError = true;
+        return [
+            observationError,
+            observationId,
+        ];
     });
 
-    return [
-        observationError,
-        observationId,
-    ];
+    return result;
 }
 
 export async function createCompositionResource(createComposition, requestPayload, setJsonResponseText, setVisibleText) {
     let compositionError = false;
     let compositionId = '';
+    let result = [];
 
-    await Axios.post(createComposition, requestPayload).then((response) => {
+    result = await Axios.post(createComposition, requestPayload).then((response) => {
         compositionId = response.data.id;
+        return [
+            compositionError,
+            compositionId,
+        ];
     }).catch((error) => {
         let errResponseJsonString = JSON.stringify(error.response, null, 2);
         setJsonResponseText(errResponseJsonString);
         setVisibleText('visible');
         compositionError = true;
+        return [
+            compositionError,
+            compositionId,
+        ];
     });
 
-    return [
-        compositionError,
-        compositionId,
-    ];
+    return result;
 }
 
 const ResourceCreator = {
