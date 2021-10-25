@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { MemoryRouter } from 'react-router-dom';
 
 import Jumbotron from 'react-bootstrap/Jumbotron';
@@ -20,6 +20,8 @@ import AddObservationTemplate from './templates/AddObservationTemplate.js';
 import QueryObservationTemplate from './templates/QueryObservationTemplate.js';
 import FHIRServerSettingTemplate from './templates/FHIRServerSettingTemplate.js';
 import QRCodeGeneratorTemplate from './templates/QRCodeGeneratorTemplate.js';
+
+import HttpRequest from '../HttpRequest.js';
 
 import DropDownPatientTemplate from './templates/DropDown/DropDownPatientTemplate.js';
 import DropDownOrgTemplate from './templates/DropDown/DropDownOrgTemplate.js';
