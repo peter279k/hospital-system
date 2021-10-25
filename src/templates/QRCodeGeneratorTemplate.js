@@ -30,6 +30,7 @@ const QRCodeGeneratorTemplate = () => {
 
     const updateVaccineRecordFromFHIR = e => {
         e.preventDefault();
+        QRCodeGenerator.generateQRCode(identifierNumber, setQRCodeImage, setErrorResponseText, setVisibleText, setVisibleProgressBarText, setLastOccurrenceDate, setDoseVaccineNumber);
     };
 
     const handleGeneratingQRCodeSubmit = e => {
@@ -77,9 +78,9 @@ const QRCodeGeneratorTemplate = () => {
 
               <Form.Group className={ "mb-3 " + visibleText }>
                 <h3 className="text-danger">{ errorResponse }</h3>
-                <h3 className="text-info">疫苗最後接種日期：<span className="text-success">{ lastOccurrenceDate }</span></h3>
-                <h3 className="text-info">目前疫苗第幾劑：<span className="text-success">{ doseVaccineNumber }</span></h3>{' '}
-                <Image src={ qrCodeImage } thumbnail />
+                <h3 className="text-info">疫苗最後接種日期：<small className="text-success">{ lastOccurrenceDate.split('T')[0] }</small></h3>
+                <h3 className="text-info">目前疫苗第幾劑：<small className="text-success">{ doseVaccineNumber }</small></h3>{' '}
+                <Image src={ qrCodeImage } thumbnail className="img-responsive"/>
               </Form.Group>
               <Form.Group className={ "mb-3 " + visibleText }>
                 <Button variant="primary" type="submit" onClick={ updateVaccineRecordFromFHIR }>

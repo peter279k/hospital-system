@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { MemoryRouter } from 'react-router-dom';
+import { BrowserRouter, MemoryRouter } from 'react-router-dom';
 
 import Jumbotron from 'react-bootstrap/Jumbotron';
 import Container from 'react-bootstrap/Container';
@@ -20,6 +20,7 @@ import AddObservationTemplate from './templates/AddObservationTemplate.js';
 import QueryObservationTemplate from './templates/QueryObservationTemplate.js';
 import FHIRServerSettingTemplate from './templates/FHIRServerSettingTemplate.js';
 import QRCodeGeneratorTemplate from './templates/QRCodeGeneratorTemplate.js';
+import VaccineQRCodeUrlValidationTemplate from './templates/VaccineQRCodeUrlValidationTemplate.js';
 
 import HttpRequest from './HttpRequest.js';
 
@@ -27,7 +28,7 @@ import DropDownPatientTemplate from './templates/DropDown/DropDownPatientTemplat
 import DropDownOrgTemplate from './templates/DropDown/DropDownOrgTemplate.js';
 import DropDownImmunizationObservationTemplate from './templates/DropDown/DropDownImmunizationObservationTemplate.js';
 import DropDownQueryImmunizationObservationTemplate from './templates/DropDown/DropDownQueryImmunizationObservationTemplate.js';
-import FHIRServerButtonTemplate from './templates/FHIRServerButtonTemplate';
+import FHIRServerButtonTemplate from './templates/FHIRServerButtonTemplate.js';
 
 import './App.css';
 
@@ -35,12 +36,23 @@ import './App.css';
 const App = () => {
 
   useEffect(() => {
-    HttpRequest.sendFHIRServerDataForQRCodeDemo();
+    async function sendFHIRServerDataForQRCodeDemo() {
+      let apiEndpoint = process.env.REACT_APP_FHIR_SERVER;
+      let apiToken = process.env.REACT_APP_FHIR_SERVER_TOKEN;
+
+      await HttpRequest.sendFHIRServerDataForQRCodeDemo(apiEndpoint, apiToken);
+    };
+    sendFHIRServerDataForQRCodeDemo();
   }, []);
 
   return (
   <MemoryRouter>
-    <Container className="p-3">
+    <BrowserRouter>
+      <Container className="p-3">
+        <VaccineQRCodeUrlValidationTemplate />
+      </Container>
+    </BrowserRouter>
+    <Container className={ (new URL(window.location.href))['pathname'] === '/validate' ? 'p-3 invisible' : 'p-3' }>
       <Jumbotron>
         <h1 className="header">{ process.env.REACT_APP_ENV === 'development' ? 'FHIR Resource JSON產生器' : 'Vaccine QRCode Passport' }</h1>
           <ButtonToolbar className="custom-btn-toolbar">
@@ -84,6 +96,7 @@ const App = () => {
         <QueryObservationTemplate />
         <QRCodeGeneratorTemplate />
         <FHIRServerSettingTemplate />
+        <VaccineQRCodeUrlValidationTemplate />
     </Container>
   </MemoryRouter>
   );

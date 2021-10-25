@@ -6,12 +6,13 @@ var insertDatabaseRecordUrl = 'http://localhost:8000/api/InsertDatabaseRecord';
 var searchPatient = 'http://localhost:8000/api/SearchPatient';
 var searchImmunization = 'http://localhost:8000/api/SearchImmunization';
 var generateQRCodeUrl = 'http://localhost:8000/api/GenerateQRCode';
+var validateQRCodeUrl = 'http://localhost:8000/api/ValidateQRCode';
 
 
 export async function generateQRCode(identifierNumber, setQRCodeImage, setErrorResponseText, setVisibleText, setVisibleProgressBarText, setLastOccurrenceDate, setDoseVaccineNumber) {
     setVisibleProgressBarText('visible');
     let patientExisted = await getPatientResourceByIdentifiedNumber(identifierNumber, setErrorResponseText, setVisibleText);
-    if (!patientExisted) {
+    if (!patientExisted || patientExisted['total'] === 0) {
         setVisibleProgressBarText('invisible');
         setErrorResponseText('未找到病患註冊資料！');
         setVisibleText('visible');
@@ -174,8 +175,22 @@ async function getPatientResourceByIdentifiedNumber(identifierNumber, setErrorRe
     return existed;
 };
 
+async function validateVaccineToken(token) {
+    let requestPayload = {
+        'token': token,
+    };
+    let validatedResult = await Axios.post(validateQRCodeUrl, requestPayload).then((response) => {
+        return response.data;
+    }).catch((error) => {
+        return error.response;
+    });
+
+    return validatedResult;
+}
+
 const QRCodeGenerator = {
     generateQRCode,
+    validateVaccineToken,
 };
 
 export default QRCodeGenerator;

@@ -384,9 +384,7 @@ export function sendFHIRServerData(setVisibleText, setJsonResponseText, setError
     });
 }
 
-export function sendFHIRServerDataForQRCodeDemo() {
-    let apiEndpoint = process.env.REACT_APP_FHIR_SERVER;
-    let apiToken = process.env.REACT_APP_FHIR_SERVER_TOKEN;
+export async function sendFHIRServerDataForQRCodeDemo(apiEndpoint, apiToken) {
     if (apiToken === 'no') {
         apiToken = '';
     }
@@ -395,7 +393,7 @@ export function sendFHIRServerDataForQRCodeDemo() {
         'fhir_server': apiEndpoint,
         'fhir_token': apiToken,
     };
-    Axios.post(fhirServer, requestPayload).then((response) => {
+    await Axios.post(fhirServer, requestPayload).then((response) => {
         console.log(response.data);
     }).catch((error) => {
         console.error(error.response);
@@ -792,6 +790,7 @@ export function sendObservationBundleQueryData(observationBundleId, setJsonRespo
 const HttpRequest = {
     sendPatientData,
     sendFHIRServerData,
+    sendFHIRServerDataForQRCodeDemo,
     sendPatientQueryData,
     deletePatientData,
     modifyPatientData,

@@ -35,7 +35,7 @@ const DropDownQueryImmunizationObservationTemplate = () => {
     };
 
     return (
-        <DropdownButton className="custom-btn-toolbar" title="查詢疫苗曁篩檢資料（正式）" variant="success">
+        <DropdownButton className="custom-btn-toolbar" title="查詢疫苗接種資料" variant="success">
         <LinkContainer to="/query_immunization">
           <Dropdown.Item onClick={ initialRouteState } eventKey="1">查詢疫苗接種資料</Dropdown.Item>
         </LinkContainer>
