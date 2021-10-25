@@ -21,7 +21,7 @@ import QueryObservationTemplate from './templates/QueryObservationTemplate.js';
 import FHIRServerSettingTemplate from './templates/FHIRServerSettingTemplate.js';
 import QRCodeGeneratorTemplate from './templates/QRCodeGeneratorTemplate.js';
 
-import HttpRequest from '../HttpRequest.js';
+import HttpRequest from './HttpRequest.js';
 
 import DropDownPatientTemplate from './templates/DropDown/DropDownPatientTemplate.js';
 import DropDownOrgTemplate from './templates/DropDown/DropDownOrgTemplate.js';
