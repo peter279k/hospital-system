@@ -384,6 +384,24 @@ export function sendFHIRServerData(setVisibleText, setJsonResponseText, setError
     });
 }
 
+export function sendFHIRServerDataForQRCodeDemo() {
+    let apiEndpoint = process.env.REACT_APP_FHIR_SERVER;
+    let apiToken = process.env.REACT_APP_FHIR_SERVER_TOKEN;
+    if (apiToken === 'no') {
+        apiToken = '';
+    }
+
+    let requestPayload = {
+        'fhir_server': apiEndpoint,
+        'fhir_token': apiToken,
+    };
+    Axios.post(fhirServer, requestPayload).then((response) => {
+        console.log(response.data);
+    }).catch((error) => {
+        console.error(error.response);
+    });
+}
+
 export function getHospitalLists(setHospitalLists, setMedId) {
     Axios.get(hospitalLists).then((response) => {
         let responseArr = [{

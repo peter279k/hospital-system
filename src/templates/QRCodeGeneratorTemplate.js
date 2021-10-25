@@ -8,7 +8,7 @@ import ProgressBar from 'react-bootstrap/ProgressBar';
 import QRCodeGenerator from '../QRCodeGenerator.js';
 
 
-const GenerateHealthQRCode = () => <h2 className="text-info">產生健康通行QRCode</h2>;
+const GenerateHealthQRCode = () => <h2 className="text-info">產生Vaccine QRCode</h2>;
 
 const QRCodeGeneratorTemplate = () => {
 

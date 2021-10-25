@@ -32,20 +32,39 @@ import './App.css';
 
 const App = () => {
 
+  useEffect(() => {
+    HttpRequest.sendFHIRServerDataForQRCodeDemo();
+  }, []);
+
   return (
   <MemoryRouter>
     <Container className="p-3">
       <Jumbotron>
-        <h1 className="header">FHIR Resource JSON產生器</h1>
+        <h1 className="header">{ process.env.REACT_APP_ENV === 'development' ? 'FHIR Resource JSON產生器' : 'Vaccine QRCode Passport' }</h1>
           <ButtonToolbar className="custom-btn-toolbar">
-            <LinkContainer to="/">
-              <Button>首頁</Button>
-            </LinkContainer>
-            <DropDownPatientTemplate />
-            <DropDownOrgTemplate />
-            <DropDownImmunizationObservationTemplate />
+            { process.env.REACT_APP_ENV === 'development' && (
+                <LinkContainer to="/">
+                  <Button>首頁</Button>
+                </LinkContainer>
+              )
+            }
+            { process.env.REACT_APP_ENV === 'development' && (
+                <DropDownPatientTemplate />
+              )
+            }
+            { process.env.REACT_APP_ENV === 'development' && (
+                <DropDownOrgTemplate />
+              )
+            }
+            { process.env.REACT_APP_ENV === 'development' && (
+                <DropDownImmunizationObservationTemplate />
+              )
+            }
             <DropDownQueryImmunizationObservationTemplate />
-            <FHIRServerButtonTemplate />
+            { process.env.REACT_APP_ENV === 'development' && (
+                <FHIRServerButtonTemplate />
+              )
+            }
           </ButtonToolbar>
       </Jumbotron>
     </Container>

@@ -60,7 +60,7 @@ export async function generateQRCode(identifierNumber, setQRCodeImage, setErrorR
 
     if (!checkDatabaseError && Object.keys(immunizationSingleResource).length === 0) {
         setVisibleProgressBarText('invisible');
-        setErrorResponseText('產生健康通行碼QRCode失敗，尚未找到此身份證字號之疫苗接種資料！');
+        setErrorResponseText('產生Vaccine QRCode失敗，尚未找到此身份證字號之疫苗接種資料！');
         setVisibleText('visible');
         setLastOccurrenceDate('無');
         setDoseVaccineNumber('0');
@@ -74,6 +74,7 @@ export async function generateQRCode(identifierNumber, setQRCodeImage, setErrorR
 async function getQRCodeImage(identifierNumber, setQRCodeImage, setErrorResponseText, setLastOccurrenceDate, setDoseVaccineNumber, setVisibleProgressBarText, setVisibleText, responseJson={}) {
     let requestPayload = {
         'identifier_number': identifierNumber,
+        'ip_address': process.env.REACT_APP_IP_ADDRESS,
     };
 
     if (Object.keys(responseJson).length !== 0) {
@@ -101,7 +102,7 @@ async function getQRCodeImage(identifierNumber, setQRCodeImage, setErrorResponse
         console.log(error.response);
         setVisibleProgressBarText('invisible');
         setQRCodeImage('images/broken.png');
-        setErrorResponseText('產生健康通行碼QRCode失敗');
+        setErrorResponseText('產生Vaccine QRCode失敗');
         setLastOccurrenceDate('無');
         setDoseVaccineNumber('0');
     });
@@ -143,6 +144,7 @@ async function queryImmunizationByPatientId(patientId) {
 async function checkDatabaseRecordIsExisted(identifierNumber, setErrorResponseText, setVisibleText) {
     let requestPayload = {
         'identifier_number': identifierNumber,
+        'ip_address': process.env.REACT_APP_IP_ADDRESS,
     };
     let checkDatabaseError = false;
     checkDatabaseError = await Axios.post(getDatabaseRecordUrl, requestPayload).then((response) => {
@@ -164,7 +166,7 @@ async function getPatientResourceByIdentifiedNumber(identifierNumber, setErrorRe
     let existed = await Axios.post(searchPatient, requestPayload).then((response) => {
         return response.data;
     }).catch((error) => {
-        setErrorResponseText('健康通行碼QRCode產生失敗，' + error.response['message']);
+        setErrorResponseText('產生Vaccine QRCode失敗，' + error.response['message']);
         setVisibleText('visible');
         return false;
     });
