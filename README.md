@@ -2,6 +2,7 @@
 
 ## Installation for development environment setup
 
+- DotEnv file setup. It can refer `.env.example` file
 - npm install
 - npm run start
 
