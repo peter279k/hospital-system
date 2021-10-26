@@ -1,12 +1,12 @@
 import Axios from 'axios';
 
 
-var getDatabaseRecordUrl = 'http://localhost:8000/api/GetDatabaseRecord';
-var insertDatabaseRecordUrl = 'http://localhost:8000/api/InsertDatabaseRecord';
-var searchPatient = 'http://localhost:8000/api/SearchPatient';
-var searchImmunization = 'http://localhost:8000/api/SearchImmunization';
-var generateQRCodeUrl = 'http://localhost:8000/api/GenerateQRCode';
-var validateQRCodeUrl = 'http://localhost:8000/api/ValidateQRCode';
+var getDatabaseRecordUrl = 'http://localhost:80/api/GetDatabaseRecord';
+var insertDatabaseRecordUrl = 'http://localhost:80/api/InsertDatabaseRecord';
+var searchPatient = 'http://localhost:80/api/SearchPatient';
+var searchImmunization = 'http://localhost:80/api/SearchImmunization';
+var generateQRCodeUrl = 'http://localhost:80/api/GenerateQRCode';
+var validateQRCodeUrl = 'http://localhost:80/api/ValidateQRCode';
 
 
 export async function generateQRCode(identifierNumber, setQRCodeImage, setErrorResponseText, setVisibleText, setVisibleProgressBarText, setLastOccurrenceDate, setDoseVaccineNumber) {

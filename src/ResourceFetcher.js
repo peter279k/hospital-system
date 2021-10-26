@@ -2,12 +2,12 @@ import Axios from 'axios';
 import { validate } from 'uuid';
 
 
-var fhirServer = 'http://localhost:8000/api/fhir_server';
-var queryPatient = 'http://localhost:8000/api/QueryPatient';
-var getOrganization = 'http://localhost:8000/api/GetOrganization';
-var getImmunization = 'http://localhost:8000/api/GetImmunization';
-var getComposition = 'http://localhost:8000/api/GetComposition';
-var getObservation = 'http://localhost:8000/api/GetObservation';
+var fhirServer = 'http://localhost:80/api/fhir_server';
+var queryPatient = 'http://localhost:80/api/QueryPatient';
+var getOrganization = 'http://localhost:80/api/GetOrganization';
+var getImmunization = 'http://localhost:80/api/GetImmunization';
+var getComposition = 'http://localhost:80/api/GetComposition';
+var getObservation = 'http://localhost:80/api/GetObservation';
 
 var urnUuidPrefix = 'urn:uuid:';
 

@@ -8,22 +8,22 @@ import ResourceCreator from './ResourceCreator.js';
 import SerialNumber from './SerialNumber.js';
 
 
-var fhirServer = 'http://localhost:8000/api/fhir_server';
-var createPatient = 'http://localhost:8000/api/CreatePatient';
-var queryPatient = 'http://localhost:8000/api/QueryPatient';
-var searchPatient = 'http://localhost:8000/api/SearchPatient';
-var updatePatient = 'http://localhost:8000/api/UpdatePatient';
-var deletePatient = 'http://localhost:8000/api/DeletePatient';
-var hospitalLists = 'http://localhost:8000/api/GetHospitalLists';
-var createOrganization = 'http://localhost:8000/api/CreateOrganization';
-var getOrganization = 'http://localhost:8000/api/GetOrganization';
-var createComposition = 'http://localhost:8000/api/CreateComposition';
-var createImmunization = 'http://localhost:8000/api/CreateImmunization';
-var createImmunizationBundle = 'http://localhost:8000/api/CreateBundle/Immunization';
-var createObservation = 'http://localhost:8000/api/CreateObservation';
-var createObservationBundle = 'http://localhost:8000/api/CreateBundle/Observation';
-var getObservationBundle = 'http://localhost:8000/api/GetObservationBundle';
-var searchImmunization = 'http://localhost:8000/api/SearchImmunization';
+var fhirServer = 'http://localhost:80/api/fhir_server';
+var createPatient = 'http://localhost:80/api/CreatePatient';
+var queryPatient = 'http://localhost:80/api/QueryPatient';
+var searchPatient = 'http://localhost:80/api/SearchPatient';
+var updatePatient = 'http://localhost:80/api/UpdatePatient';
+var deletePatient = 'http://localhost:80/api/DeletePatient';
+var hospitalLists = 'http://localhost:80/api/GetHospitalLists';
+var createOrganization = 'http://localhost:80/api/CreateOrganization';
+var getOrganization = 'http://localhost:80/api/GetOrganization';
+var createComposition = 'http://localhost:80/api/CreateComposition';
+var createImmunization = 'http://localhost:80/api/CreateImmunization';
+var createImmunizationBundle = 'http://localhost:80/api/CreateBundle/Immunization';
+var createObservation = 'http://localhost:80/api/CreateObservation';
+var createObservationBundle = 'http://localhost:80/api/CreateBundle/Observation';
+var getObservationBundle = 'http://localhost:80/api/GetObservationBundle';
+var searchImmunization = 'http://localhost:80/api/SearchImmunization';
 
 var urnUuidPrefix = 'urn:uuid:';
 
