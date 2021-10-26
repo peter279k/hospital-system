@@ -1,4 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
+import Countdown, { zeroPad } from 'react-countdown';
+
 import { Route, Switch } from 'react-router-dom';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
@@ -20,6 +22,12 @@ const QRCodeGeneratorTemplate = () => {
     const [lastOccurrenceDate, setLastOccurrenceDate] = useState('無');
     const [doseVaccineNumber, setDoseVaccineNumber] = useState('0');
     const [qrCodeImage, setQRCodeImage] = useState('');
+    const [countdownTime, setCountdownTime] = useState(Date.now() + 180000);
+    const countdownRef = useRef();
+
+    const setCountDownRenderer = ({ minutes, seconds }) => {
+      return <span>{zeroPad(minutes)}:{zeroPad(seconds)}</span>;
+    };
 
     const resetInputField = e => {
       e.preventDefault();
@@ -30,18 +38,22 @@ const QRCodeGeneratorTemplate = () => {
 
     const updateVaccineRecordFromFHIR = e => {
         e.preventDefault();
-        QRCodeGenerator.generateQRCode(identifierNumber, setQRCodeImage, setErrorResponseText, setVisibleText, setVisibleProgressBarText, setLastOccurrenceDate, setDoseVaccineNumber, true);
+
+        setCountdownTime(Date.now() + 180000);
+        QRCodeGenerator.generateQRCode(countdownRef, identifierNumber, setQRCodeImage, setErrorResponseText, setVisibleText, setVisibleProgressBarText, setLastOccurrenceDate, setDoseVaccineNumber, true);
     };
 
     const handleGeneratingQRCodeSubmit = e => {
         e.preventDefault();
         const newErrors = findHandlingGeneratingQRCodeError();
+
         if (Object.keys(newErrors).length > 0) {
           setErrors(newErrors);
           return false;
         }
 
-        QRCodeGenerator.generateQRCode(identifierNumber, setQRCodeImage, setErrorResponseText, setVisibleText, setVisibleProgressBarText, setLastOccurrenceDate, setDoseVaccineNumber);
+        setCountdownTime(Date.now() + 180000);
+        QRCodeGenerator.generateQRCode(countdownRef, identifierNumber, setQRCodeImage, setErrorResponseText, setVisibleText, setVisibleProgressBarText, setLastOccurrenceDate, setDoseVaccineNumber);
     };
 
     const findHandlingGeneratingQRCodeError = () => {
@@ -72,7 +84,7 @@ const QRCodeGeneratorTemplate = () => {
                 <Button variant="danger" type="submit" onClick={ resetInputField }>
                   清空資料
                 </Button>{' '}
-                <Button variant="secondary" type="submit" onClick={ updateVaccineRecordFromFHIR }>
+                <Button className={ visibleText } variant="secondary" type="submit" onClick={ updateVaccineRecordFromFHIR }>
                   更新疫苗資料紀錄
                 </Button>{' '}
               </Form.Group>
@@ -83,6 +95,7 @@ const QRCodeGeneratorTemplate = () => {
                 <h3 className="text-danger">{ errorResponse }</h3>
                 <h3 className="text-info">疫苗最後接種日期：<small className="text-success">{ lastOccurrenceDate.split('T')[0] }</small></h3>
                 <h3 className="text-info">目前疫苗第幾劑：<small className="text-success">{ doseVaccineNumber }</small></h3>{' '}
+                <h3 className="text-secondary">憑證有效時間：<Countdown ref={ countdownRef } autoStart={ false } key={ countdownTime } date={ countdownTime } renderer={ setCountDownRenderer } /></h3>{' '}
                 <Image src={ qrCodeImage } thumbnail className="img-responsive"/>
               </Form.Group>
         </Route>

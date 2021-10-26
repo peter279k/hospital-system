@@ -8,7 +8,7 @@ var searchImmunization = '/api/SearchImmunization';
 var generateQRCodeUrl = '/api/GenerateQRCode';
 var validateQRCodeUrl = '/api/ValidateQRCode';
 
-export async function generateQRCode(identifierNumber, setQRCodeImage, setErrorResponseText, setVisibleText, setVisibleProgressBarText, setLastOccurrenceDate, setDoseVaccineNumber, forcedFetch=false) {
+export async function generateQRCode(countdownRef, identifierNumber, setQRCodeImage, setErrorResponseText, setVisibleText, setVisibleProgressBarText, setLastOccurrenceDate, setDoseVaccineNumber, forcedFetch=false) {
     setVisibleProgressBarText('visible');
     let patientExisted = await getPatientResourceByIdentifiedNumber(identifierNumber, setErrorResponseText, setVisibleText);
     if (!patientExisted || patientExisted['total'] === 0) {
@@ -73,10 +73,10 @@ export async function generateQRCode(identifierNumber, setQRCodeImage, setErrorR
     }
 
     let responseJson = checkDatabaseError;
-    getQRCodeImage(identifierNumber, setQRCodeImage, setErrorResponseText, setLastOccurrenceDate, setDoseVaccineNumber, setVisibleProgressBarText, setVisibleText, responseJson);
+    getQRCodeImage(countdownRef, identifierNumber, setQRCodeImage, setErrorResponseText, setLastOccurrenceDate, setDoseVaccineNumber, setVisibleProgressBarText, setVisibleText, responseJson);
 };
 
-async function getQRCodeImage(identifierNumber, setQRCodeImage, setErrorResponseText, setLastOccurrenceDate, setDoseVaccineNumber, setVisibleProgressBarText, setVisibleText, responseJson={}) {
+async function getQRCodeImage(countdownRef, identifierNumber, setQRCodeImage, setErrorResponseText, setLastOccurrenceDate, setDoseVaccineNumber, setVisibleProgressBarText, setVisibleText, responseJson={}) {
     let requestPayload = {
         'identifier_number': identifierNumber,
         'ip_address': process.env.REACT_APP_IP_ADDRESS,
@@ -90,6 +90,7 @@ async function getQRCodeImage(identifierNumber, setQRCodeImage, setErrorResponse
         setErrorResponseText('');
         setLastOccurrenceDate((new Date(Number(responseJson['lastOccurrenceDate']))).toISOString());
         setDoseVaccineNumber(responseJson['DoseNumberPositiveInt']);
+        countdownRef.current.start();
 
         return true;
     }
@@ -103,6 +104,7 @@ async function getQRCodeImage(identifierNumber, setQRCodeImage, setErrorResponse
         setErrorResponseText('');
         setLastOccurrenceDate((new Date(Number(responseJson['last_occurrence_date']))).toISOString());
         setDoseVaccineNumber(responseJson['dose_number_positive_int']);
+        countdownRef.current.start();
     }).catch((error) => {
         console.log(error.response);
         setVisibleProgressBarText('invisible');
