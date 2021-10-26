@@ -23,7 +23,9 @@ const AddOrgTemplate = () => {
     const [hospitalLists, setHospitalLists] = useState([]);
 
     useEffect(() => {
-      HttpRequest.getHospitalLists(setHospitalLists, setMedId);
+      if (process.env.REACT_APP_ENV === 'development') {
+        HttpRequest.getHospitalLists(setHospitalLists, setMedId);
+      }
     }, []);
 
     const resetInputField = e => {

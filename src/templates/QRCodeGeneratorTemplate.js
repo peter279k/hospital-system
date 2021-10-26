@@ -40,7 +40,7 @@ const QRCodeGeneratorTemplate = () => {
         e.preventDefault();
 
         setCountdownTime(Date.now() + 180000);
-        QRCodeGenerator.generateQRCode(countdownRef, identifierNumber, setQRCodeImage, setErrorResponseText, setVisibleText, setVisibleProgressBarText, setLastOccurrenceDate, setDoseVaccineNumber, true);
+        QRCodeGenerator.generateQRCode(setCountdownTime, countdownRef, identifierNumber, setQRCodeImage, setErrorResponseText, setVisibleText, setVisibleProgressBarText, setLastOccurrenceDate, setDoseVaccineNumber, true);
     };
 
     const handleGeneratingQRCodeSubmit = e => {
@@ -53,7 +53,7 @@ const QRCodeGeneratorTemplate = () => {
         }
 
         setCountdownTime(Date.now() + 180000);
-        QRCodeGenerator.generateQRCode(countdownRef, identifierNumber, setQRCodeImage, setErrorResponseText, setVisibleText, setVisibleProgressBarText, setLastOccurrenceDate, setDoseVaccineNumber);
+        QRCodeGenerator.generateQRCode(setCountdownTime, countdownRef, identifierNumber, setQRCodeImage, setErrorResponseText, setVisibleText, setVisibleProgressBarText, setLastOccurrenceDate, setDoseVaccineNumber);
     };
 
     const findHandlingGeneratingQRCodeError = () => {

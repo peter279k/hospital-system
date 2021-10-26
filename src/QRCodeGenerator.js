@@ -8,7 +8,7 @@ var searchImmunization = '/api/SearchImmunization';
 var generateQRCodeUrl = '/api/GenerateQRCode';
 var validateQRCodeUrl = '/api/ValidateQRCode';
 
-export async function generateQRCode(countdownRef, identifierNumber, setQRCodeImage, setErrorResponseText, setVisibleText, setVisibleProgressBarText, setLastOccurrenceDate, setDoseVaccineNumber, forcedFetch=false) {
+export async function generateQRCode(setCountdownTime, countdownRef, identifierNumber, setQRCodeImage, setErrorResponseText, setVisibleText, setVisibleProgressBarText, setLastOccurrenceDate, setDoseVaccineNumber, forcedFetch=false) {
     setVisibleProgressBarText('visible');
     let patientExisted = await getPatientResourceByIdentifiedNumber(identifierNumber, setErrorResponseText, setVisibleText);
     if (!patientExisted || patientExisted['total'] === 0) {
@@ -69,6 +69,7 @@ export async function generateQRCode(countdownRef, identifierNumber, setQRCodeIm
         setVisibleText('visible');
         setLastOccurrenceDate('無');
         setDoseVaccineNumber('0');
+        setCountdownTime(Date.now());
         return false;
     }
 
