@@ -10,6 +10,7 @@ var validateQRCodeUrl = '/api/ValidateQRCode';
 
 export async function generateQRCode(setCountdownTime, countdownRef, identifierNumber, setQRCodeImage, setErrorResponseText, setVisibleText, setVisibleProgressBarText, setLastOccurrenceDate, setDoseVaccineNumber, forcedFetch=false) {
     setVisibleProgressBarText('visible');
+    setErrorResponseText('');
     let patientExisted = await getPatientResourceByIdentifiedNumber(identifierNumber, setErrorResponseText, setVisibleText);
     if (!patientExisted || patientExisted['total'] === 0) {
         setVisibleProgressBarText('invisible');
@@ -66,7 +67,7 @@ export async function generateQRCode(setCountdownTime, countdownRef, identifierN
     if (!checkDatabaseError && Object.keys(immunizationSingleResource).length === 0) {
         setVisibleProgressBarText('invisible');
         setErrorResponseText('產生Vaccine QRCode失敗，尚未找到此身份證字號之疫苗接種資料！');
-        setVisibleText('visible');
+        setVisibleText('invisible');
         setLastOccurrenceDate('無');
         setDoseVaccineNumber('0');
         setCountdownTime(Date.now());

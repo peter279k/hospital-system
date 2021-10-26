@@ -91,8 +91,11 @@ const QRCodeGeneratorTemplate = () => {
 
               <ProgressBar variant="secondary" className={ visibleProgressBar } animated now={100} />
 
-              <Form.Group className={ "mb-3 " + visibleText }>
+              <Form.Group className="mb-3">
                 <h3 className="text-danger">{ errorResponse }</h3>
+              </Form.Group>
+
+              <Form.Group className={ "mb-3 " + visibleText }>
                 <h3 className="text-info">疫苗最後接種日期：<small className="text-success">{ lastOccurrenceDate.split('T')[0] }</small></h3>
                 <h3 className="text-info">目前疫苗第幾劑：<small className="text-success">{ doseVaccineNumber }</small></h3>{' '}
                 <h3 className="text-secondary">憑證有效時間：<Countdown ref={ countdownRef } autoStart={ false } key={ countdownTime } date={ countdownTime } renderer={ setCountDownRenderer } /></h3>{' '}
