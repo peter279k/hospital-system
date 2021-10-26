@@ -11,7 +11,7 @@ const VaccineQRCodeUrlValidationTemplate = () => {
     const [strokeColorText, setStrokeColorText] = useState('#73AF55');
     const [points, setPoints] = useState('100.2,40.2 51.5,88.8 29.8,67.5 ');
     const [message, setMessage] = useState('success');
-    const [messageText, setMessageText] = useState('Oh Yeah!');
+    const [messageText, setMessageText] = useState('驗證成功！');
 
     const [polyLine1X1, setPolyLine1X1] = useState('0');
     const [polyLine1Y1, setPolyLine1Y1] = useState('0');
