@@ -8,22 +8,22 @@ import ResourceCreator from './ResourceCreator.js';
 import SerialNumber from './SerialNumber.js';
 
 
-var fhirServer = 'http://localhost:80/api/fhir_server';
-var createPatient = 'http://localhost:80/api/CreatePatient';
-var queryPatient = 'http://localhost:80/api/QueryPatient';
-var searchPatient = 'http://localhost:80/api/SearchPatient';
-var updatePatient = 'http://localhost:80/api/UpdatePatient';
-var deletePatient = 'http://localhost:80/api/DeletePatient';
-var hospitalLists = 'http://localhost:80/api/GetHospitalLists';
-var createOrganization = 'http://localhost:80/api/CreateOrganization';
-var getOrganization = 'http://localhost:80/api/GetOrganization';
-var createComposition = 'http://localhost:80/api/CreateComposition';
-var createImmunization = 'http://localhost:80/api/CreateImmunization';
-var createImmunizationBundle = 'http://localhost:80/api/CreateBundle/Immunization';
-var createObservation = 'http://localhost:80/api/CreateObservation';
-var createObservationBundle = 'http://localhost:80/api/CreateBundle/Observation';
-var getObservationBundle = 'http://localhost:80/api/GetObservationBundle';
-var searchImmunization = 'http://localhost:80/api/SearchImmunization';
+var fhirServer = '/api/fhir_server';
+var createPatient = '/api/CreatePatient';
+var queryPatient = '/api/QueryPatient';
+var searchPatient = '/api/SearchPatient';
+var updatePatient = '/api/UpdatePatient';
+var deletePatient = '/api/DeletePatient';
+var hospitalLists = '/api/GetHospitalLists';
+var createOrganization = '/api/CreateOrganization';
+var getOrganization = '/api/GetOrganization';
+var createComposition = '/api/CreateComposition';
+var createImmunization = '/api/CreateImmunization';
+var createImmunizationBundle = '/api/CreateBundle/Immunization';
+var createObservation = '/api/CreateObservation';
+var createObservationBundle = '/api/CreateBundle/Observation';
+var getObservationBundle = '/api/GetObservationBundle';
+var searchImmunization = '/api/SearchImmunization';
 
 var urnUuidPrefix = 'urn:uuid:';
 
@@ -96,7 +96,7 @@ export function sendPatientData(form, startDate, setJsonResponseText, setErrorRe
     };
 
     setVisibleProgressBarText('visible');
-    Axios.post(createPatient, requestPayload).then((response) => {
+    Axios.post(process.env.REACT_APP_API_ADDRESS + createPatient, requestPayload).then((response) => {
         let responseJsonString = JSON.stringify(response.data, null, 2);
         setJsonResponseText(responseJsonString);
         setErrorResponseText('回應JSON');
@@ -144,7 +144,7 @@ export function sendPatientQueryData(form, startDate, searchText, setJsonRespons
             'search_params': searchParams,
         };
         setVisibleProgressBarText('visible');
-        Axios.post(apiPatientUrl, requestPayload).then((response) => {
+        Axios.post(process.env.REACT_APP_API_ADDRESS + apiPatientUrl, requestPayload).then((response) => {
             let responseJsonString = JSON.stringify(response.data, null, 2);
             setErrorResponseText('回應JSON');
             setJsonResponseText(responseJsonString);
@@ -158,7 +158,7 @@ export function sendPatientQueryData(form, startDate, searchText, setJsonRespons
             setVisibleProgressBarText('invisible');
         });
     } else {
-        Axios.get(apiPatientUrl).then((response) => {
+        Axios.get(process.env.REACT_APP_API_ADDRESS + apiPatientUrl).then((response) => {
             let responseJsonString = JSON.stringify(response.data, null, 2);
             setJsonResponseText(responseJsonString);
             setErrorResponseText('回應JSON');
@@ -179,7 +179,7 @@ export function sendPatientQueryDataJsonString(form, fieldStates, setVisibleProg
     let apiPatientUrl = queryPatient + '/' + patientResourceId;
 
     setVisibleProgressBarText('visible');
-    Axios.get(apiPatientUrl).then((response) => {
+    Axios.get(process.env.REACT_APP_API_ADDRESS + apiPatientUrl).then((response) => {
         let setIdNumber = fieldStates['idNumber'];
         setIdNumber(response.data['identifier'][0]['value']);
 
@@ -332,7 +332,7 @@ export function modifyPatientData(form, startDate, setJsonResponseText, setError
     };
 
     setVisibleProgressBarText('visible');
-    Axios.put(updatePatient, requestPayload).then((response) => {
+    Axios.put(process.env.REACT_APP_API_ADDRESS + updatePatient, requestPayload).then((response) => {
         let responseJsonString = JSON.stringify(response.data, null, 2);
         setJsonResponseText(responseJsonString);
         setErrorResponseText('回應JSON');
@@ -351,7 +351,7 @@ export function deletePatientData(form, setVisibleText, setJsonResponseText, set
     let patientResourceId = form.patientResourceId;
     let deletePatientUrl = deletePatient + '/' + patientResourceId;
     setVisibleProgressBarText('visible');
-    Axios.delete(deletePatientUrl).then((response) => {
+    Axios.delete(process.env.REACT_APP_API_ADDRESS + deletePatientUrl).then((response) => {
         let responseJsonString = JSON.stringify(response.data, null, 2);
         setJsonResponseText(responseJsonString);
         setErrorResponseText('回應JSON');
@@ -371,7 +371,7 @@ export function sendFHIRServerData(setVisibleText, setJsonResponseText, setError
         'fhir_server': apiEndpoint,
         'fhir_token': apiToken,
     };
-    Axios.post(fhirServer, requestPayload).then((response) => {
+    Axios.post(process.env.REACT_APP_API_ADDRESS + fhirServer, requestPayload).then((response) => {
         let responseJsonString = JSON.stringify(response.data, null, 2);
         setJsonResponseText(responseJsonString);
         setErrorResponseText('回應JSON');
@@ -393,7 +393,7 @@ export async function sendFHIRServerDataForQRCodeDemo(apiEndpoint, apiToken) {
         'fhir_server': apiEndpoint,
         'fhir_token': apiToken,
     };
-    await Axios.post(fhirServer, requestPayload).then((response) => {
+    await Axios.post(process.env.REACT_APP_API_ADDRESS + fhirServer, requestPayload).then((response) => {
         console.log(response.data);
     }).catch((error) => {
         console.error(error.response);
@@ -401,7 +401,7 @@ export async function sendFHIRServerDataForQRCodeDemo(apiEndpoint, apiToken) {
 }
 
 export function getHospitalLists(setHospitalLists, setMedId) {
-    Axios.get(hospitalLists).then((response) => {
+    Axios.get(process.env.REACT_APP_API_ADDRESS + hospitalLists).then((response) => {
         let responseArr = [{
             id: 0,
             name: '請選擇醫事單位',
@@ -445,7 +445,7 @@ export function sendOrgData(medId, hospitalLists, setJsonResponseText, setErrorR
     };
 
     setVisibleProgressBarText('visible');
-    Axios.post(createOrganization, requestPayload).then((response) => {
+    Axios.post(process.env.REACT_APP_API_ADDRESS + createOrganization, requestPayload).then((response) => {
         let responseJsonString = JSON.stringify(response.data, null, 2);
         setJsonResponseText(responseJsonString);
         setErrorResponseText('回應JSON');
@@ -463,7 +463,7 @@ export function sendOrgData(medId, hospitalLists, setJsonResponseText, setErrorR
 export function sendQueryOrgData(orgId, setJsonResponseText, setVisibleText, setErrorResponseText, setVisibleProgressBarText) {
     let apiPatientUrl = getOrganization + '/' + orgId;
     setVisibleProgressBarText('visible');
-    Axios.get(apiPatientUrl).then((response) => {
+    Axios.get(process.env.REACT_APP_API_ADDRESS + apiPatientUrl).then((response) => {
         let responseJsonString = JSON.stringify(response.data, null, 2);
         setJsonResponseText(responseJsonString);
         setErrorResponseText('回應JSON');
@@ -601,7 +601,7 @@ export async function sendImmunizationBundleData(form, startDate, setJsonRespons
         'json_payload': encodedJsonString,
     };
 
-    Axios.post(createImmunizationBundle, requestPayload).then((response) => {
+    Axios.post(process.env.REACT_APP_API_ADDRESS + createImmunizationBundle, requestPayload).then((response) => {
         let responseJsonString = JSON.stringify(response.data, null, 2);
         setJsonResponseText(responseJsonString);
         setErrorResponseText('回應JSON (Bundle resource creating response)');
@@ -733,7 +733,7 @@ export async function sendObservationBundleData(form, startDate, issuedDate, set
         'json_payload': encodedJsonString,
     };
 
-    Axios.post(createObservationBundle, requestPayload).then((response) => {
+    Axios.post(process.env.REACT_APP_API_ADDRESS + createObservationBundle, requestPayload).then((response) => {
         let responseJsonString = JSON.stringify(response.data, null, 2);
         setJsonResponseText(responseJsonString);
         setErrorResponseText('回應JSON (Bundle resource creating response)');
@@ -753,7 +753,7 @@ export async function sendObservationBundleData(form, startDate, issuedDate, set
 
 export function sendImmunizationQueryData(requestPayload, setJsonResponseText, setVisibleText, setErrorResponseText, setVisibleProgressBarText) {
     setVisibleProgressBarText('visible');
-    Axios.post(searchImmunization, requestPayload).then((response) => {
+    Axios.post(process.env.REACT_APP_API_ADDRESS + searchImmunization, requestPayload).then((response) => {
         let responseJsonString = JSON.stringify(response.data, null, 2);
         setJsonResponseText(responseJsonString);
         setErrorResponseText('回應JSON');
@@ -772,7 +772,7 @@ export function sendObservationBundleQueryData(observationBundleId, setJsonRespo
     let apiObservationBundleUrl = getObservationBundle + '/' + observationBundleId;
 
     setVisibleProgressBarText('visible');
-    Axios.get(apiObservationBundleUrl).then((response) => {
+    Axios.get(process.env.REACT_APP_API_ADDRESS + apiObservationBundleUrl).then((response) => {
         let responseJsonString = JSON.stringify(response.data, null, 2);
         setJsonResponseText(responseJsonString);
         setErrorResponseText('回應JSON');

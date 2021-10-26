@@ -2,12 +2,12 @@ import Axios from 'axios';
 import { validate } from 'uuid';
 
 
-var fhirServer = 'http://localhost:80/api/fhir_server';
-var queryPatient = 'http://localhost:80/api/QueryPatient';
-var getOrganization = 'http://localhost:80/api/GetOrganization';
-var getImmunization = 'http://localhost:80/api/GetImmunization';
-var getComposition = 'http://localhost:80/api/GetComposition';
-var getObservation = 'http://localhost:80/api/GetObservation';
+var fhirServer = '/api/fhir_server';
+var queryPatient = '/api/QueryPatient';
+var getOrganization = '/api/GetOrganization';
+var getImmunization = '/api/GetImmunization';
+var getComposition = '/api/GetComposition';
+var getObservation = '/api/GetObservation';
 
 var urnUuidPrefix = 'urn:uuid:';
 
@@ -22,7 +22,7 @@ export async function getCompositionResourceById(compositionId, fhirServerUrl, s
     };
     let apiUrl = getComposition + '/' + compositionId;
     let resource = {};
-    resource = await Axios.get(apiUrl).then((response) => {
+    resource = await Axios.get(process.env.REACT_APP_API_ADDRESS + apiUrl).then((response) => {
         return response.data;
     }).catch((error) => {
         let errResponseJsonString = JSON.stringify(error.response, null, 2);
@@ -49,7 +49,7 @@ export async function getOrganizationResourceById(organizationId, fhirServerUrl,
     };
     let resource = {};
     let apiUrl = getOrganization + '/' + organizationId;
-    resource = await Axios.get(apiUrl).then((response) => {
+    resource = await Axios.get(process.env.REACT_APP_API_ADDRESS + apiUrl).then((response) => {
         return response.data;
     }).catch((error) => {
         let errResponseJsonString = JSON.stringify(error.response, null, 2);
@@ -76,7 +76,7 @@ export async function getPatientResourceById(patientId, fhirServerUrl, setJsonRe
         'resource': {},
     };
     let resource = {};
-    resource = await Axios.get(apiUrl).then((response) => {
+    resource = await Axios.get(process.env.REACT_APP_API_ADDRESS + apiUrl).then((response) => {
         return response.data;
     }).catch((error) => {
         let errResponseJsonString = JSON.stringify(error.response, null, 2);
@@ -104,7 +104,7 @@ export async function getImmunizationResourceById(immunizationId, fhirServerUrl,
     };
     let apiUrl = getImmunization + '/' + immunizationId;
     let resource = {};
-    resource = await Axios.get(apiUrl).then((response) => {
+    resource = await Axios.get(process.env.REACT_APP_API_ADDRESS + apiUrl).then((response) => {
         return response.data;
     }).catch((error) => {
         let errResponseJsonString = JSON.stringify(error.response, null, 2);
@@ -132,7 +132,7 @@ export async function getObservationResourceById(observationId, fhirServerUrl, s
     };
     let apiUrl = getObservation + '/' + observationId;
     let resource = {};
-    resource = await Axios.get(apiUrl).then((response) => {
+    resource = await Axios.get(process.env.REACT_APP_API_ADDRESS + apiUrl).then((response) => {
         return response.data;
     }).catch((error) => {
         let errResponseJsonString = JSON.stringify(error.response, null, 2);
@@ -151,7 +151,7 @@ export async function getObservationResourceById(observationId, fhirServerUrl, s
 
 export async function getFhirServerUrl(setJsonResponseText, setErrorResponseText, setVisibleText) {
     let fhirServerUrl = '';
-    fhirServerUrl = await Axios.get(fhirServer).then((response) => {
+    fhirServerUrl = await Axios.get(process.env.REACT_APP_API_ADDRESS + fhirServer).then((response) => {
         return response.data.fhir_server;
     }).catch((error) => {
         let errResponseJsonString = JSON.stringify(error.response, null, 2);
@@ -168,7 +168,7 @@ export async function getObservationBundleById(observationBundleId) {
     let apiObservationBundleUrl = getObservation + '/' + observationBundleId;
     let observationBundle = {};
 
-    observationBundle = await Axios.get(apiObservationBundleUrl).then((response) => {
+    observationBundle = await Axios.get(process.env.REACT_APP_API_ADDRESS + apiObservationBundleUrl).then((response) => {
         return response.data;
     }).catch((error) => {
         return error.response;

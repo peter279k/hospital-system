@@ -1,13 +1,12 @@
 import Axios from 'axios';
 
 
-var getDatabaseRecordUrl = 'http://localhost:80/api/GetDatabaseRecord';
-var insertDatabaseRecordUrl = 'http://localhost:80/api/InsertDatabaseRecord';
-var searchPatient = 'http://localhost:80/api/SearchPatient';
-var searchImmunization = 'http://localhost:80/api/SearchImmunization';
-var generateQRCodeUrl = 'http://localhost:80/api/GenerateQRCode';
-var validateQRCodeUrl = 'http://localhost:80/api/ValidateQRCode';
-
+var getDatabaseRecordUrl = '/api/GetDatabaseRecord';
+var insertDatabaseRecordUrl = '/api/InsertDatabaseRecord';
+var searchPatient = '/api/SearchPatient';
+var searchImmunization = '/api/SearchImmunization';
+var generateQRCodeUrl = '/api/GenerateQRCode';
+var validateQRCodeUrl = '/api/ValidateQRCode';
 
 export async function generateQRCode(identifierNumber, setQRCodeImage, setErrorResponseText, setVisibleText, setVisibleProgressBarText, setLastOccurrenceDate, setDoseVaccineNumber) {
     setVisibleProgressBarText('visible');
@@ -90,7 +89,7 @@ async function getQRCodeImage(identifierNumber, setQRCodeImage, setErrorResponse
         return true;
     }
 
-    Axios.post(generateQRCodeUrl, requestPayload).then((response) => {
+    Axios.post(process.env.REACT_APP_API_ADDRESS + generateQRCodeUrl, requestPayload).then((response) => {
         let responseJson = response.data;
         let base64QRCodeImage = 'data:image/png;base64, ' + responseJson['base64_encoded_image'];
         setVisibleProgressBarText('invisible');
@@ -118,7 +117,7 @@ async function insertImmunizationResourceToDatabase(immunizationSingleResource, 
     };
     let insertResponse = {};
 
-    insertResponse = await Axios.post(insertDatabaseRecordUrl, requestPayload).then((response) => {
+    insertResponse = await Axios.post(process.env.REACT_APP_API_ADDRESS + insertDatabaseRecordUrl, requestPayload).then((response) => {
         return response.data;
     }).catch((error) => {
         return error.response;
@@ -132,7 +131,7 @@ async function queryImmunizationByPatientId(patientId) {
     let requestPayload = {
         'search_params': searchParams,
     };
-    let response = await Axios.post(searchImmunization, requestPayload).then((response) => {
+    let response = await Axios.post(process.env.REACT_APP_API_ADDRESS + searchImmunization, requestPayload).then((response) => {
         return response.data;
     }).catch((error) => {
         console.warn(error.response['message']);
@@ -148,7 +147,7 @@ async function checkDatabaseRecordIsExisted(identifierNumber, setErrorResponseTe
         'ip_address': process.env.REACT_APP_IP_ADDRESS,
     };
     let checkDatabaseError = false;
-    checkDatabaseError = await Axios.post(getDatabaseRecordUrl, requestPayload).then((response) => {
+    checkDatabaseError = await Axios.post(process.env.REACT_APP_API_ADDRESS + getDatabaseRecordUrl, requestPayload).then((response) => {
         return response.data;
     }).catch((error) => {
         setErrorResponseText(error.response['message']);
@@ -164,7 +163,7 @@ async function getPatientResourceByIdentifiedNumber(identifierNumber, setErrorRe
     let requestPayload = {
         'search_params': searchParams,
     };
-    let existed = await Axios.post(searchPatient, requestPayload).then((response) => {
+    let existed = await Axios.post(process.env.REACT_APP_API_ADDRESS + searchPatient, requestPayload).then((response) => {
         return response.data;
     }).catch((error) => {
         setErrorResponseText('產生Vaccine QRCode失敗，' + error.response['message']);
@@ -179,7 +178,7 @@ async function validateVaccineToken(token) {
     let requestPayload = {
         'token': token,
     };
-    let validatedResult = await Axios.post(validateQRCodeUrl, requestPayload).then((response) => {
+    let validatedResult = await Axios.post(process.env.REACT_APP_API_ADDRESS + validateQRCodeUrl, requestPayload).then((response) => {
         return response.data;
     }).catch((error) => {
         return error.response;
