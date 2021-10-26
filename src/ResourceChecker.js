@@ -3,7 +3,7 @@ import Axios from 'axios';
 
 export async function checkPatientResourceByUrl(apiUrl, setJsonResponseText, setVisibleText) {
     let patientIdError = false;
-    patientIdError = await Axios.get(apiUrl).then((response) => {
+    patientIdError = await Axios.get(process.env.REACT_APP_API_ADDRESS + apiUrl).then((response) => {
         console.log(response.data);
         return false;
     }).catch((error) => {
@@ -18,7 +18,7 @@ export async function checkPatientResourceByUrl(apiUrl, setJsonResponseText, set
 
 export async function checkOrgResourceByUrl(apiUrl, setJsonResponseText, setVisibleText) {
     let orgIdError = false;
-    orgIdError = await Axios.get(apiUrl).then((response) => {
+    orgIdError = await Axios.get(process.env.REACT_APP_API_ADDRESS + apiUrl).then((response) => {
         console.log(response.data);
     }).catch((error) => {
         let errResponseJsonString = JSON.stringify(error.response, null, 2);

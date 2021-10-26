@@ -190,7 +190,7 @@ export async function createImmunizationResource(createImmunization, requestPayl
     let immunizationId = '';
     let result = [];
 
-    result = await Axios.post(createImmunization, requestPayload).then((response) => {
+    result = await Axios.post(process.env.REACT_APP_API_ADDRESS + createImmunization, requestPayload).then((response) => {
         immunizationId = response.data.id;
         return [
             immunizationError,
@@ -215,7 +215,7 @@ export async function createObservationResource(createObservation, requestPayloa
     let observationId = '';
     let result = [];
 
-    result = await Axios.post(createObservation, requestPayload).then((response) => {
+    result = await Axios.post(process.env.REACT_APP_API_ADDRESS + createObservation, requestPayload).then((response) => {
         observationId = response.data.id;
         return [
             observationError,
@@ -240,7 +240,7 @@ export async function createCompositionResource(createComposition, requestPayloa
     let compositionId = '';
     let result = [];
 
-    result = await Axios.post(createComposition, requestPayload).then((response) => {
+    result = await Axios.post(process.env.REACT_APP_API_ADDRESS + createComposition, requestPayload).then((response) => {
         compositionId = response.data.id;
         return [
             compositionError,
