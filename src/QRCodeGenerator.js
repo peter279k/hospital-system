@@ -8,7 +8,7 @@ var searchImmunization = '/api/SearchImmunization';
 var generateQRCodeUrl = '/api/GenerateQRCode';
 var validateQRCodeUrl = '/api/ValidateQRCode';
 
-export async function generateQRCode(identifierNumber, setQRCodeImage, setErrorResponseText, setVisibleText, setVisibleProgressBarText, setLastOccurrenceDate, setDoseVaccineNumber) {
+export async function generateQRCode(identifierNumber, setQRCodeImage, setErrorResponseText, setVisibleText, setVisibleProgressBarText, setLastOccurrenceDate, setDoseVaccineNumber, forcedFetch=false) {
     setVisibleProgressBarText('visible');
     let patientExisted = await getPatientResourceByIdentifiedNumber(identifierNumber, setErrorResponseText, setVisibleText);
     if (!patientExisted || patientExisted['total'] === 0) {
@@ -18,7 +18,12 @@ export async function generateQRCode(identifierNumber, setQRCodeImage, setErrorR
         return false;
     }
     let patientResource = patientExisted['entry'];
-    let checkDatabaseError = await checkDatabaseRecordIsExisted(identifierNumber, setErrorResponseText, setVisibleText);
+    let checkDatabaseError = null;
+    if (forcedFetch === true) {
+        checkDatabaseError = false;
+    } else {
+        checkDatabaseError = await checkDatabaseRecordIsExisted(identifierNumber, setErrorResponseText, setVisibleText);
+    }
     let checkImmunizationExisted = false;
     let maxTimestamp = 0;
     let currentTimestamp = 0;

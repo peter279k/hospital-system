@@ -79,7 +79,7 @@ const VaccineQRCodeUrlValidationTemplate = () => {
                 setPolyLine2Y1,
                 setPolyLine2X2,
                 setPolyLine2Y2,
-                '驗證Token不存在！'
+                '疫苗憑證不存在！'
             );
             return false;
           }
@@ -88,9 +88,9 @@ const VaccineQRCodeUrlValidationTemplate = () => {
           if (!!validationResult.data && validationResult.data['error']) {
             let errorMessage = validationResult.data['error'];
             if (errorMessage === 'Token is expired.') {
-                errorMessage = 'Token已經過期！';
+                errorMessage = '疫苗憑證已經過期！';
             } else {
-                errorMessage = '此Token不合法！';
+                errorMessage = '此疫苗憑證不合法！';
             }
             setErrorLineIcon(
                 setLineTagText,

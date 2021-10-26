@@ -30,7 +30,7 @@ const QRCodeGeneratorTemplate = () => {
 
     const updateVaccineRecordFromFHIR = e => {
         e.preventDefault();
-        QRCodeGenerator.generateQRCode(identifierNumber, setQRCodeImage, setErrorResponseText, setVisibleText, setVisibleProgressBarText, setLastOccurrenceDate, setDoseVaccineNumber);
+        QRCodeGenerator.generateQRCode(identifierNumber, setQRCodeImage, setErrorResponseText, setVisibleText, setVisibleProgressBarText, setLastOccurrenceDate, setDoseVaccineNumber, true);
     };
 
     const handleGeneratingQRCodeSubmit = e => {
@@ -72,6 +72,9 @@ const QRCodeGeneratorTemplate = () => {
                 <Button variant="danger" type="submit" onClick={ resetInputField }>
                   清空資料
                 </Button>{' '}
+                <Button variant="secondary" type="submit" onClick={ updateVaccineRecordFromFHIR }>
+                  更新疫苗資料紀錄
+                </Button>{' '}
               </Form.Group>
 
               <ProgressBar variant="secondary" className={ visibleProgressBar } animated now={100} />
@@ -81,11 +84,6 @@ const QRCodeGeneratorTemplate = () => {
                 <h3 className="text-info">疫苗最後接種日期：<small className="text-success">{ lastOccurrenceDate.split('T')[0] }</small></h3>
                 <h3 className="text-info">目前疫苗第幾劑：<small className="text-success">{ doseVaccineNumber }</small></h3>{' '}
                 <Image src={ qrCodeImage } thumbnail className="img-responsive"/>
-              </Form.Group>
-              <Form.Group className={ "mb-3 " + visibleText }>
-                <Button variant="primary" type="submit" onClick={ updateVaccineRecordFromFHIR }>
-                  更新疫苗資料紀錄
-                </Button>{' '}
               </Form.Group>
         </Route>
       </Switch>
