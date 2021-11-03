@@ -39,23 +39,31 @@ export function sendPatientData(form, startDate, setJsonResponseText, setErrorRe
     }
     let birthDate = year + '-' + month + '-' + day;
 
+    let defaultMetaProfileUrl = 'https://hapi.fhir.tw/fhir/StructureDefinition/PatientForIdentifier';
     let patientEnName = form.patientEnName;
     let patientEnNameInfo = patientEnName.split(' ');
     let jsonPayload = {
         'resourceType': 'Patient',
+        'meta': {
+            'profile': [],
+        },
+        'active': true,
         'identifier': [
             {
+                'use': 'official',
                 'system': 'https://www.dicom.org.tw/cs/identityCardNumber_tw',
                 'value': form.idNumber,
             },
         ],
         'name': [
             {
+                'use': 'official',
                 'text': form.patientName,
                 'family': form.patientName[0],
                 'given': [form.patientName.substring(1)],
             },
             {
+                'use': 'official',
                 'text': patientEnName,
                 'family': patientEnNameInfo[patientEnNameInfo.length-1],
                 'given': [
@@ -81,7 +89,22 @@ export function sendPatientData(form, startDate, setJsonResponseText, setErrorRe
                 'value': form.patientPhoneNumber,
             }
         ],
+        'managingOrganization': {
+            'reference': '',
+            'type': 'Organization',
+            'display': getOrganizationByName(form.patientOrgId),
+        },
     };
+
+    if (form.metaProfileUrl && form.metaProfileUrl !== '') {
+        jsonPayload['meta']['profile'].push(form.metaProfileUrl);
+    } else {
+        jsonPayload['meta']['profile'].push(defaultMetaProfileUrl);
+    }
+
+    if (form.patientOrgId) {
+        jsonPayload['managingOrganization']['reference'] = 'Organization/' + form.patientOrgId;
+    }
 
     if (form.passportNumber) {
         jsonPayload['identifier'].push({
@@ -114,6 +137,7 @@ export function sendPatientData(form, startDate, setJsonResponseText, setErrorRe
 export function sendPatientQueryData(form, startDate, searchText, setJsonResponseText, setVisibleText, setErrorResponseText, setVisibleProgressBarText) {
     let patientIdOrName = form.patientIdOrName;
     let apiPatientUrl = queryPatient + '/' + patientIdOrName;
+    setVisibleProgressBarText('visible');
     if (searchText === '進階') {
         apiPatientUrl = searchPatient;
         let createdDate = '';
@@ -143,7 +167,6 @@ export function sendPatientQueryData(form, startDate, searchText, setJsonRespons
         let requestPayload = {
             'search_params': searchParams,
         };
-        setVisibleProgressBarText('visible');
         Axios.post(process.env.REACT_APP_API_ADDRESS + apiPatientUrl, requestPayload).then((response) => {
             let responseJsonString = JSON.stringify(response.data, null, 2);
             setErrorResponseText('回應JSON');
@@ -195,13 +218,30 @@ export function sendPatientQueryDataJsonString(form, fieldStates, setVisibleProg
         let setPatientPhoneNumber = fieldStates['patientPhoneNumber'];
 
         setPatientName(response.data['name'][0]['text']);
-        setPatientEnName(response.data['name'][1]['text']);
-        setPatientSex(response.data['gender']);
-        setPatientHomeAddress((!response.data['address'][0]['text']) ? (response.data['address'][1]['text']) : (response.data['address'][0]['text']));
-        setPatientPhoneNumber(response.data['telecom'][0]['value']);
+        if (!!response.data['name'][1]) {
+            setPatientEnName(response.data['name'][1]['text']);
+        } else {
+            setPatientEnName('');
+        }
+        if (!!response.data['gender']) {
+            setPatientSex(response.data['gender']);
+        } else {
+            setPatientSex('');
+        }
+        if (!!response.data['address']) {
+            setPatientHomeAddress((!response.data['address'][0]['text']) ? (response.data['address'][1]['text']) : (response.data['address'][0]['text']));
+        } else {
+            setPatientHomeAddress('');
+        }
+        if (!!response.data['telecom']) {
+            setPatientPhoneNumber(response.data['telecom'][0]['value']);
+        } else {
+            setPatientPhoneNumber('');
+        }
         setVisibleProgressBarText('invisible');
     }).catch((error) => {
         JSON.stringify(error.response, null, 2);
+        console.log(error);
         let setNewErrors = fieldStates['errors'];
         setNewErrors({
             patientResourceId: '查詢patient resource id: ' + patientResourceId + '錯誤',

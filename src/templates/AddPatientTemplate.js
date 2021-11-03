@@ -28,6 +28,8 @@ const AddPatientTemplate = () => {
     const [patientSex, setPatientSex] = useState('');
     const [patientHomeAddress, setPatientHomeAddress] = useState('');
     const [patientPhoneNumber, setPatientPhoneNumber] = useState('');
+    const [patientOrgId, setPatientOrgId] = useState('');
+    const [metaProfileUrl, setMetaProfileUrl] = useState('');
 
     const resetInputField = e => {
       e.preventDefault();
@@ -121,6 +123,8 @@ const AddPatientTemplate = () => {
           'patientSex': patientSex,
           'patientHomeAddress': patientHomeAddress,
           'patientPhoneNumber': patientPhoneNumber,
+          'patientOrgId': patientOrgId,
+          'metaProfileUrl': metaProfileUrl,
           'startDate': startDate,
         };
 
@@ -171,6 +175,9 @@ const AddPatientTemplate = () => {
         }
         if (!patientPhoneNumber || patientPhoneNumber === '') {
           newErrors.patientPhoneNumber = '病患手機號碼不可空白！';
+        }
+        if (!patientOrgId || patientOrgId === '') {
+          newErrors.patientOrgId = '病患醫事單位id不可空白！';
         }
 
         return newErrors;
@@ -242,6 +249,17 @@ const AddPatientTemplate = () => {
                 <Form.Label>請輸入病患聯絡手機<Form.Label className="text-danger">*</Form.Label></Form.Label>
                 <Form.Control value={ patientPhoneNumber } onChange={ e => setPatientPhoneNumber(e.target.value) } type="text" placeholder="請輸入病患聯絡手機" isInvalid={ !!errors.patientPhoneNumber }/>
                 <Form.Control.Feedback type='invalid'>{ errors.patientPhoneNumber }</Form.Control.Feedback>
+              </Form.Group>
+
+              <Form.Group className="mb-3">
+                <Form.Label>請輸入醫事單位id名稱<Form.Label className="text-danger">*</Form.Label></Form.Label>
+                <Form.Control value={ patientOrgId } onChange={ e => setPatientOrgId(e.target.value) } type="text" placeholder="請輸入病患醫事單位id" isInvalid={ !!errors.patientOrgId }/>
+                <Form.Control.Feedback type='invalid'>{ errors.patientOrgId }</Form.Control.Feedback>
+              </Form.Group>
+
+              <Form.Group className="mb-3">
+                <Form.Label>請輸入profile網址</Form.Label>
+                <Form.Control value={ metaProfileUrl } onChange={ e => setMetaProfileUrl(e.target.value) } type="text" placeholder="請輸入profile網址"/>
               </Form.Group>
 
               <Form.Group className="mb-3">
