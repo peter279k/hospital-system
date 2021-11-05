@@ -3,11 +3,9 @@ import { BrowserRouter, MemoryRouter } from 'react-router-dom';
 
 import Jumbotron from 'react-bootstrap/Jumbotron';
 import Container from 'react-bootstrap/Container';
-import Button from 'react-bootstrap/Button';
 import ButtonToolbar from 'react-bootstrap/ButtonToolbar';
-import { LinkContainer } from 'react-router-bootstrap';
 
-import HomeTemplate from './templates/HomeTemplate.js';
+
 import AddPatientTemplate from './templates/AddPatientTemplate.js';
 import ModifyPatientTemplate from './templates/ModifyPatientTemplate.js';
 import QueryPatientTemplate from './templates/QueryPatientTemplate.js';
@@ -21,6 +19,7 @@ import QueryObservationTemplate from './templates/QueryObservationTemplate.js';
 import FHIRServerSettingTemplate from './templates/FHIRServerSettingTemplate.js';
 import QRCodeGeneratorTemplate from './templates/QRCodeGeneratorTemplate.js';
 import VaccineQRCodeUrlValidationTemplate from './templates/VaccineQRCodeUrlValidationTemplate.js';
+import VaccineRegisterTemplate from './templates/VaccineRegisterTemplate.js';
 
 import HttpRequest from './HttpRequest.js';
 
@@ -29,6 +28,7 @@ import DropDownOrgTemplate from './templates/DropDown/DropDownOrgTemplate.js';
 import DropDownImmunizationObservationTemplate from './templates/DropDown/DropDownImmunizationObservationTemplate.js';
 import DropDownQueryImmunizationObservationTemplate from './templates/DropDown/DropDownQueryImmunizationObservationTemplate.js';
 import FHIRServerButtonTemplate from './templates/FHIRServerButtonTemplate.js';
+import VaccineRegisterButtonTemplate from './templates/VaccineRegisterButtonTemplate.js';
 
 import './App.css';
 
@@ -57,12 +57,6 @@ const App = () => {
         <h1 className="header">{ process.env.REACT_APP_ENV === 'development' ? 'FHIR Resource JSON產生器' : 'Vaccine QRCode Passport' }</h1>
           <ButtonToolbar className="custom-btn-toolbar">
             { process.env.REACT_APP_ENV === 'development' && (
-                <LinkContainer to="/">
-                  <Button>首頁</Button>
-                </LinkContainer>
-              )
-            }
-            { process.env.REACT_APP_ENV === 'development' && (
                 <DropDownPatientTemplate />
               )
             }
@@ -79,11 +73,18 @@ const App = () => {
                 <FHIRServerButtonTemplate />
               )
             }
+            { process.env.REACT_APP_ENV === 'development' && (
+                <VaccineRegisterButtonTemplate />
+              )
+            }
+            { process.env.REACT_APP_ENV === 'vaccine_register' && (
+                <VaccineRegisterButtonTemplate />
+              )
+            }
           </ButtonToolbar>
       </Jumbotron>
     </Container>
     <Container className="p-3">
-        <HomeTemplate />
         <AddPatientTemplate />
         <QueryPatientTemplate />
         <ModifyPatientTemplate />
@@ -97,6 +98,7 @@ const App = () => {
         <QRCodeGeneratorTemplate />
         <FHIRServerSettingTemplate />
         <VaccineQRCodeUrlValidationTemplate />
+        <VaccineRegisterTemplate />
     </Container>
   </MemoryRouter>
   );

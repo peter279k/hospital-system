@@ -92,7 +92,7 @@ export function sendPatientData(form, startDate, setJsonResponseText, setErrorRe
         'managingOrganization': {
             'reference': '',
             'type': 'Organization',
-            'display': getOrganizationByName(form.patientOrgId),
+//            'display': getOrganizationByName(form.patientOrgId),
         },
     };
 
