@@ -407,6 +407,10 @@ export function deletePatientData(form, setVisibleText, setJsonResponseText, set
 };
 
 export function sendFHIRServerData(setVisibleText, setJsonResponseText, setErrorResponseText, apiEndpoint, apiToken) {
+    if (!navigator.onLine) {
+        setErrorResponseText('請開啟網路連線！');
+        setVisibleText('visible');
+    }
     let requestPayload = {
         'fhir_server': apiEndpoint,
         'fhir_token': apiToken,
@@ -425,8 +429,15 @@ export function sendFHIRServerData(setVisibleText, setJsonResponseText, setError
 }
 
 export async function sendFHIRServerDataForQRCodeDemo(apiEndpoint, apiToken) {
+    if (!navigator.onLine) {
+        console.log('Failed to post FHIR server because network connection is offline!');
+        return false;
+    }
     if (apiToken === 'no') {
         apiToken = '';
+    }
+    if (apiEndpoint === 'no') {
+        return false;
     }
 
     let requestPayload = {
@@ -441,6 +452,10 @@ export async function sendFHIRServerDataForQRCodeDemo(apiEndpoint, apiToken) {
 }
 
 export function getHospitalLists(setHospitalLists, setMedId) {
+    if (!navigator.onLine) {
+        console.log('Failed to fetch hospital lists');
+        return false;
+    }
     Axios.get(process.env.REACT_APP_API_ADDRESS + hospitalLists).then((response) => {
         let responseArr = [{
             id: 0,
