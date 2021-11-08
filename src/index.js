@@ -11,4 +11,4 @@ import "react-datepicker/dist/react-datepicker.css";
 
 ReactDOM.render(<App />, document.getElementById('root'));
 
-serviceWorkerRegistration.register();
+serviceWorkerRegistration.unregister();

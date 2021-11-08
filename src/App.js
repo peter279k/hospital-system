@@ -91,14 +91,15 @@ const App = () => {
       <Switch>
         <Route path="/">
         <AddToHomeScreen
-            appId='Add-to-Homescreen React Live Demo'
+            appId='Vaccine QRCode Passport'
             startAutomatically={ true }
             startDelay={ 0 }
             lifespan={ 30 }
             skipFirstVisit={ true }
             displayPace={ 0 }
             customPromptContent={ {
-              cancelMsg: '不用了，謝謝',
+              title: '要將此應用加到桌面嘛？',
+              cancelMsg: '',
               installMsg: '安裝',
               guidanceCancelMsg: '',
               src: '/ic_launcher96.png',
