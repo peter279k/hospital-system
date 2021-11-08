@@ -106,6 +106,8 @@ const VaccineRegisterTemplate = () => {
                 <Form.Group className="mb-3">
                   <Form.Label>請輸入英文名字（同護照）</Form.Label>
                   <Form.Control value={ vaccinePersonEnLastName } onChange={ e => setVaccinePersonEnLastName(e.target.value) } type="text" placeholder="請輸入Last name" isInvalid={ !!errors.vaccinePersonEnLastName }/>
+                </Form.Group>
+                <Form.Group className="mb-3">
                   <Form.Label>請輸入英文姓氏（同護照）</Form.Label>
                   <Form.Control value={ vaccinePersonEnFirstName } onChange={ e => setVaccinePersonEnFirstName(e.target.value) } type="text" placeholder="請輸入First name" isInvalid={ !!errors.vaccinePersonEnFirstName }/>
                 </Form.Group>
