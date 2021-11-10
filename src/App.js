@@ -102,7 +102,7 @@ const App = () => {
               cancelMsg: '',
               installMsg: '安裝',
               guidanceCancelMsg: '',
-              src: '/ic_launcher96.png',
+              src: 'ic_launcher96.png',
             } }
             customPromptElements={ {
               container: 'athContainer',
