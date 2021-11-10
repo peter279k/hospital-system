@@ -126,6 +126,23 @@ const App = () => {
               guidanceImageCellAddOns: '',
               guidanceCancelButton: 'athGuidanceCancelButton'
             } }
+            customPromptPlatformDependencies={ {
+              "iphone": {
+                targetUrl: undefined,
+                showClasses: ["iphone-wrapper", "animated", "fadeIn", "d-block"],
+                images: [
+                  {
+                    src: "ic_launcher96.png",
+                    alt: "Tap the Share Icon and select Add to home screen entry"
+                  }
+                ],
+                action: {
+                  ok: "安裝",
+                  cancel: "取消",
+                  guidanceCancel: "Dismiss",
+                }
+              }
+            } }
         />
         </Route>
       </Switch>
