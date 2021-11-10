@@ -127,21 +127,14 @@ const App = () => {
               guidanceCancelButton: 'athGuidanceCancelButton'
             } }
             customPromptPlatformDependencies={ {
-              "iphone": {
-                targetUrl: undefined,
-                showClasses: ["iphone-wrapper", "animated", "fadeIn", "d-block"],
+              firefox: {
                 images: [
                   {
-                    src: "ic_launcher96.png",
-                    alt: "Tap the Share Icon and select Add to home screen entry"
+                    src: 'firefox-example.png',
+                    alt: 'Guide to install application on home screen.'
                   }
-                ],
-                action: {
-                  ok: "安裝",
-                  cancel: "取消",
-                  guidanceCancel: "Dismiss",
-                }
-              }
+                ]
+              },
             } }
         />
         </Route>
