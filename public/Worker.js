@@ -1,9 +1,9 @@
 let CACHE_NAME = 'vaccine-qrcode-passport';
 let urlsToCache = [
   '/',
-  '/static/js/bundle.js',
-  '/static/js/vendors~main.chunk.js',
-  '/static/js/main.chunk.js',
+//  '/static/js/bundle.js',
+//  '/static/js/vendors~main.chunk.js',
+//  '/static/js/main.chunk.js',
 //  'http://127.0.0.1/api/GetHospitalLists',
 ];
 
