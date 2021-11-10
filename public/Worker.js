@@ -1,6 +1,6 @@
 let CACHE_NAME = 'vaccine-qrcode-passport';
 let urlsToCache = [
-  '/',
+  '/vaccine-qrcode-passport',
 //  '/static/js/bundle.js',
 //  '/static/js/vendors~main.chunk.js',
 //  '/static/js/main.chunk.js',
