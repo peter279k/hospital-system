@@ -5,10 +5,7 @@ import DatePicker from "react-datepicker";
 import Button from 'react-bootstrap/Button';
 import ProgressBar from 'react-bootstrap/ProgressBar';
 
-import HttpRequest from '../HttpRequest.js';
-
-import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-import { dark } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import VaccineRegister from '../VaccineRegister.js';
 
 
 const VaccineRegisterTemplate = () => {
@@ -21,6 +18,8 @@ const VaccineRegisterTemplate = () => {
     const [identityNumber, setIdentityNumber] = useState('');
     const [visibleProgressBar, setVisibleProgressBarText] = useState('invisible');
     const [errors, setErrors] = useState({});
+    const [responseText, setResponseText] = useState('');
+    const [errorResponseText, setErrorResponseText] = useState('');
     const [doseInputList, setDoseInputList] = useState([{ doseManufactureName: '', vaccinateDate: (new Date()) }]);
 
     const addDoseInfo = e => {
@@ -48,10 +47,23 @@ const VaccineRegisterTemplate = () => {
         setErrors(newErrors);
         return false;
       }
+
+      let form = {
+        'vaccinePersonName': vaccinePersonName,
+        'vaccinePersonEnFirstName': vaccinePersonEnFirstName,
+        'vaccinePersonEnLastName': vaccinePersonEnLastName,
+        'countryName': countryName,
+        'identityNumber': identityNumber,
+        'doseInputList': doseInputList,
+      };
+
+      VaccineRegister.vaccineRegisterSubmit(form, setVisibleText, setVisibleProgressBarText, setResponseText, setErrorResponseText);
     };
 
     const findVaccineRegisterErrors = () => {
-      const newErrors = {};
+      const newErrors = {
+        doseManufactureName: [],
+      };
 
       if (!vaccinePersonName || vaccinePersonName === '') {
         newErrors.vaccinePersonName = '中文姓名不可空白！';
@@ -64,7 +76,7 @@ const VaccineRegisterTemplate = () => {
       for (let index=0; index<doseInputList.length; index++) {
         doseManufactureName = doseInputList[index].doseManufactureName;
         if (!doseManufactureName || doseManufactureName === '') {
-          newErrors.doseManufactureName = '請輸入COVID-19疫苗第' + (index + 1) + '劑廠牌/品名！';
+          newErrors.doseManufactureName.push('請輸入COVID-19疫苗第' + (index + 1) + '劑廠牌/品名！');
         }
       }
 
@@ -118,6 +130,7 @@ const VaccineRegisterTemplate = () => {
                 <Form.Group className="mb-3">
                   <Form.Label>請輸入身份證/居留證/護照號碼<Form.Label className="text-danger">*</Form.Label></Form.Label>
                     <Form.Control value={ identityNumber } onChange={ e => setIdentityNumber(e.target.value) } type="text" placeholder="請輸入身份證/居留證/護照號碼" isInvalid={ !!errors.identityNumber }/>
+                    <Form.Control.Feedback type='invalid'>{ errors.identityNumber }</Form.Control.Feedback>
                 </Form.Group>
                 {
                   doseInputList.map((doseInfo, index) => {
@@ -126,7 +139,7 @@ const VaccineRegisterTemplate = () => {
                         <Form.Group className="mb-3">
                           <Form.Label>請輸入COVID-19疫苗第{ (index + 1) }劑廠牌/品名<Form.Label className="text-danger">*</Form.Label></Form.Label>
                             <Form.Control name="doseManufactureName" value={ doseInfo.doseManufactureName } onChange={ e => handleInputChange(index, e) } type="text" placeholder={ "請輸入COVID-19疫苗第"+ (index + 1) + "劑廠牌/品名" } isInvalid={ !!errors.doseManufactureName }/>
-                            <Form.Control.Feedback type='invalid'>{ errors.doseManufactureName }</Form.Control.Feedback>
+                            <Form.Control.Feedback type='invalid'>{ (Object.values(errors).length !== 0 && errors.doseManufactureName.length !== 0) ? errors.doseManufactureName[index] : '' }</Form.Control.Feedback>
                         </Form.Group>
                         <Form.Group>
                           <Form.Label>請選擇COVID-19疫苗第{ index + 1 }劑接種日期<Form.Label className="text-danger">*</Form.Label></Form.Label>
@@ -164,6 +177,11 @@ const VaccineRegisterTemplate = () => {
                 </Form.Group>
 
                 <ProgressBar variant="secondary" className={ visibleProgressBar } animated now={100} />
+
+                <Form.Group className={ "mb-3 " + visibleText }>
+                  <h3 className="text-info">{ responseText }</h3>
+                  <h3 className="text-danger">{ errorResponseText }</h3>
+                </Form.Group>
 
               </Form>
             </Route>

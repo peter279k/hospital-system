@@ -91,8 +91,10 @@ const App = () => {
       <Switch>
         <Route path="/">
         {
-          navigator.userAgent.toLocaleLowerCase().includes('iphone') === false &&
-          navigator.userAgent.toLocaleLowerCase().includes('chrome') === true ?
+          (
+            navigator.userAgent.toLocaleLowerCase().includes('iphone') === false &&
+            navigator.userAgent.toLocaleLowerCase().includes('chrome') === true
+          ) ?
           <AddToHomeScreen
             appId='Vaccine QRCode Passport'
             startAutomatically={ true }
