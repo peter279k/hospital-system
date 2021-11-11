@@ -90,7 +90,10 @@ const App = () => {
     <Container className="p-3">
       <Switch>
         <Route path="/">
-        <AddToHomeScreen
+        {
+          navigator.userAgent.toLocaleLowerCase().includes('iphone') === false &&
+          navigator.userAgent.toLocaleLowerCase().includes('chrome') === true ?
+          <AddToHomeScreen
             appId='Vaccine QRCode Passport'
             startAutomatically={ true }
             startDelay={ 0 }
@@ -136,7 +139,8 @@ const App = () => {
                 ]
               },
             } }
-        />
+        /> : ''
+        }
         </Route>
       </Switch>
         <AddPatientTemplate />
