@@ -5,6 +5,9 @@ import DatePicker from "react-datepicker";
 import Button from 'react-bootstrap/Button';
 import ProgressBar from 'react-bootstrap/ProgressBar';
 
+import base64 from 'base-64';
+import utf8 from 'utf8';
+
 import VaccineRegister from '../VaccineRegister.js';
 
 
@@ -20,12 +23,12 @@ const VaccineRegisterTemplate = () => {
     const [errors, setErrors] = useState({});
     const [responseText, setResponseText] = useState('');
     const [errorResponseText, setErrorResponseText] = useState('');
-    const [doseInputList, setDoseInputList] = useState([{ doseManufactureName: '', vaccinateDate: (new Date()) }]);
+    const [doseInputList, setDoseInputList] = useState([{ doseManufactureName: '', vaccinateDate: (new Date()), doseNumber: '' }]);
 
     const addDoseInfo = e => {
       e.preventDefault();
       const values = [...doseInputList];
-      values.push({ doseManufactureName: '', vaccinateDate: (new Date()) });
+      values.push({ doseManufactureName: '', vaccinateDate: (new Date()), doseNumber: '' });
 
       setDoseInputList(values);
     };
@@ -48,22 +51,34 @@ const VaccineRegisterTemplate = () => {
         return false;
       }
 
+      let encodedJsonString = base64.encode(utf8.encode(JSON.stringify(doseInputList)));
+
       let form = {
         'vaccinePersonName': vaccinePersonName,
-        'vaccinePersonEnFirstName': vaccinePersonEnFirstName,
-        'vaccinePersonEnLastName': vaccinePersonEnLastName,
-        'countryName': countryName,
         'identityNumber': identityNumber,
-        'doseInputList': doseInputList,
+        'doseInputList': encodedJsonString,
       };
+
+      if (!vaccinePersonEnFirstName || vaccinePersonEnFirstName === '') {
+        form['vaccinePersonEnFirstName'] = vaccinePersonEnFirstName;
+      }
+
+      if (!vaccinePersonEnLastName || vaccinePersonEnLastName === '') {
+        form['vaccinePersonEnLastName'] = vaccinePersonEnLastName;
+      }
+
+      if (!countryName || countryName === '') {
+        form['countryName'] = countryName;
+      }
 
       VaccineRegister.vaccineRegisterSubmit(form, setVisibleText, setVisibleProgressBarText, setResponseText, setErrorResponseText);
     };
 
     const findVaccineRegisterErrors = () => {
       const newErrors = {
-        doseManufactureName: [],
       };
+      let doseManufactureNames = [];
+      let doseNumbers = [];
 
       if (!vaccinePersonName || vaccinePersonName === '') {
         newErrors.vaccinePersonName = '中文姓名不可空白！';
@@ -73,11 +88,26 @@ const VaccineRegisterTemplate = () => {
       }
 
       let doseManufactureName = '';
+      let doseNumber = 0;
       for (let index=0; index<doseInputList.length; index++) {
         doseManufactureName = doseInputList[index].doseManufactureName;
+        doseNumber = Number(doseInputList[index].doseNumber);
         if (!doseManufactureName || doseManufactureName === '') {
-          newErrors.doseManufactureName.push('請輸入COVID-19疫苗第' + (index + 1) + '劑廠牌/品名！');
+          doseManufactureNames[index] = '請輸入COVID-19疫苗第劑廠牌/品名！';
         }
+        if (!doseNumber || doseNumber === 0) {
+          doseNumbers[index] = '請輸入COVID-19疫苗第劑';
+        }
+        if (isNaN(doseNumber) || String(doseNumber).includes('.')) {
+          doseNumbers[index] = '請輸入正確的COVID-19疫苗劑量數';
+        }
+      }
+
+      if (doseManufactureNames.length !== 0) {
+        newErrors.doseManufactureName = doseManufactureNames;
+      }
+      if (doseNumbers.length !== 0) {
+        newErrors.doseNumber = doseNumbers;
       }
 
       return newErrors;
@@ -91,13 +121,15 @@ const VaccineRegisterTemplate = () => {
       setVaccinePersonEnFirstName('');
       setCountryName('');
       setIdentityNumber('');
-      setDoseInputList([{ doseManufactureName: '', vaccinateDate: (new Date()) }]);
+      setDoseInputList([{ doseManufactureName: '', vaccinateDate: (new Date()), doseNumber: 0 }]);
     };
 
     const handleInputChange = (index, event) => {
       let values = [...doseInputList];
       if (!!event.target && event.target.name === 'doseManufactureName') {
         values[index].doseManufactureName = event.target.value;
+      } else if (!!event.target && event.target.name === 'doseNumber') {
+        values[index].doseNumber = event.target.value;
       } else {
         values[index].vaccinateDate = event;
       }
@@ -137,12 +169,17 @@ const VaccineRegisterTemplate = () => {
                     return (
                         <Fragment key={ index }>
                         <Form.Group className="mb-3">
-                          <Form.Label>請輸入COVID-19疫苗第{ (index + 1) }劑廠牌/品名<Form.Label className="text-danger">*</Form.Label></Form.Label>
-                            <Form.Control name="doseManufactureName" value={ doseInfo.doseManufactureName } onChange={ e => handleInputChange(index, e) } type="text" placeholder={ "請輸入COVID-19疫苗第"+ (index + 1) + "劑廠牌/品名" } isInvalid={ !!errors.doseManufactureName }/>
-                            <Form.Control.Feedback type='invalid'>{ (Object.values(errors).length !== 0 && errors.doseManufactureName.length !== 0) ? errors.doseManufactureName[index] : '' }</Form.Control.Feedback>
+                          <Form.Label>請輸入COVID-19疫苗廠牌/品名<Form.Label className="text-danger">*</Form.Label></Form.Label>
+                            <Form.Control name="doseManufactureName" value={ doseInfo.doseManufactureName } onChange={ e => handleInputChange(index, e) } type="text" placeholder="請輸入COVID-19疫苗第幾劑廠牌/品名" isInvalid={ !!errors.doseManufactureName }/>
+                            <Form.Control.Feedback type='invalid'>{ (Object.values(errors).length !== 0 && Object.keys(errors).includes('doseManufactureName') && errors.doseManufactureName[index] !== undefined) ? errors.doseManufactureName[index] : null }</Form.Control.Feedback>
+                        </Form.Group>
+                        <Form.Group className="mb-3">
+                          <Form.Label>請輸入COVID-19疫苗第幾劑<Form.Label className="text-danger">*</Form.Label></Form.Label>
+                            <Form.Control name="doseNumber" value={ doseInfo.doseNumber } onChange={ e => handleInputChange(index, e) } type="text" placeholder="請輸入COVID-19疫苗第幾劑" isInvalid={ !!errors.doseNumber }/>
+                            <Form.Control.Feedback type='invalid'>{ (Object.values(errors).length !== 0 && Object.keys(errors).includes('doseNumber') && errors.doseNumber[index] !== undefined) ? errors.doseNumber[index] : null }</Form.Control.Feedback>
                         </Form.Group>
                         <Form.Group>
-                          <Form.Label>請選擇COVID-19疫苗第{ index + 1 }劑接種日期<Form.Label className="text-danger">*</Form.Label></Form.Label>
+                          <Form.Label>請選擇COVID-19疫苗劑接種日期<Form.Label className="text-danger">*</Form.Label></Form.Label>
                             <DatePicker
                               className="form-control"
                               name="vaccinateDate"
